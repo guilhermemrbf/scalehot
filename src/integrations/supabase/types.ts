@@ -14,7 +14,108 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      configuracoes: {
+        Row: {
+          id: string
+          imposto_fixo: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          imposto_fixo?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          imposto_fixo?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      faturamentos: {
+        Row: {
+          created_at: string
+          data: string
+          faturamento_bruto: number
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          faturamento_bruto?: number
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          faturamento_bruto?: number
+          id?: string
+        }
+        Relationships: []
+      }
+      fechamentos: {
+        Row: {
+          created_at: string
+          data_fim: string
+          data_inicio: string
+          faturamento_bruto: number
+          faturamento_liquido: number
+          id: string
+          imposto: number
+          lucro_real: number
+          taxa_percentual: number
+          taxa_valor: number
+        }
+        Insert: {
+          created_at?: string
+          data_fim: string
+          data_inicio: string
+          faturamento_bruto: number
+          faturamento_liquido: number
+          id?: string
+          imposto: number
+          lucro_real: number
+          taxa_percentual: number
+          taxa_valor: number
+        }
+        Update: {
+          created_at?: string
+          data_fim?: string
+          data_inicio?: string
+          faturamento_bruto?: number
+          faturamento_liquido?: number
+          id?: string
+          imposto?: number
+          lucro_real?: number
+          taxa_percentual?: number
+          taxa_valor?: number
+        }
+        Relationships: []
+      }
+      metas: {
+        Row: {
+          id: string
+          meta_diaria: number
+          meta_mensal: number
+          meta_semanal: number
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          meta_diaria?: number
+          meta_mensal?: number
+          meta_semanal?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          meta_diaria?: number
+          meta_mensal?: number
+          meta_semanal?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
