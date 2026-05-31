@@ -1,9 +1,11 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import {
   Outlet,
   Link,
   createRootRouteWithContext,
   useRouter,
+  useLocation,
+  useNavigate,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -12,6 +14,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Toaster } from "sonner";
+import { AuthProvider, useAuth } from "@/lib/auth";
 
 function NotFoundComponent() {
   return (
@@ -88,15 +91,12 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
-import { AuthProvider, useAuth } from "@/lib/auth";
-import { useLocation, useNavigate } from "@tanstack/react-router";
-
 function AuthGate({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const router = useRouter();
-  const queryClient = (Route.useRouteContext() as { queryClient: QueryClient }).queryClient;
+  const queryClient = useQueryClient();
+  const { pathname } = useLocation();
 
   useEffect(() => {
     if (loading) return;
@@ -104,9 +104,9 @@ function AuthGate({ children }: { children: ReactNode }) {
   }, [user, loading, pathname, navigate]);
 
   useEffect(() => {
-    // Invalidate caches on auth changes
-    void router; void queryClient;
-  }, [user, router, queryClient]);
+    queryClient.invalidateQueries();
+    router.invalidate();
+  }, [user?.id, queryClient, router]);
 
   if (loading) {
     return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Carregando...</div>;
