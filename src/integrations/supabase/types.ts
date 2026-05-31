@@ -101,6 +101,36 @@ export type Database = {
         }
         Relationships: []
       }
+      gastos_anuncios: {
+        Row: {
+          created_at: string
+          data: string
+          descricao: string | null
+          id: string
+          plataforma: string | null
+          user_id: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data: string
+          descricao?: string | null
+          id?: string
+          plataforma?: string | null
+          user_id: string
+          valor?: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          descricao?: string | null
+          id?: string
+          plataforma?: string | null
+          user_id?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       metas: {
         Row: {
           id: string
