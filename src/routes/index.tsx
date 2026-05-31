@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, pct, startOfMonthISO, startOfWeekISO, todayISO } from "@/lib/format";
-import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2 } from "lucide-react";
+import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Legend } from "recharts";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -38,11 +38,22 @@ function Dashboard() {
     },
   });
 
+  const { data: gastos = [] } = useQuery({
+    queryKey: ["gastos_anuncios"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("gastos_anuncios" as any).select("*").order("data");
+      if (error) throw error;
+      return (data as any[]) ?? [];
+    },
+  });
+
   const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
   const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0);
   const totalTaxas = fechs.reduce((s, f) => s + Number(f.taxa_valor), 0);
   const totalImposto = fechs.reduce((s, f) => s + Number(f.imposto), 0);
-  const lucroTotal = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
+  const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
+  const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
+  const lucroTotal = lucroBruto - totalAnuncios;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
 
   // Faturamento bruto (não fechado) do mês
@@ -75,7 +86,9 @@ function Dashboard() {
     { label: "Faturamento Líquido", value: brl(totalLiquido), icon: Wallet, hint: "Recebido após taxas", color: "text-primary" },
     { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " média", color: "text-warning" },
     { label: "Impostos Pagos", value: brl(totalImposto), icon: Landmark, hint: "Imposto fixo acumulado", color: "text-chart-5" },
-    { label: "Lucro Real", value: brl(lucroTotal), icon: CheckCircle2, hint: "Líquido − Imposto", color: "text-success" },
+    { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamentos`, color: "text-destructive" },
+    { label: "Lucro Líquido Final", value: brl(lucroTotal), icon: Trophy, hint: "Após taxas, imposto e anúncios", color: "text-success" },
+    { label: "Lucro antes de Anúncios", value: brl(lucroBruto), icon: CheckCircle2, hint: "Líquido − Imposto", color: "text-chart-3" },
     { label: "Taxa Média", value: pct(taxaMedia), icon: BarChart3, hint: "Sobre o bruto", color: "text-chart-3" },
   ];
 
