@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, PlusCircle, Calculator, FileBarChart, History, Settings, Wallet, Menu, X, Moon, Sun, LogOut } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Calculator, FileBarChart, History, Settings, Wallet, Menu, X, Moon, Sun, LogOut, Megaphone } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
@@ -7,11 +7,13 @@ import { useAuth } from "@/lib/auth";
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
   { to: "/registro", label: "Registro Diário", icon: PlusCircle },
+  { to: "/anuncios", label: "Gastos c/ Anúncios", icon: Megaphone },
   { to: "/fechamento", label: "Fechamento", icon: Calculator },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/historico", label: "Histórico", icon: History },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
+
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
