@@ -10,7 +10,7 @@ import { Wallet } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
-  head: () => ({ meta: [{ title: "Entrar — FinanceFlow" }] }),
+  head: () => ({ meta: [{ title: "Entrar — ScaleHot" }] }),
   component: Login,
 });
 
@@ -56,7 +56,7 @@ function Login() {
             <Wallet className="size-6 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-display font-bold text-xl tracking-tight">FinanceFlow</h1>
+            <h1 className="font-display font-bold text-xl tracking-tight">ScaleHot</h1>
             <p className="text-xs text-muted-foreground">{mode === "signin" ? "Acesse sua conta" : "Crie sua conta"}</p>
           </div>
         </div>

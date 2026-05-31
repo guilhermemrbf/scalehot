@@ -13,7 +13,7 @@ import { useMemo, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/historico")({
-  head: () => ({ meta: [{ title: "Histórico — FinanceFlow" }] }),
+  head: () => ({ meta: [{ title: "Histórico — ScaleHot" }] }),
   component: Historico,
 });
 
