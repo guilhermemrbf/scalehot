@@ -1,7 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, PlusCircle, Calculator, FileBarChart, History, Target, Settings, Wallet, Menu, X, Moon, Sun } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Calculator, FileBarChart, History, Target, Settings, Wallet, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/lib/auth";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
@@ -132,8 +133,14 @@ function NavList({ pathname }: { pathname: string }) {
 }
 
 function ThemeToggle({ dark, onClick }: { dark: boolean; onClick: () => void }) {
+  const { user, signOut } = useAuth();
   return (
-    <div className="p-3 border-t border-sidebar-border">
+    <div className="p-3 border-t border-sidebar-border space-y-1">
+      {user && (
+        <div className="px-3 py-2 text-xs text-muted-foreground truncate" title={user.email ?? ""}>
+          {user.email}
+        </div>
+      )}
       <button
         onClick={onClick}
         className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-sidebar-foreground/80 hover:bg-muted/60 transition"
@@ -141,6 +148,15 @@ function ThemeToggle({ dark, onClick }: { dark: boolean; onClick: () => void }) 
         {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
         {dark ? "Modo Claro" : "Modo Escuro"}
       </button>
+      {user && (
+        <button
+          onClick={() => signOut()}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-sidebar-foreground/80 hover:bg-destructive/10 hover:text-destructive transition"
+        >
+          <LogOut className="size-4" />
+          Sair
+        </button>
+      )}
     </div>
   );
 }
