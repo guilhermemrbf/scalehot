@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.seed_user_defaults() FROM PUBLIC, anon, authenticated;
