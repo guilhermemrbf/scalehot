@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as MetasRouteImport } from './routes/metas'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as FechamentoRouteImport } from './routes/fechamento'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
@@ -30,6 +31,11 @@ const RegistroRoute = RegistroRouteImport.update({
 const MetasRoute = MetasRouteImport.update({
   id: '/metas',
   path: '/metas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
+  '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
+  '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
+  '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/fechamento'
     | '/historico'
+    | '/login'
     | '/metas'
     | '/registro'
     | '/relatorios'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/fechamento'
     | '/historico'
+    | '/login'
     | '/metas'
     | '/registro'
     | '/relatorios'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/fechamento'
     | '/historico'
+    | '/login'
     | '/metas'
     | '/registro'
     | '/relatorios'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   FechamentoRoute: typeof FechamentoRoute
   HistoricoRoute: typeof HistoricoRoute
+  LoginRoute: typeof LoginRoute
   MetasRoute: typeof MetasRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/metas'
       fullPath: '/metas'
       preLoaderRoute: typeof MetasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico': {
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracoesRoute: ConfiguracoesRoute,
   FechamentoRoute: FechamentoRoute,
   HistoricoRoute: HistoricoRoute,
+  LoginRoute: LoginRoute,
   MetasRoute: MetasRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
@@ -187,3 +208,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
