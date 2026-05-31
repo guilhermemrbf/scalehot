@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, PlusCircle, Calculator, FileBarChart, History, Target, Settings, Wallet, Menu, X, Moon, Sun, LogOut } from "lucide-react";
+import { LayoutDashboard, PlusCircle, Calculator, FileBarChart, History, Settings, Wallet, Menu, X, Moon, Sun, LogOut } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
@@ -10,7 +10,6 @@ const nav = [
   { to: "/fechamento", label: "Fechamento", icon: Calculator },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/historico", label: "Histórico", icon: History },
-  { to: "/metas", label: "Metas", icon: Target },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
