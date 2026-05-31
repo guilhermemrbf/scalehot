@@ -88,7 +88,6 @@ function Dashboard() {
     { label: "Impostos Pagos", value: brl(totalImposto), icon: Landmark, hint: "Imposto fixo acumulado", color: "text-chart-5" },
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamentos`, color: "text-destructive" },
     { label: "Lucro Líquido Final", value: brl(lucroTotal), icon: Trophy, hint: "Após taxas, imposto e anúncios", color: "text-success" },
-    { label: "Lucro antes de Anúncios", value: brl(lucroBruto), icon: CheckCircle2, hint: "Líquido − Imposto", color: "text-chart-3" },
     { label: "Taxa Média", value: pct(taxaMedia), icon: BarChart3, hint: "Sobre o bruto", color: "text-chart-3" },
   ];
 
