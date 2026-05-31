@@ -88,12 +88,43 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+import { AuthProvider, useAuth } from "@/lib/auth";
+import { useLocation, useNavigate } from "@tanstack/react-router";
+
+function AuthGate({ children }: { children: ReactNode }) {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const router = useRouter();
+  const queryClient = (Route.useRouteContext() as { queryClient: QueryClient }).queryClient;
+
+  useEffect(() => {
+    if (loading) return;
+    if (!user && pathname !== "/login") navigate({ to: "/login", replace: true });
+  }, [user, loading, pathname, navigate]);
+
+  useEffect(() => {
+    // Invalidate caches on auth changes
+    void router; void queryClient;
+  }, [user, router, queryClient]);
+
+  if (loading) {
+    return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Carregando...</div>;
+  }
+  if (!user && pathname !== "/login") return null;
+  return <>{children}</>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster position="top-right" theme="dark" richColors />
+      <AuthProvider>
+        <AuthGate>
+          <Outlet />
+        </AuthGate>
+        <Toaster position="top-right" theme="dark" richColors />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

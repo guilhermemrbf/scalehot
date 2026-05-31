@@ -63,11 +63,14 @@ function Fechamento() {
     mutationFn: async () => {
       if (bruto <= 0) throw new Error("Não há faturamento bruto no período.");
       if (liquido <= 0) throw new Error("Informe o valor líquido recebido.");
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Sessão expirada.");
       const { error } = await supabase.from("fechamentos").insert({
         data_inicio: range.ini, data_fim: range.end,
         faturamento_bruto: bruto, faturamento_liquido: liquido,
         taxa_valor: taxa, taxa_percentual: Number(taxaPct.toFixed(2)),
         imposto, lucro_real: lucro,
+        user_id: u.user.id,
       });
       if (error) throw error;
     },

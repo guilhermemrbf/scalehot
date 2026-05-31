@@ -35,7 +35,9 @@ function Registro() {
     mutationFn: async () => {
       const value = parseFloat(bruto.replace(",", "."));
       if (!data || !value || value <= 0) throw new Error("Informe data e valor válidos.");
-      const { error } = await supabase.from("faturamentos").insert({ data, faturamento_bruto: value });
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) throw new Error("Sessão expirada.");
+      const { error } = await supabase.from("faturamentos").insert({ data, faturamento_bruto: value, user_id: u.user.id });
       if (error) throw error;
     },
     onSuccess: () => {
