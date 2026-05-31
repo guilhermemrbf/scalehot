@@ -20,6 +20,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
+  const qc = useQueryClient();
   const { data: fats = [] } = useQuery({
     queryKey: ["faturamentos"],
     queryFn: async () => {
