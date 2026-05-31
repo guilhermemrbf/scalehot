@@ -14,7 +14,7 @@ import { Megaphone, Trash2, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/anuncios")({
-  head: () => ({ meta: [{ title: "Gastos com Anúncios — FinanceFlow" }] }),
+  head: () => ({ meta: [{ title: "Gastos com Anúncios — ScaleHot" }] }),
   component: Anuncios,
 });
 

@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/metas")({
-  head: () => ({ meta: [{ title: "Metas — FinanceFlow" }] }),
+  head: () => ({ meta: [{ title: "Metas — ScaleHot" }] }),
   component: Metas,
 });
 

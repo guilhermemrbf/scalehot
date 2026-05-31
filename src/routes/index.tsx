@@ -15,7 +15,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "Dashboard — FinanceFlow" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — ScaleHot" }] }),
   component: Dashboard,
 });
 

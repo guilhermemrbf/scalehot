@@ -94,7 +94,7 @@ function Brand({ compact }: { compact?: boolean }) {
         <Wallet className="size-5 text-primary-foreground" />
       </div>
       <div className="leading-tight">
-        <div className="font-display font-bold text-lg tracking-tight">FinanceFlow</div>
+        <div className="font-display font-bold text-lg tracking-tight">ScaleHot</div>
         {!compact && <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Gestor Inteligente</div>}
       </div>
     </div>
