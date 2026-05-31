@@ -19,16 +19,19 @@ export type Database = {
           id: string
           imposto_fixo: number
           updated_at: string
+          user_id: string
         }
         Insert: {
           id?: string
           imposto_fixo?: number
           updated_at?: string
+          user_id: string
         }
         Update: {
           id?: string
           imposto_fixo?: number
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -38,18 +41,21 @@ export type Database = {
           data: string
           faturamento_bruto: number
           id: string
+          user_id: string
         }
         Insert: {
           created_at?: string
           data: string
           faturamento_bruto?: number
           id?: string
+          user_id: string
         }
         Update: {
           created_at?: string
           data?: string
           faturamento_bruto?: number
           id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -65,6 +71,7 @@ export type Database = {
           lucro_real: number
           taxa_percentual: number
           taxa_valor: number
+          user_id: string
         }
         Insert: {
           created_at?: string
@@ -77,6 +84,7 @@ export type Database = {
           lucro_real: number
           taxa_percentual: number
           taxa_valor: number
+          user_id: string
         }
         Update: {
           created_at?: string
@@ -89,6 +97,7 @@ export type Database = {
           lucro_real?: number
           taxa_percentual?: number
           taxa_valor?: number
+          user_id?: string
         }
         Relationships: []
       }
@@ -99,6 +108,7 @@ export type Database = {
           meta_mensal: number
           meta_semanal: number
           updated_at: string
+          user_id: string
         }
         Insert: {
           id?: string
@@ -106,6 +116,7 @@ export type Database = {
           meta_mensal?: number
           meta_semanal?: number
           updated_at?: string
+          user_id: string
         }
         Update: {
           id?: string
@@ -113,6 +124,7 @@ export type Database = {
           meta_mensal?: number
           meta_semanal?: number
           updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
