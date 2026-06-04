@@ -21,6 +21,7 @@ function Registro() {
   const qc = useQueryClient();
   const [data, setData] = useState(todayISO());
   const [bruto, setBruto] = useState("");
+  const [reembolsos, setReembolsos] = useState("0");
 
   const { data: recentes = [] } = useQuery({
     queryKey: ["faturamentos", "recentes"],
@@ -34,15 +35,22 @@ function Registro() {
   const mut = useMutation({
     mutationFn: async () => {
       const value = parseFloat(bruto.replace(",", "."));
+      const rCount = parseInt(reembolsos) || 0;
       if (!data || !value || value <= 0) throw new Error("Informe data e valor válidos.");
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("Sessão expirada.");
-      const { error } = await supabase.from("faturamentos").insert({ data, faturamento_bruto: value, user_id: u.user.id });
+      const { error } = await supabase.from("faturamentos").insert({ 
+        data, 
+        faturamento_bruto: value, 
+        reembolsos_count: rCount,
+        user_id: u.user.id 
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       toast.success("Registro salvo com sucesso!");
       setBruto("");
+      setReembolsos("0");
       qc.invalidateQueries();
     },
     onError: (e: Error) => toast.error(e.message),
