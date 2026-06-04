@@ -111,9 +111,9 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-row items-center justify-between gap-4 mb-8">
         <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
-        <div className="flex bg-muted p-0.5 rounded-md w-fit">
+        <div className="flex bg-muted p-0.5 rounded-md w-fit h-fit">
           <button 
             onClick={() => setPeriodo("mes")}
             className={`px-2 py-1 rounded-sm text-[10px] uppercase tracking-wider font-bold transition-all ${periodo === "mes" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
