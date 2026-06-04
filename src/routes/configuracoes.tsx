@@ -92,7 +92,7 @@ function Configuracoes() {
 
       const { error: updateError } = await supabase.from('profiles').update({
         avatar_url: publicUrl,
-      }).eq('id', user?.id);
+      }).eq('id', user?.id || "");
 
       if (updateError) throw updateError;
 
