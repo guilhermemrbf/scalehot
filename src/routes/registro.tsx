@@ -96,7 +96,7 @@ function Registro() {
                   <div>
                     <p className="font-medium text-sm">{fmtDate(r.data)}</p>
                     <p className="text-xs text-muted-foreground">
-                      Lançamento diário {r.reembolsos_count > 0 && `· ${r.reembolsos_count} reembolsos`}
+                      Lançamento diário {Number(r.reembolsos_count || 0) > 0 && `· ${r.reembolsos_count} reembolsos`}
                     </p>
                   </div>
                   <p className="font-display font-semibold text-lg">{brl(Number(r.faturamento_bruto))}</p>
