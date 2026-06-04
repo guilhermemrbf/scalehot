@@ -41,6 +41,7 @@ export type Database = {
           data: string
           faturamento_bruto: number
           id: string
+          reembolsos_count: number | null
           user_id: string
         }
         Insert: {
@@ -48,6 +49,7 @@ export type Database = {
           data: string
           faturamento_bruto?: number
           id?: string
+          reembolsos_count?: number | null
           user_id: string
         }
         Update: {
@@ -55,6 +57,7 @@ export type Database = {
           data?: string
           faturamento_bruto?: number
           id?: string
+          reembolsos_count?: number | null
           user_id?: string
         }
         Relationships: []
