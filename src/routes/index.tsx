@@ -49,7 +49,7 @@ function Dashboard() {
   const setDateRange = (range: DateRange | undefined) => {
     if (range?.from && range?.to) {
       navigate({
-        search: (prev) => ({
+        search: (prev: DashboardSearch) => ({
           ...prev,
           start_date: format(range.from!, "yyyy-MM-dd"),
           end_date: format(range.to!, "yyyy-MM-dd"),
