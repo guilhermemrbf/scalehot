@@ -23,7 +23,6 @@ function Historico() {
   const [to, setTo] = useState("");
   const [editId, setEditId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const [editReembolsos, setEditReembolsos] = useState("0");
 
   const { data: fats = [] } = useQuery({
     queryKey: ["faturamentos", "all"],
@@ -49,8 +48,8 @@ function Historico() {
     onSuccess: () => { toast.success("Removido."); qc.invalidateQueries(); },
   });
   const upd = useMutation({
-    mutationFn: async ({ id, v, r }: { id: string; v: number; r: number }) => {
-      const { error } = await supabase.from("faturamentos").update({ faturamento_bruto: v, reembolsos_count: r }).eq("id", id);
+    mutationFn: async ({ id, v }: { id: string; v: number }) => {
+      const { error } = await supabase.from("faturamentos").update({ faturamento_bruto: v }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => { toast.success("Atualizado."); setEditId(null); qc.invalidateQueries(); },
@@ -77,8 +76,7 @@ function Historico() {
               <thead className="bg-muted/40">
                 <tr className="text-xs uppercase tracking-wider text-muted-foreground">
                   <th className="text-left py-3 px-5 font-medium">Data</th>
-                   <th className="text-right py-3 px-5 font-medium">Bruto</th>
-                  <th className="text-right py-3 px-5 font-medium">Reembolsos</th>
+                  <th className="text-right py-3 px-5 font-medium">Bruto</th>
                   <th className="text-right py-3 px-5 font-medium">Imposto</th>
                   <th className="text-right py-3 px-5 font-medium">Estimativa Lucro*</th>
                   <th className="text-right py-3 px-5 font-medium">Ações</th>
@@ -95,23 +93,18 @@ function Historico() {
                           <Input className="h-8 max-w-[140px] ml-auto text-right" value={editValue} onChange={(e) => setEditValue(e.target.value)} />
                         ) : brl(v)}
                       </td>
-                      <td className="py-3 px-5 text-right tabular-nums">
-                        {editId === r.id ? (
-                          <Input type="number" className="h-8 max-w-[80px] ml-auto text-right" value={editReembolsos} onChange={(e) => setEditReembolsos(e.target.value)} />
-                        ) : Number(r.reembolsos_count || 0)}
-                      </td>
                       <td className="py-3 px-5 text-right tabular-nums text-chart-5">{brl(imposto)}</td>
                       <td className="py-3 px-5 text-right tabular-nums text-success">{brl(v - imposto)}</td>
                       <td className="py-3 px-5 text-right">
                         <div className="inline-flex gap-1">
                           {editId === r.id ? (
                             <>
-                              <Button size="icon" variant="ghost" onClick={() => upd.mutate({ id: r.id, v: parseFloat(editValue.replace(",", ".")), r: parseInt(editReembolsos) || 0 })}><Check className="size-4 text-success" /></Button>
+                              <Button size="icon" variant="ghost" onClick={() => upd.mutate({ id: r.id, v: parseFloat(editValue.replace(",", ".")) })}><Check className="size-4 text-success" /></Button>
                               <Button size="icon" variant="ghost" onClick={() => setEditId(null)}><X className="size-4" /></Button>
                             </>
                           ) : (
                             <>
-                              <Button size="icon" variant="ghost" onClick={() => { setEditId(r.id); setEditValue(String(v)); setEditReembolsos(String(r.reembolsos_count || 0)); }}><Pencil className="size-4" /></Button>
+                              <Button size="icon" variant="ghost" onClick={() => { setEditId(r.id); setEditValue(String(v)); }}><Pencil className="size-4" /></Button>
                               <Button size="icon" variant="ghost" onClick={() => del.mutate(r.id)}><Trash2 className="size-4 text-destructive" /></Button>
                             </>
                           )}

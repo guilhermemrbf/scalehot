@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, pct, startOfMonthISO, todayISO } from "@/lib/format";
-import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy, RotateCcw, Activity } from "lucide-react";
+import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Legend } from "recharts";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -54,8 +54,6 @@ function Dashboard() {
   const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
   const lucroTotal = lucroBruto - totalAnuncios;
-  const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) * 100 : 0;
-  const totalReembolsos = fats.reduce((s, f) => s + Number(f.reembolsos_count || 0), 0);
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
 
   // Faturamento bruto (não fechado) do mês
@@ -86,9 +84,9 @@ function Dashboard() {
   const cards = [
     { label: "Faturamento Bruto", value: brl(totalBruto || brutoMes), icon: TrendingUp, hint: totalBruto ? "Fechamentos totais" : "Bruto do mês (sem fechar)", color: "text-chart-2" },
     { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Após taxas, imposto e anúncios", color: "text-success" },
-    { label: "ROI", value: pct(roi), icon: Activity, hint: totalAnuncios > 0 ? `${(lucroTotal / totalAnuncios).toFixed(2)}x retorno` : "Sem gastos c/ anúncios", color: "text-primary" },
+    { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " média", color: "text-warning" },
+    { label: "Impostos Pagos", value: brl(totalImposto), icon: Landmark, hint: "Imposto fixo acumulado", color: "text-chart-5" },
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamentos`, color: "text-destructive" },
-    { label: "Vendas Reembolsadas", value: totalReembolsos.toString(), icon: RotateCcw, hint: "Total de reembolsos", color: "text-muted-foreground" },
     { label: "Taxa Média", value: pct(taxaMedia), icon: BarChart3, hint: "Sobre o bruto", color: "text-chart-3" },
   ];
 
