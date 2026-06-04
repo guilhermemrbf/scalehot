@@ -54,20 +54,11 @@ function Dashboard() {
   const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
   const lucroTotal = lucroBruto - totalAnuncios;
-  
-  // Monthly Profit (current month)
-  const inicioMes = startOfMonthISO();
-  const hoje = todayISO();
-  
-  const fechamentosMes = fechs.filter(f => f.data_inicio >= inicioMes);
-  const lucroBrutoMes = fechamentosMes.reduce((s, f) => s + Number(f.lucro_real), 0);
-  const gastosMes = gastos.filter(g => (g as any).data >= inicioMes && (g as any).data <= hoje);
-  const totalAnunciosMes = gastosMes.reduce((s, g) => s + Number(g.valor), 0);
-  const lucroLiquidoMensal = lucroBrutoMes - totalAnunciosMes;
-
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
 
   // Faturamento bruto (não fechado) do mês
+  const inicioMes = startOfMonthISO();
+  const hoje = todayISO();
   const brutoMes = fats.filter((f) => f.data >= inicioMes && f.data <= hoje)
     .reduce((s, f) => s + Number(f.faturamento_bruto), 0);
 
@@ -92,95 +83,34 @@ function Dashboard() {
 
   const cards = [
     { label: "Faturamento Bruto", value: brl(totalBruto || brutoMes), icon: TrendingUp, hint: totalBruto ? "Fechamentos totais" : "Bruto do mês (sem fechar)", color: "text-chart-2" },
-    { label: "Lucro Total", value: brl(lucroTotal), icon: Trophy, hint: "Acumulado histórico", color: "text-success" },
+    { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Após taxas, imposto e anúncios", color: "text-success" },
     { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " média", color: "text-warning" },
     { label: "Impostos Pagos", value: brl(totalImposto), icon: Landmark, hint: "Imposto fixo acumulado", color: "text-chart-5" },
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamentos`, color: "text-destructive" },
     { label: "Taxa Média", value: pct(taxaMedia), icon: BarChart3, hint: "Sobre o bruto", color: "text-chart-3" },
   ];
 
-  const metaMensalValor = 1650;
-  const percentualMeta = Math.min(100, (lucroLiquidoMensal / metaMensalValor) * 100);
-  const metaBatida = lucroLiquidoMensal >= metaMensalValor;
-
   return (
     <AppLayout>
       <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-8">
-        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {cards.map((c, i) => (
-            <motion.div key={c.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-              <Card className="p-5 bg-gradient-card hover:shadow-glow transition-shadow h-full">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
-                    <p className="font-display text-2xl font-bold tracking-tight">{c.value}</p>
-                    <p className="text-xs text-muted-foreground">{c.hint}</p>
-                  </div>
-                  <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
-                    <c.icon className="size-5" />
-                  </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        {cards.map((c, i) => (
+          <motion.div key={c.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
+            <Card className="p-5 bg-gradient-card hover:shadow-glow transition-shadow">
+              <div className="flex items-start justify-between">
+                <div className="space-y-1">
+                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
+                  <p className="font-display text-2xl font-bold tracking-tight">{c.value}</p>
+                  <p className="text-xs text-muted-foreground">{c.hint}</p>
                 </div>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
-
-        <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-          <Card className="p-6 bg-gradient-card border-primary/20 hover:shadow-glow transition-shadow h-full flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="size-8 rounded-lg bg-primary/10 grid place-items-center text-primary">
-                    <Target className="size-4" />
-                  </div>
-                  <h3 className="font-display font-bold tracking-tight">Meta Mensal</h3>
-                </div>
-                {metaBatida && (
-                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-tighter bg-success/15 text-success px-2 py-0.5 rounded-full animate-pulse">
-                    <Trophy className="size-3" /> Meta Batida!
-                  </span>
-                )}
-              </div>
-
-              <div className="space-y-1">
-                <div className="flex items-baseline justify-between">
-                  <p className="text-3xl font-display font-bold tracking-tighter text-primary">
-                    {brl(lucroLiquidoMensal)}
-                  </p>
-                  <p className="text-sm font-medium text-muted-foreground">
-                    / {brl(metaMensalValor)}
-                  </p>
-                </div>
-                <p className="text-xs text-muted-foreground">Lucro Líquido do Mês</p>
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs font-medium">
-                  <span>Progresso</span>
-                  <span>{percentualMeta.toFixed(1)}%</span>
-                </div>
-                <div className="h-3 rounded-full bg-muted overflow-hidden border border-border/50">
-                  <motion.div
-                    className={`h-full rounded-full ${metaBatida ? 'bg-gradient-to-r from-success to-emerald-400' : 'bg-gradient-primary'}`}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${percentualMeta}%` }}
-                    transition={{ duration: 1, ease: "easeOut" }}
-                  />
+                <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
+                  <c.icon className="size-5" />
                 </div>
               </div>
-            </div>
-
-            <div className="mt-4 pt-4 border-t border-border/50">
-              <p className="text-[11px] text-muted-foreground leading-relaxed italic">
-                {metaBatida 
-                  ? "Parabéns! Você superou sua meta de lucro este mês. Continue com o excelente trabalho!"
-                  : `Faltam ${brl(metaMensalValor - lucroLiquidoMensal)} para atingir sua meta mensal.`}
-              </p>
-            </div>
-          </Card>
-        </motion.div>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
