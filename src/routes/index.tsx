@@ -113,18 +113,18 @@ function Dashboard() {
     <AppLayout>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
-        <div className="flex bg-muted p-0.5 rounded-lg w-fit">
+        <div className="flex bg-muted p-0.5 rounded-md w-fit">
           <button 
             onClick={() => setPeriodo("mes")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${periodo === "mes" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`px-2 py-1 rounded-sm text-[10px] uppercase tracking-wider font-bold transition-all ${periodo === "mes" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
-            Este Mês
+            Mês
           </button>
           <button 
             onClick={() => setPeriodo("total")}
-            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${periodo === "total" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+            className={`px-2 py-1 rounded-sm text-[10px] uppercase tracking-wider font-bold transition-all ${periodo === "total" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
           >
-            Valor Total
+            Total
           </button>
         </div>
       </div>
