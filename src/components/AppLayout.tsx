@@ -14,7 +14,6 @@ const nav = [
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
-
 export function AppLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(true);
@@ -88,14 +87,16 @@ export function AppLayout({ children }: { children: ReactNode }) {
 }
 
 function Brand({ compact }: { compact?: boolean }) {
+  const logoUrl = "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780550473717-76e036f0-c55c-4e17-acd2-d98b1b0f50d3.jpeg";
+  
   return (
     <div className={`flex items-center gap-2.5 ${compact ? "" : "px-5 py-6"}`}>
-      <div className="size-9 rounded-xl bg-gradient-primary grid place-items-center shadow-glow">
-        <Wallet className="size-5 text-primary-foreground" />
+      <div className="relative size-10 rounded-xl overflow-hidden shadow-glow bg-white flex items-center justify-center p-1">
+        <img src={logoUrl} alt="ScaleUp Logo" className="w-full h-full object-contain" />
       </div>
       <div className="leading-tight">
-        <div className="font-display font-bold text-lg tracking-tight">ScaleHot</div>
-        {!compact && <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Gestor Inteligente</div>}
+        <div className="font-display font-bold text-lg tracking-tight text-foreground">ScaleUp</div>
+        {!compact && <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-medium">Gestor Inteligente</div>}
       </div>
     </div>
   );
