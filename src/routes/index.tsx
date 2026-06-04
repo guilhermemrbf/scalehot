@@ -148,7 +148,7 @@ function Dashboard() {
   return (
     <AppLayout>
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
+        <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" className="!mb-0" />
         <div className="flex items-center gap-2">
           {isLoading && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
           <DateRangePicker date={dateRange} onDateChange={setDateRange} />
