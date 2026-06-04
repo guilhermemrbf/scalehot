@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { brl, pct, startOfMonthISO, startOfWeekISO, todayISO } from "@/lib/format";
+import { brl, pct, startOfMonthISO, todayISO } from "@/lib/format";
 import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Legend } from "recharts";
 import { motion } from "framer-motion";
@@ -175,15 +175,11 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
     queryFn: async () => (await supabase.from("metas").select("*").limit(1).single()).data,
   });
 
-  const [diaria, setDiaria] = useState("");
-  const [semanal, setSemanal] = useState("");
   const [mensal, setMensal] = useState("");
   const [editar, setEditar] = useState(false);
 
   useEffect(() => {
     if (metas) {
-      setDiaria(String(metas.meta_diaria));
-      setSemanal(String(metas.meta_semanal));
       setMensal(String(metas.meta_mensal));
     }
   }, [metas]);
@@ -192,26 +188,27 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
     mutationFn: async () => {
       if (!metas) return;
       const { error } = await supabase.from("metas").update({
-        meta_diaria: parseFloat(diaria) || 0,
-        meta_semanal: parseFloat(semanal) || 0,
         meta_mensal: parseFloat(mensal) || 0,
         updated_at: new Date().toISOString(),
       }).eq("id", metas.id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Metas atualizadas."); setEditar(false); qc.invalidateQueries(); },
+    onSuccess: () => { toast.success("Meta atualizada."); setEditar(false); qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
   const hoje = todayISO();
-  const ini7 = startOfWeekISO();
   const ini30 = startOfMonthISO();
   const sum = (since: string) => fats.filter((f: any) => f.data >= since && f.data <= hoje).reduce((s: number, f: any) => s + Number(f.faturamento_bruto), 0);
 
+  const now = new Date();
+  const start = new Date(now.getFullYear(), now.getMonth(), 1);
+  const end = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  const fmtShort = (d: Date) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const periodoMes = `${fmtShort(start)} - ${fmtShort(end)}`;
+
   const blocos = [
-    { label: "Meta Diária", atual: sum(hoje), meta: Number(metas?.meta_diaria || 0) },
-    { label: "Meta Semanal", atual: sum(ini7), meta: Number(metas?.meta_semanal || 0) },
-    { label: "Meta Mensal", atual: sum(ini30), meta: Number(metas?.meta_mensal || 0) },
+    { label: `Meta Mensal: ${periodoMes}`, atual: sum(ini30), meta: Number(metas?.meta_mensal || 0) },
   ];
 
   return (
@@ -227,7 +224,7 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {blocos.map((b, i) => {
           const progress = b.meta > 0 ? Math.min(100, (b.atual / b.meta) * 100) : 0;
           const completo = progress >= 100;
@@ -259,9 +256,7 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
       {editar && (
         <Card className="p-6 mt-4">
           <h3 className="font-display font-semibold mb-4">Definir Metas</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-2"><Label>Meta Diária (R$)</Label><Input inputMode="decimal" value={diaria} onChange={(e) => setDiaria(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Meta Semanal (R$)</Label><Input inputMode="decimal" value={semanal} onChange={(e) => setSemanal(e.target.value)} /></div>
+          <div className="grid grid-cols-1 gap-4 max-w-sm">
             <div className="space-y-2"><Label>Meta Mensal (R$)</Label><Input inputMode="decimal" value={mensal} onChange={(e) => setMensal(e.target.value)} /></div>
           </div>
           <Button onClick={() => save.mutate()} disabled={save.isPending} className="mt-5 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow">
