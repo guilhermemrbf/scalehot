@@ -95,7 +95,7 @@ function Brand({ compact }: { compact?: boolean }) {
         <img src={logoUrl} alt="ScaleUp Logo" className="w-full h-full object-contain" />
       </div>
       <div className="leading-tight">
-        <div className="font-display font-bold text-lg tracking-tight text-foreground">ScaleUp</div>
+        <div className="font-display font-bold text-lg tracking-tight text-foreground">ScaleHot</div>
         {!compact && <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-medium">Gestor Inteligente</div>}
       </div>
     </div>
