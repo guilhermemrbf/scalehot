@@ -71,6 +71,10 @@ function Registro() {
               <Label htmlFor="bruto">Faturamento Bruto (R$)</Label>
               <Input id="bruto" inputMode="decimal" placeholder="0,00" value={bruto} onChange={(e) => setBruto(e.target.value)} required className="text-2xl font-display font-semibold h-14" />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="reembolsos">Vendas Reembolsadas (Qtd)</Label>
+              <Input id="reembolsos" type="number" min="0" value={reembolsos} onChange={(e) => setReembolsos(e.target.value)} className="h-10" />
+            </div>
             <Button type="submit" disabled={mut.isPending} className="w-full h-12 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow">
               <PlusCircle className="size-4 mr-2" />
               {mut.isPending ? "Salvando..." : "Salvar Registro"}
@@ -91,7 +95,9 @@ function Registro() {
                 <div key={r.id} className="flex items-center justify-between py-3">
                   <div>
                     <p className="font-medium text-sm">{fmtDate(r.data)}</p>
-                    <p className="text-xs text-muted-foreground">Lançamento diário</p>
+                    <p className="text-xs text-muted-foreground">
+                      Lançamento diário {r.reembolsos_count > 0 && `· ${r.reembolsos_count} reembolsos`}
+                    </p>
                   </div>
                   <p className="font-display font-semibold text-lg">{brl(Number(r.faturamento_bruto))}</p>
                 </div>
