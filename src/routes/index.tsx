@@ -47,23 +47,35 @@ function Dashboard() {
     },
   });
 
+  const { data: metas } = useQuery({
+    queryKey: ["metas"],
+    queryFn: async () => (await supabase.from("metas").select("*").limit(1).single()).data,
+  });
+
   const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
   const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0);
   const totalTaxas = fechs.reduce((s, f) => s + Number(f.taxa_valor), 0);
   const totalImposto = fechs.reduce((s, f) => s + Number(f.imposto), 0);
-  const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
+  const lucroBrutoTotal = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
-  const lucroTotal = lucroBruto - totalAnuncios;
+  const lucroTotal = lucroBrutoTotal - totalAnuncios;
   
-  // Monthly Profit (current month)
+  // Monthly/Weekly/Daily Profit calculations
   const inicioMes = startOfMonthISO();
+  const inicioSemana = startOfWeekISO();
   const hoje = todayISO();
   
-  const fechamentosMes = fechs.filter(f => f.data_inicio >= inicioMes);
-  const lucroBrutoMes = fechamentosMes.reduce((s, f) => s + Number(f.lucro_real), 0);
-  const gastosMes = gastos.filter(g => (g as any).data >= inicioMes && (g as any).data <= hoje);
-  const totalAnunciosMes = gastosMes.reduce((s, g) => s + Number(g.valor), 0);
-  const lucroLiquidoMensal = lucroBrutoMes - totalAnunciosMes;
+  const calculateLucro = (since: string) => {
+    const fPeriodo = fechs.filter(f => f.data_inicio >= since);
+    const gPeriodo = gastos.filter(g => (g as any).data >= since && (g as any).data <= hoje);
+    const lBruto = fPeriodo.reduce((s, f) => s + Number(f.lucro_real), 0);
+    const tAnuncios = gPeriodo.reduce((s, g) => s + Number(g.valor), 0);
+    return lBruto - tAnuncios;
+  };
+
+  const lucroLiquidoMensal = calculateLucro(inicioMes);
+  const lucroLiquidoSemanal = calculateLucro(inicioSemana);
+  const lucroLiquidoHoje = calculateLucro(hoje);
 
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
 
@@ -99,7 +111,7 @@ function Dashboard() {
     { label: "Taxa Média", value: pct(taxaMedia), icon: BarChart3, hint: "Sobre o bruto", color: "text-chart-3" },
   ];
 
-  const metaMensalValor = 1650;
+  const metaMensalValor = Number(metas?.meta_mensal || 1650);
   const percentualMeta = Math.min(100, (lucroLiquidoMensal / metaMensalValor) * 100);
   const metaBatida = lucroLiquidoMensal >= metaMensalValor;
 
@@ -137,11 +149,14 @@ function Dashboard() {
                   </div>
                   <h3 className="font-display font-bold tracking-tight">Meta Mensal</h3>
                 </div>
-                {metaBatida && (
-                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-tighter bg-success/15 text-success px-2 py-0.5 rounded-full animate-pulse">
-                    <Trophy className="size-3" /> Meta Batida!
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {metaBatida && (
+                    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-tighter bg-success/15 text-success px-2 py-0.5 rounded-full animate-pulse">
+                      <Trophy className="size-3" /> Meta Batida!
+                    </span>
+                  )}
+                  <MetasDialog qc={qc} metas={metas} trigger={<Button variant="ghost" size="icon" className="size-6 rounded-full hover:bg-primary/10 hover:text-primary"><Settings2 className="size-3" /></Button>} />
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -234,21 +249,66 @@ function Dashboard() {
         </Card>
       </div>
 
-      <MetasSection qc={qc} fats={fats} />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <Target className="size-5 text-primary" />
+              <h2 className="font-display text-xl font-bold tracking-tight">Outras Metas</h2>
+            </div>
+            <MetasDialog qc={qc} metas={metas} />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {[
+              { label: "Diária", atual: lucroLiquidoHoje, meta: Number(metas?.meta_diaria || 0) },
+              { label: "Semanal", atual: lucroLiquidoSemanal, meta: Number(metas?.meta_semanal || 0) },
+            ].map((b, i) => {
+              const progress = b.meta > 0 ? Math.min(100, (b.atual / b.meta) * 100) : 0;
+              const completo = progress >= 100;
+              return (
+                <Card key={b.label} className="p-5 bg-gradient-card">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Meta {b.label}</p>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${completo ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
+                      {progress.toFixed(0)}%
+                    </span>
+                  </div>
+                  <p className="text-xl font-display font-bold tracking-tight mb-1">{brl(b.atual)}</p>
+                  <p className="text-[10px] text-muted-foreground mb-3">de {brl(b.meta)}</p>
+                  <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                    <motion.div
+                      className="h-full bg-gradient-primary rounded-full"
+                      initial={{ width: 0 }} animate={{ width: `${progress}%` }}
+                      transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
+                    />
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </section>
+
+        <Card className="p-6 bg-muted/30 border-dashed flex flex-col items-center justify-center text-center space-y-4">
+          <div className="size-12 rounded-full bg-primary/10 grid place-items-center text-primary">
+            <Settings2 className="size-6" />
+          </div>
+          <div className="space-y-1">
+            <h3 className="font-display font-semibold">Configurações de Meta</h3>
+            <p className="text-sm text-muted-foreground max-w-[240px]">Ajuste seus objetivos diários, semanais e mensais para acompanhar seu progresso.</p>
+          </div>
+          <MetasDialog qc={qc} metas={metas} trigger={<Button variant="outline" size="sm">Ajustar Metas</Button>} />
+        </Card>
+      </div>
     </AppLayout>
   );
 }
 
-function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fats: any[] }) {
-  const { data: metas } = useQuery({
-    queryKey: ["metas"],
-    queryFn: async () => (await supabase.from("metas").select("*").limit(1).single()).data,
-  });
-
+function MetasDialog({ qc, metas, trigger }: { qc: any, metas: any, trigger?: React.ReactNode }) {
   const [diaria, setDiaria] = useState("");
   const [semanal, setSemanal] = useState("");
   const [mensal, setMensal] = useState("");
-  const [editar, setEditar] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     if (metas) {
@@ -256,7 +316,7 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
       setSemanal(String(metas.meta_semanal));
       setMensal(String(metas.meta_mensal));
     }
-  }, [metas]);
+  }, [metas, open]);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -269,77 +329,66 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
       }).eq("id", metas.id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Metas atualizadas."); setEditar(false); qc.invalidateQueries(); },
+    onSuccess: () => { 
+      toast.success("Metas atualizadas."); 
+      setOpen(false); 
+      qc.invalidateQueries({ queryKey: ["metas"] }); 
+    },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const hoje = todayISO();
-  const ini7 = startOfWeekISO();
-  const ini30 = startOfMonthISO();
-  const sum = (since: string) => fats.filter((f: any) => f.data >= since && f.data <= hoje).reduce((s: number, f: any) => s + Number(f.faturamento_bruto), 0);
-
-  const blocos = [
-    { label: "Meta Diária", atual: sum(hoje), meta: Number(metas?.meta_diaria || 0) },
-    { label: "Meta Semanal", atual: sum(ini7), meta: Number(metas?.meta_semanal || 0) },
-    { label: "Meta Mensal", atual: sum(ini30), meta: Number(metas?.meta_mensal || 0) },
-  ];
-
   return (
-    <section className="mt-8">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Target className="size-5 text-primary" />
-          <h2 className="font-display text-xl font-bold tracking-tight">Metas</h2>
-        </div>
-        <Button variant="ghost" size="sm" onClick={() => setEditar((v) => !v)} className="gap-2">
-          <Settings2 className="size-4" />
-          {editar ? "Fechar" : "Definir metas"}
-        </Button>
+    <div className="relative">
+      <div onClick={() => setOpen(true)}>
+        {trigger || (
+          <Button variant="ghost" size="sm" className="gap-2">
+            <Settings2 className="size-4" />
+            Configurar
+          </Button>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {blocos.map((b, i) => {
-          const progress = b.meta > 0 ? Math.min(100, (b.atual / b.meta) * 100) : 0;
-          const completo = progress >= 100;
-          return (
-            <Card key={b.label} className="p-6 bg-gradient-card">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Target className="size-4 text-primary" />
-                  <h3 className="font-display font-semibold">{b.label}</h3>
-                </div>
-                <span className={`text-xs font-semibold px-2 py-1 rounded-full ${completo ? "bg-success/15 text-success" : "bg-muted text-muted-foreground"}`}>
-                  {progress.toFixed(0)}%
-                </span>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="w-full max-w-md"
+          >
+            <Card className="p-6 shadow-2xl border-primary/20">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-display text-xl font-bold">Definir Metas</h3>
+                <Button variant="ghost" size="icon" onClick={() => setOpen(false)} className="rounded-full">
+                  <Settings2 className="size-4 rotate-45" />
+                </Button>
               </div>
-              <p className="text-2xl font-display font-bold tracking-tight">{brl(b.atual)}</p>
-              <p className="text-xs text-muted-foreground mb-4">de {brl(b.meta)}</p>
-              <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-                <motion.div
-                  className="h-full bg-gradient-primary rounded-full"
-                  initial={{ width: 0 }} animate={{ width: `${progress}%` }}
-                  transition={{ duration: 0.8, delay: i * 0.1, ease: "easeOut" }}
-                />
+              
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label>Meta Diária (R$)</Label>
+                  <Input inputMode="decimal" value={diaria} onChange={(e) => setDiaria(e.target.value)} placeholder="0,00" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Meta Semanal (R$)</Label>
+                  <Input inputMode="decimal" value={semanal} onChange={(e) => setSemanal(e.target.value)} placeholder="0,00" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Meta Mensal (R$)</Label>
+                  <Input inputMode="decimal" value={mensal} onChange={(e) => setMensal(e.target.value)} placeholder="0,00" />
+                </div>
+              </div>
+
+              <div className="flex gap-3 mt-8">
+                <Button variant="outline" className="flex-1" onClick={() => setOpen(false)}>Cancelar</Button>
+                <Button onClick={() => save.mutate()} disabled={save.isPending} className="flex-1 bg-gradient-primary text-primary-foreground">
+                  {save.isPending ? "Salvando..." : "Salvar Metas"}
+                </Button>
               </div>
             </Card>
-          );
-        })}
-      </div>
-
-      {editar && (
-        <Card className="p-6 mt-4">
-          <h3 className="font-display font-semibold mb-4">Definir Metas</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="space-y-2"><Label>Meta Diária (R$)</Label><Input inputMode="decimal" value={diaria} onChange={(e) => setDiaria(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Meta Semanal (R$)</Label><Input inputMode="decimal" value={semanal} onChange={(e) => setSemanal(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Meta Mensal (R$)</Label><Input inputMode="decimal" value={mensal} onChange={(e) => setMensal(e.target.value)} /></div>
-          </div>
-          <Button onClick={() => save.mutate()} disabled={save.isPending} className="mt-5 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow">
-            <Save className="size-4 mr-2" /> Salvar Metas
-          </Button>
-        </Card>
+          </motion.div>
+        </div>
       )}
-    </section>
+    </div>
   );
 }
 
