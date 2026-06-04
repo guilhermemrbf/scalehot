@@ -21,27 +21,44 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const qc = useQueryClient();
+  const [periodo, setPeriodo] = useState<"mes" | "total">("mes");
+  const inicioMes = startOfMonthISO();
+  const hoje = todayISO();
+
   const { data: fats = [] } = useQuery({
-    queryKey: ["faturamentos"],
+    queryKey: ["faturamentos", periodo],
     queryFn: async () => {
-      const { data, error } = await supabase.from("faturamentos").select("*").order("data");
+      let query = supabase.from("faturamentos").select("*").order("data");
+      if (periodo === "mes") {
+        query = query.gte("data", inicioMes).lte("data", hoje);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
   });
+
   const { data: fechs = [] } = useQuery({
-    queryKey: ["fechamentos"],
+    queryKey: ["fechamentos", periodo],
     queryFn: async () => {
-      const { data, error } = await supabase.from("fechamentos").select("*").order("data_inicio");
+      let query = supabase.from("fechamentos").select("*").order("data_inicio");
+      if (periodo === "mes") {
+        query = query.gte("data_inicio", inicioMes).lte("data_fim", hoje);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
   });
 
   const { data: gastos = [] } = useQuery({
-    queryKey: ["gastos_anuncios"],
+    queryKey: ["gastos_anuncios", periodo],
     queryFn: async () => {
-      const { data, error } = await supabase.from("gastos_anuncios" as any).select("*").order("data");
+      let query = supabase.from("gastos_anuncios" as any).select("*").order("data");
+      if (periodo === "mes") {
+        query = query.gte("data", inicioMes).lte("data", hoje);
+      }
+      const { data, error } = await query;
       if (error) throw error;
       return (data as any[]) ?? [];
     },
@@ -60,10 +77,7 @@ function Dashboard() {
   const totalReembolsos = fats.reduce((s, f) => s + (Number(f.reembolsos_count) || 0), 0);
 
   // Faturamento bruto (não fechado) do mês
-  const inicioMes = startOfMonthISO();
-  const hoje = todayISO();
-  const brutoMes = fats.filter((f) => f.data >= inicioMes && f.data <= hoje)
-    .reduce((s, f) => s + Number(f.faturamento_bruto), 0);
+  const brutoMes = fats.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
 
   // Daily chart - last 30 days
   const dailyMap = new Map<string, number>();
@@ -95,7 +109,23 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
+        <div className="flex bg-muted p-1 rounded-xl w-fit">
+          <button 
+            onClick={() => setPeriodo("mes")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${periodo === "mes" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Este Mês
+          </button>
+          <button 
+            onClick={() => setPeriodo("total")}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${periodo === "total" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+          >
+            Valor Total
+          </button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
