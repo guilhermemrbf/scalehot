@@ -136,7 +136,9 @@ function Dashboard() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
-                  <p className="font-display text-2xl font-bold tracking-tight">{c.value}</p>
+                  <p className={`font-display text-2xl font-bold tracking-tight ${c.label === "ROI Total" ? c.color : ""}`}>
+                    {c.value}
+                  </p>
                   <p className="text-xs text-muted-foreground">{c.hint}</p>
                 </div>
                 <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
