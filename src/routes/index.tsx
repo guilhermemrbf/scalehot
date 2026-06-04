@@ -149,11 +149,14 @@ function Dashboard() {
                   </div>
                   <h3 className="font-display font-bold tracking-tight">Meta Mensal</h3>
                 </div>
-                {metaBatida && (
-                  <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-tighter bg-success/15 text-success px-2 py-0.5 rounded-full animate-pulse">
-                    <Trophy className="size-3" /> Meta Batida!
-                  </span>
-                )}
+                <div className="flex items-center gap-2">
+                  {metaBatida && (
+                    <span className="flex items-center gap-1 text-[10px] font-bold uppercase tracking-tighter bg-success/15 text-success px-2 py-0.5 rounded-full animate-pulse">
+                      <Trophy className="size-3" /> Meta Batida!
+                    </span>
+                  )}
+                  <MetasDialog qc={qc} metas={metas} trigger={<Button variant="ghost" size="icon" className="size-6 rounded-full hover:bg-primary/10 hover:text-primary"><Settings2 className="size-3" /></Button>} />
+                </div>
               </div>
 
               <div className="space-y-1">
