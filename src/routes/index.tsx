@@ -132,7 +132,7 @@ function Dashboard() {
   return (
     <AppLayout>
       <div className="flex flex-row items-center justify-between gap-4 mb-4 -mt-4">
-        <PageHeader title={`${saudacao()}, ${profile?.full_name || "Usuário"}`} subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
+        <PageHeader title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
         <div className="flex bg-muted p-0.5 rounded-md w-fit h-fit mt-2">
           <button 
             onClick={() => setPeriodo("mes")}

@@ -57,19 +57,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" },
       { title: "ScaleHot — Gestor Financeiro Inteligente" },
       { name: "description", content: "Controle de faturamento, fechamento de caixa e análise de taxas em um só lugar." },
+      { name: "theme-color", content: "#a855f7" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "ScaleHot" },
       { property: "og:title", content: "ScaleHot — Gestor Financeiro Inteligente" },
       { name: "twitter:title", content: "ScaleHot — Gestor Financeiro Inteligente" },
       { property: "og:description", content: "Controle de faturamento, fechamento de caixa e análise de taxas em um só lugar." },
       { name: "twitter:description", content: "Controle de faturamento, fechamento de caixa e análise de taxas em um só lugar." },
-      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23389ff4-eb62-4dd9-b8bf-aa1dcbfb9e3f/id-preview-36d64601--e3968793-6951-43b6-8ee9-d636719809a5.lovable.app-1780121246214.png" },
-      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/23389ff4-eb62-4dd9-b8bf-aa1dcbfb9e3f/id-preview-36d64601--e3968793-6951-43b6-8ee9-d636719809a5.lovable.app-1780121246214.png" },
+      { property: "og:image", content: "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780550473717-76e036f0-c55c-4e17-acd2-d98b1b0f50d3.jpeg" },
+      { name: "twitter:image", content: "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780550473717-76e036f0-c55c-4e17-acd2-d98b1b0f50d3.jpeg" },
       { name: "twitter:card", content: "summary_large_image" },
       { property: "og:type", content: "website" },
     ],
     links: [
+      { rel: "manifest", href: "/manifest.json" },
+      { rel: "apple-touch-icon", href: "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780550473717-76e036f0-c55c-4e17-acd2-d98b1b0f50d3.jpeg" },
       { rel: "stylesheet", href: appCss },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
@@ -117,6 +123,18 @@ function AuthGate({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(registration => {
+          console.log('SW registered: ', registration);
+        }).catch(registrationError => {
+          console.log('SW registration failed: ', registrationError);
+        });
+      });
+    }
+  }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
