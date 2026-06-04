@@ -99,11 +99,13 @@ function Dashboard() {
   const monthly = Array.from(monthMap.entries()).slice(-6).map(([m, v]) => ({ mes: m, ...v }));
 
   const cards = [
-    { label: "Faturamento Bruto", value: brl(totalBruto || brutoMes), icon: TrendingUp, hint: totalBruto ? "Fechamentos totais" : "Bruto do mês (sem fechar)", color: "text-chart-2" },
+    { label: "Faturamento Bruto", value: brl(totalBruto || brutoMes), icon: TrendingUp, hint: totalBruto ? "Fechamentos totais" : "Bruto do período", color: "text-chart-2" },
     { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Após taxas, imposto e anúncios", color: "text-success" },
     { label: "ROI Total", value: roi.toFixed(2) + "x", icon: Activity, hint: "Retorno sobre investimento", color: "text-chart-4" },
     { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total de solicitações", color: "text-destructive" },
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamentos`, color: "text-destructive" },
+    { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " média", color: "text-warning" },
+    { label: "Impostos Pagos", value: brl(totalImposto), icon: Landmark, hint: "Imposto fixo acumulado", color: "text-chart-5" },
     { label: "Taxa Média", value: pct(taxaMedia), icon: BarChart3, hint: "Sobre o bruto", color: "text-chart-3" },
   ];
 
