@@ -21,6 +21,10 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const qc = useQueryClient();
+  const [periodo, setPeriodo] = useState<"mes" | "total">("mes");
+  const inicioMes = startOfMonthISO();
+  const hoje = todayISO();
+
   const { data: fats = [] } = useQuery({
     queryKey: ["faturamentos"],
     queryFn: async () => {
@@ -29,6 +33,7 @@ function Dashboard() {
       return data;
     },
   });
+  
   const { data: fechs = [] } = useQuery({
     queryKey: ["fechamentos"],
     queryFn: async () => {
@@ -37,6 +42,11 @@ function Dashboard() {
       return data;
     },
   });
+
+  const filteredFechs = fechs.filter(f => periodo === "total" || (f.data_inicio >= inicioMes && f.data_inicio <= hoje));
+  const filteredFats = fats.filter(f => periodo === "total" || (f.data >= inicioMes && f.data <= hoje));
+  const filteredGastosData = (data: any[]) => data.filter(g => periodo === "total" || (g.data >= inicioMes && g.data <= hoje));
+
 
   const { data: gastos = [] } = useQuery({
     queryKey: ["gastos_anuncios"],
@@ -47,22 +57,21 @@ function Dashboard() {
     },
   });
 
-  const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
-  const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0);
-  const totalTaxas = fechs.reduce((s, f) => s + Number(f.taxa_valor), 0);
-  const totalImposto = fechs.reduce((s, f) => s + Number(f.imposto), 0);
-  const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
-  const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
+  const currentGastos = filteredGastosData(gastos);
+  const totalBruto = filteredFechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
+  const totalLiquido = filteredFechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0);
+  const totalTaxas = filteredFechs.reduce((s, f) => s + Number(f.taxa_valor), 0);
+  const totalImposto = filteredFechs.reduce((s, f) => s + Number(f.imposto), 0);
+  const lucroBruto = filteredFechs.reduce((s, f) => s + Number(f.lucro_real), 0);
+  const totalAnuncios = currentGastos.reduce((s, g) => s + Number(g.valor), 0);
   const lucroTotal = lucroBruto - totalAnuncios;
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) * 100 : 0;
-  const totalReembolsos = fats.reduce((s, f) => s + Number(f.reembolsos_count || 0), 0);
+  const totalReembolsos = filteredFats.reduce((s, f) => s + Number(f.reembolsos_count || 0), 0);
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
 
-  // Faturamento bruto (não fechado) do mês
-  const inicioMes = startOfMonthISO();
-  const hoje = todayISO();
-  const brutoMes = fats.filter((f) => f.data >= inicioMes && f.data <= hoje)
-    .reduce((s, f) => s + Number(f.faturamento_bruto), 0);
+  // Faturamento bruto (não fechado) do período (apenas se for mês e não houver fechamento)
+  const brutoPeriodo = filteredFats.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
+
 
   // Daily chart - last 30 days
   const dailyMap = new Map<string, number>();
@@ -84,7 +93,7 @@ function Dashboard() {
   const monthly = Array.from(monthMap.entries()).slice(-6).map(([m, v]) => ({ mes: m, ...v }));
 
   const cards = [
-    { label: "Faturamento Bruto", value: brl(totalBruto || brutoMes), icon: TrendingUp, hint: totalBruto ? "Fechamentos totais" : "Bruto do mês (sem fechar)", color: "text-chart-2" },
+    { label: "Faturamento Bruto", value: brl(totalBruto || brutoPeriodo), icon: TrendingUp, hint: totalBruto ? "Fechamentos no período" : "Registros no período", color: "text-chart-2" },
     { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Após taxas, imposto e anúncios", color: "text-success" },
     { label: "ROI", value: pct(roi), icon: Activity, hint: totalAnuncios > 0 ? `${(lucroTotal / totalAnuncios).toFixed(2)}x retorno` : "Sem gastos c/ anúncios", color: "text-primary" },
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamentos`, color: "text-destructive" },
@@ -94,7 +103,30 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" />
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-balance">Dashboard</h1>
+          <p className="text-muted-foreground mt-1.5 text-sm sm:text-base">Visão geral do seu desempenho financeiro</p>
+        </div>
+        <div className="flex bg-muted p-1 rounded-xl w-fit">
+          <button
+            onClick={() => setPeriodo("mes")}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              periodo === "mes" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Este Mês
+          </button>
+          <button
+            onClick={() => setPeriodo("total")}
+            className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+              periodo === "total" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Valor Total
+          </button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
