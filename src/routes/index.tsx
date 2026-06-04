@@ -13,6 +13,7 @@ import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tool
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Dashboard — ScaleHot" }] }),
@@ -21,9 +22,28 @@ export const Route = createFileRoute("/")({
 
 function Dashboard() {
   const qc = useQueryClient();
+  const { user } = useAuth();
   const [periodo, setPeriodo] = useState<"mes" | "total">("mes");
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+      if (error) return null;
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const saudacao = () => {
+    const hora = new Date().getHours();
+    if (hora < 12) return "Bom dia";
+    if (hora < 18) return "Boa tarde";
+    return "Boa noite";
+  };
 
   const { data: fats = [] } = useQuery({
     queryKey: ["faturamentos", periodo],
@@ -112,7 +132,7 @@ function Dashboard() {
   return (
     <AppLayout>
       <div className="flex flex-row items-center justify-between gap-4 mb-4 -mt-4">
-        <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
+        <PageHeader title={`${saudacao()}, ${profile?.full_name || "Usuário"}`} subtitle="Visão geral do seu desempenho financeiro" className="mb-0" />
         <div className="flex bg-muted p-0.5 rounded-md w-fit h-fit mt-2">
           <button 
             onClick={() => setPeriodo("mes")}
