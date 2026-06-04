@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
@@ -8,100 +8,44 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, pct, startOfMonthISO, todayISO } from "@/lib/format";
-import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy, Loader2 } from "lucide-react";
+import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Legend } from "recharts";
 import { motion } from "framer-motion";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { DateRangePicker } from "@/components/DateRangePicker";
-import { subDays, format, parseISO, startOfDay, endOfDay } from "date-fns";
-import { DateRange } from "react-day-picker";
-
-type DashboardSearch = {
-  start_date?: string;
-  end_date?: string;
-};
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Dashboard — ScaleHot" }] }),
-  validateSearch: (search: Record<string, unknown>): DashboardSearch => {
-    return {
-      start_date: search.start_date as string | undefined,
-      end_date: search.end_date as string | undefined,
-    };
-  },
   component: Dashboard,
 });
 
 function Dashboard() {
-  const navigate = useNavigate({ from: Route.fullPath });
-  const search = useSearch({ from: Route.fullPath });
   const qc = useQueryClient();
-
-  const startDate = search.start_date || format(subDays(new Date(), 29), "yyyy-MM-dd");
-  const endDate = search.end_date || format(new Date(), "yyyy-MM-dd");
-
-  const dateRange = useMemo<DateRange>(() => ({
-    from: parseISO(startDate),
-    to: parseISO(endDate),
-  }), [startDate, endDate]);
-
-  const setDateRange = (range: DateRange | undefined) => {
-    if (range?.from && range?.to) {
-      navigate({
-        search: (prev: DashboardSearch) => ({
-          ...prev,
-          start_date: format(range.from!, "yyyy-MM-dd"),
-          end_date: format(range.to!, "yyyy-MM-dd"),
-        }),
-      });
-    }
-  };
-
-  const { data: fats = [], isLoading: isLoadingFats } = useQuery({
-    queryKey: ["faturamentos", startDate, endDate],
+  const { data: fats = [] } = useQuery({
+    queryKey: ["faturamentos"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("faturamentos")
-        .select("*")
-        .gte("data", startDate)
-        .lte("data", endDate)
-        .order("data");
+      const { data, error } = await supabase.from("faturamentos").select("*").order("data");
+      if (error) throw error;
+      return data;
+    },
+  });
+  const { data: fechs = [] } = useQuery({
+    queryKey: ["fechamentos"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("fechamentos").select("*").order("data_inicio");
       if (error) throw error;
       return data;
     },
   });
 
-  const { data: fechs = [], isLoading: isLoadingFechs } = useQuery({
-    queryKey: ["fechamentos", startDate, endDate],
+  const { data: gastos = [] } = useQuery({
+    queryKey: ["gastos_anuncios"],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("fechamentos")
-        .select("*")
-        .gte("data_inicio", startDate)
-        .lte("data_fim", endDate)
-        .order("data_inicio");
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: gastos = [], isLoading: isLoadingGastos } = useQuery({
-    queryKey: ["gastos_anuncios", startDate, endDate],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("gastos_anuncios" as any)
-        .select("*")
-        .gte("data", startDate)
-        .lte("data", endDate)
-        .order("data");
+      const { data, error } = await supabase.from("gastos_anuncios" as any).select("*").order("data");
       if (error) throw error;
       return (data as any[]) ?? [];
     },
   });
-
-  const isLoading = isLoadingFats || isLoadingFechs || isLoadingGastos;
-
 
   const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
   const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0);
@@ -115,14 +59,15 @@ function Dashboard() {
   // Faturamento bruto (não fechado) do mês
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
-  const brutoMes = fats.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
+  const brutoMes = fats.filter((f) => f.data >= inicioMes && f.data <= hoje)
+    .reduce((s, f) => s + Number(f.faturamento_bruto), 0);
 
-  // Daily chart
+  // Daily chart - last 30 days
   const dailyMap = new Map<string, number>();
   fats.forEach((f) => dailyMap.set(f.data, (dailyMap.get(f.data) || 0) + Number(f.faturamento_bruto)));
   const dailyData = Array.from(dailyMap.entries())
+    .slice(-30)
     .map(([data, bruto]) => ({ data: data.slice(5).replace("-", "/"), bruto }));
-
 
   // Monthly aggregation
   const monthMap = new Map<string, { bruto: number; liquido: number; lucro: number }>();
@@ -147,21 +92,7 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-        <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" className="!mb-0" />
-        <div className="flex items-center gap-2">
-          {isLoading && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
-          <DateRangePicker date={dateRange} onDateChange={setDateRange} />
-        </div>
-      </div>
-
-      <div className={`relative transition-opacity duration-300 ${isLoading ? "opacity-50 pointer-events-none" : "opacity-100"}`}>
-        {isLoading && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/20 backdrop-blur-[1px]">
-            <Loader2 className="size-8 animate-spin text-primary" />
-          </div>
-        )}
-
+      <PageHeader title="Dashboard" subtitle="Visão geral do seu desempenho financeiro" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
@@ -185,8 +116,8 @@ function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold">Evolução do Faturamento</h3>
-            <span className="text-xs text-muted-foreground">No período selecionado</span>
+            <h3 className="font-display font-semibold">Evolução Diária do Faturamento</h3>
+            <span className="text-xs text-muted-foreground">Últimos 30 lançamentos</span>
           </div>
           <div className="h-72">
             {dailyData.length === 0 ? <Empty msg="Sem registros ainda." /> : (
@@ -234,7 +165,6 @@ function Dashboard() {
       </div>
 
       <MetasSection qc={qc} fats={fats} />
-      </div>
     </AppLayout>
   );
 }
