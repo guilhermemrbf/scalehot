@@ -6,7 +6,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('push', function (event) {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data ? event.data.text() : '' }; }
-  const LOGO = 'https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780897931159-7aa87f62-1d34-4155-b0be-9516affb718e.png';
+  const LOGO = '/logo-scalehot.png';
   event.waitUntil(
     self.registration.showNotification(data.title || 'ScaleHot', {
       body: data.body || 'Nova notificação',

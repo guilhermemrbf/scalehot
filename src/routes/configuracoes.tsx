@@ -71,7 +71,7 @@ function Configuracoes() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const LOGO_URL = "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780897931159-7aa87f62-1d34-4155-b0be-9516affb718e.png";
+  const LOGO_URL = "/logo-scalehot.png";
 
   return (
     <AppLayout>
