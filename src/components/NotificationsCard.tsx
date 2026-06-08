@@ -28,6 +28,7 @@ export function NotificationsCard() {
   const [pwa, setPwa] = useState({ isInstalled: false, isSupported: false, isBrowser: true });
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
 
   const testFn = useServerFn(sendTestNotification);
