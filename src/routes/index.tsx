@@ -85,11 +85,47 @@ function Dashboard() {
     },
   });
 
-  const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
-  const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0);
+  const { data: syncTx = [] } = useQuery({
+    queryKey: ["syncpay_transactions", periodo],
+    queryFn: async () => {
+      let q = supabase
+        .from("syncpay_transactions" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (periodo === "mes") q = q.gte("created_at", inicioMes);
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data as any[]) ?? [];
+    },
+  });
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("syncpay_dashboard_totals")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "syncpay_transactions" },
+        () => qc.invalidateQueries({ queryKey: ["syncpay_transactions"] })
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [qc]);
+
+  const syncCashinBruto = syncTx
+    .filter((t: any) => t.type === "cashin")
+    .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
+  const syncCashinLiquido = syncTx
+    .filter((t: any) => t.type === "cashin")
+    .reduce((s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
+  const syncRefunds = syncTx.filter((t: any) => t.type === "refund").length;
+
+  const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0) + syncCashinBruto;
+  const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0) + syncCashinLiquido;
   const totalTaxas = fechs.reduce((s, f) => s + Number(f.taxa_valor), 0);
   const totalImposto = fechs.reduce((s, f) => s + Number(f.imposto), 0);
-  const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0);
+  const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0) + syncCashinLiquido;
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
   const lucroTotal = lucroBruto - totalAnuncios;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
