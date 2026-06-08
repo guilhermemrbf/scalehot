@@ -248,6 +248,81 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          client_email: string | null
+          client_name: string | null
+          created_at: string
+          gateway: string
+          id: string
+          liquid_amount: number | null
+          raw_payload: Json | null
+          status: string
+          transaction_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          client_email?: string | null
+          client_name?: string | null
+          created_at?: string
+          gateway: string
+          id?: string
+          liquid_amount?: number | null
+          raw_payload?: Json | null
+          status: string
+          transaction_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          client_email?: string | null
+          client_name?: string | null
+          created_at?: string
+          gateway?: string
+          id?: string
+          liquid_amount?: number | null
+          raw_payload?: Json | null
+          status?: string
+          transaction_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_integrations: {
+        Row: {
+          created_at: string
+          gateway: string
+          id: string
+          name: string
+          status: string
+          user_id: string
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string
+          gateway: string
+          id?: string
+          name: string
+          status?: string
+          user_id: string
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string
+          gateway?: string
+          id?: string
+          name?: string
+          status?: string
+          user_id?: string
+          webhook_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

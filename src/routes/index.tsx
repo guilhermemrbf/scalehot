@@ -85,11 +85,11 @@ function Dashboard() {
     },
   });
 
-  const { data: syncTx = [] } = useQuery({
-    queryKey: ["syncpay_transactions", periodo],
+  const { data: txs = [] } = useQuery({
+    queryKey: ["transactions_dash", periodo],
     queryFn: async () => {
       let q = supabase
-        .from("syncpay_transactions" as any)
+        .from("transactions" as any)
         .select("*")
         .order("created_at", { ascending: false });
       if (periodo === "mes") q = q.gte("created_at", inicioMes);
@@ -97,29 +97,36 @@ function Dashboard() {
       if (error) throw error;
       return (data as any[]) ?? [];
     },
+    enabled: !!user,
   });
 
   useEffect(() => {
+    if (!user) return;
     const channel = supabase
-      .channel("syncpay_dashboard_totals")
+      .channel(`tx_dashboard_totals_${user.id}`)
       .on(
         "postgres_changes",
-        { event: "*", schema: "public", table: "syncpay_transactions" },
-        () => qc.invalidateQueries({ queryKey: ["syncpay_transactions"] })
+        {
+          event: "*",
+          schema: "public",
+          table: "transactions",
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => qc.invalidateQueries({ queryKey: ["transactions_dash"] })
       )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [qc]);
+  }, [qc, user?.id]);
 
-  const syncCashinBruto = syncTx
+  const syncCashinBruto = txs
     .filter((t: any) => t.type === "cashin")
     .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
-  const syncCashinLiquido = syncTx
+  const syncCashinLiquido = txs
     .filter((t: any) => t.type === "cashin")
     .reduce((s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
-  const syncRefunds = syncTx.filter((t: any) => t.type === "refund").length;
+  const syncRefunds = txs.filter((t: any) => t.type === "refund").length;
 
   const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0) + syncCashinBruto;
   const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0) + syncCashinLiquido;

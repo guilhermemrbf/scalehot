@@ -13,11 +13,13 @@ import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as FechamentoRouteImport } from './routes/fechamento'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicWebhookReceiverRouteImport } from './routes/api/public/webhook-receiver'
 import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
 
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -38,6 +40,11 @@ const MetasRoute = MetasRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegracoesRoute = IntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoricoRoute = HistoricoRouteImport.update({
@@ -65,6 +72,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicWebhookReceiverRoute =
+  ApiPublicWebhookReceiverRouteImport.update({
+    id: '/api/public/webhook-receiver',
+    path: '/api/public/webhook-receiver',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicSyncpayWebhookRoute = ApiPublicSyncpayWebhookRouteImport.update({
   id: '/api/public/syncpay-webhook',
   path: '/api/public/syncpay-webhook',
@@ -77,11 +90,13 @@ export interface FileRoutesByFullPath {
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
+  '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -89,11 +104,13 @@ export interface FileRoutesByTo {
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
+  '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,11 +119,13 @@ export interface FileRoutesById {
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
+  '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
+  '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -116,11 +135,13 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/fechamento'
     | '/historico'
+    | '/integracoes'
     | '/login'
     | '/metas'
     | '/registro'
     | '/relatorios'
     | '/api/public/syncpay-webhook'
+    | '/api/public/webhook-receiver'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -128,11 +149,13 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/fechamento'
     | '/historico'
+    | '/integracoes'
     | '/login'
     | '/metas'
     | '/registro'
     | '/relatorios'
     | '/api/public/syncpay-webhook'
+    | '/api/public/webhook-receiver'
   id:
     | '__root__'
     | '/'
@@ -140,11 +163,13 @@ export interface FileRouteTypes {
     | '/configuracoes'
     | '/fechamento'
     | '/historico'
+    | '/integracoes'
     | '/login'
     | '/metas'
     | '/registro'
     | '/relatorios'
     | '/api/public/syncpay-webhook'
+    | '/api/public/webhook-receiver'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -153,11 +178,13 @@ export interface RootRouteChildren {
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   FechamentoRoute: typeof FechamentoRoute
   HistoricoRoute: typeof HistoricoRoute
+  IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MetasRoute: typeof MetasRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
   ApiPublicSyncpayWebhookRoute: typeof ApiPublicSyncpayWebhookRoute
+  ApiPublicWebhookReceiverRoute: typeof ApiPublicWebhookReceiverRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -188,6 +215,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integracoes': {
+      id: '/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof IntegracoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/historico': {
@@ -225,6 +259,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/webhook-receiver': {
+      id: '/api/public/webhook-receiver'
+      path: '/api/public/webhook-receiver'
+      fullPath: '/api/public/webhook-receiver'
+      preLoaderRoute: typeof ApiPublicWebhookReceiverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/syncpay-webhook': {
       id: '/api/public/syncpay-webhook'
       path: '/api/public/syncpay-webhook'
@@ -241,22 +282,14 @@ const rootRouteChildren: RootRouteChildren = {
   ConfiguracoesRoute: ConfiguracoesRoute,
   FechamentoRoute: FechamentoRoute,
   HistoricoRoute: HistoricoRoute,
+  IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MetasRoute: MetasRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
   ApiPublicSyncpayWebhookRoute: ApiPublicSyncpayWebhookRoute,
+  ApiPublicWebhookReceiverRoute: ApiPublicWebhookReceiverRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
