@@ -15,7 +15,7 @@ import { Calculator, Save } from "lucide-react";
 type Period = "hoje" | "semana" | "mes" | "custom";
 
 export const Route = createFileRoute("/fechamento")({
-  head: () => ({ meta: [{ title: "Fechamento de Caixa — ScaleHot" }] }),
+  head: () => ({ meta: [{ title: "Fechamento de Caixa — ScaleUp" }] }),
   component: Fechamento,
 });
 

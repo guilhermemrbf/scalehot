@@ -10,7 +10,7 @@ import { Download } from "lucide-react";
 import { useMemo } from "react";
 
 export const Route = createFileRoute("/relatorios")({
-  head: () => ({ meta: [{ title: "Relatórios — ScaleHot" }] }),
+  head: () => ({ meta: [{ title: "Relatórios — ScaleUp" }] }),
   component: Relatorios,
 });
 
@@ -53,7 +53,7 @@ function Relatorios() {
     const { jsPDF } = await import("jspdf");
     const autoTable = (await import("jspdf-autotable")).default;
     const doc = new jsPDF();
-    doc.setFontSize(18); doc.text("ScaleHot — " + titulo, 14, 18);
+    doc.setFontSize(18); doc.text("ScaleUp — " + titulo, 14, 18);
     doc.setFontSize(10); doc.setTextColor(120); doc.text(`Gerado em ${new Date().toLocaleString("pt-BR")}`, 14, 25);
     const totals = rows.reduce((s, r) => ({ bruto: s.bruto + r.bruto, liquido: s.liquido + r.liquido, taxa: s.taxa + r.taxa, imposto: s.imposto + r.imposto, lucro: s.lucro + r.lucro }), { bruto: 0, liquido: 0, taxa: 0, imposto: 0, lucro: 0 });
     autoTable(doc, {

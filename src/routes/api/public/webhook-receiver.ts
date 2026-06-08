@@ -323,7 +323,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
               else if (prevMonthLiquid < 1650 && monthLiquid >= 1650) {
                 await sendPushToUser(userId, {
                   title: "🏆 META BATIDA!",
-                  body: `Você atingiu R$ 1.650 de lucro esse mês!\nScaleHot te viu crescer 💎`,
+                  body: `Você atingiu R$ 1.650 de lucro esse mês!\nScaleUp te viu crescer 💎`,
                   tag: `milestone-month-${y}${m}`,
                 });
                 milestoneSent = true;

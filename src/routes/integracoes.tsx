@@ -22,7 +22,7 @@ import { Copy, CheckCircle2, Link2, Power, Trash2, Zap } from "lucide-react";
 import { motion } from "framer-motion";
 
 export const Route = createFileRoute("/integracoes")({
-  head: () => ({ meta: [{ title: "Integrações — ScaleHot" }] }),
+  head: () => ({ meta: [{ title: "Integrações — ScaleUp" }] }),
   component: IntegracoesPage,
 });
 
@@ -113,7 +113,7 @@ const GATEWAYS: Gateway[] = [
     instructions: [
       "Envie um POST JSON para a URL acima.",
       "Inclua os campos: amount, transaction_id, client_name (opcional), liquid_amount (opcional).",
-      "O ScaleHot reconhece automaticamente como CashIn.",
+      "O ScaleUp reconhece automaticamente como CashIn.",
     ],
   },
 ];

@@ -23,7 +23,7 @@ function pickTemplate(stats: {
   if (meta_batida) {
     return {
       title: "🏆 Meta batida!",
-      body: `${brl(meta_valor)} atingidos esse mês\nVocê está entre os top performers do ScaleHot 💎`,
+      body: `${brl(meta_valor)} atingidos esse mês\nVocê está entre os top performers do ScaleUp 💎`,
     };
   }
   if (total_vendas === 1) {

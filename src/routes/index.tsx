@@ -17,7 +17,7 @@ import { useAuth } from "@/lib/auth";
 import { VendasTempoReal } from "@/components/VendasTempoReal";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "Dashboard — ScaleHot" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — ScaleUp" }] }),
   component: Dashboard,
 });
 
