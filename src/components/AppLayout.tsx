@@ -17,6 +17,14 @@ const nav = [
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
+const mobileNav = [
+  { to: "/", label: "Início", icon: LayoutDashboard },
+  { to: "/registro", label: "Registro", icon: PlusCircle },
+  { to: "/anuncios", label: "Anúncios", icon: Megaphone },
+  { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
+  { to: "/configuracoes", label: "Ajustes", icon: Settings },
+];
+
 export function AppLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(true);
