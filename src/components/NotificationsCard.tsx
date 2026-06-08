@@ -25,6 +25,7 @@ export function NotificationsCard() {
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [inIframe, setInIframe] = useState(false);
 
   const fetchVapid = useServerFn(getVapidPublicKey);
   const saveSub = useServerFn(savePushSubscription);
@@ -33,6 +34,7 @@ export function NotificationsCard() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    try { setInIframe(window.self !== window.top); } catch { setInIframe(true); }
     const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
     setSupported(ok);
     if (!ok) return;
