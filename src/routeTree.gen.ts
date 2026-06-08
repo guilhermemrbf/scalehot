@@ -20,6 +20,7 @@ import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicWebhookReceiverRouteImport } from './routes/api/public/webhook-receiver'
+import { Route as ApiPublicTestPushRouteImport } from './routes/api/public/test-push'
 import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
 import { Route as ApiPublicSendDailySummaryRouteImport } from './routes/api/public/send-daily-summary'
 
@@ -79,6 +80,11 @@ const ApiPublicWebhookReceiverRoute =
     path: '/api/public/webhook-receiver',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicTestPushRoute = ApiPublicTestPushRouteImport.update({
+  id: '/api/public/test-push',
+  path: '/api/public/test-push',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicSyncpayWebhookRoute = ApiPublicSyncpayWebhookRouteImport.update({
   id: '/api/public/syncpay-webhook',
   path: '/api/public/syncpay-webhook',
@@ -104,6 +110,7 @@ export interface FileRoutesByFullPath {
   '/relatorios': typeof RelatoriosRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
+  '/api/public/test-push': typeof ApiPublicTestPushRoute
   '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
 export interface FileRoutesByTo {
@@ -119,6 +126,7 @@ export interface FileRoutesByTo {
   '/relatorios': typeof RelatoriosRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
+  '/api/public/test-push': typeof ApiPublicTestPushRoute
   '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
 export interface FileRoutesById {
@@ -135,6 +143,7 @@ export interface FileRoutesById {
   '/relatorios': typeof RelatoriosRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
+  '/api/public/test-push': typeof ApiPublicTestPushRoute
   '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
 export interface FileRouteTypes {
@@ -152,6 +161,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
+    | '/api/public/test-push'
     | '/api/public/webhook-receiver'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
+    | '/api/public/test-push'
     | '/api/public/webhook-receiver'
   id:
     | '__root__'
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/relatorios'
     | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
+    | '/api/public/test-push'
     | '/api/public/webhook-receiver'
   fileRoutesById: FileRoutesById
 }
@@ -198,6 +210,7 @@ export interface RootRouteChildren {
   RelatoriosRoute: typeof RelatoriosRoute
   ApiPublicSendDailySummaryRoute: typeof ApiPublicSendDailySummaryRoute
   ApiPublicSyncpayWebhookRoute: typeof ApiPublicSyncpayWebhookRoute
+  ApiPublicTestPushRoute: typeof ApiPublicTestPushRoute
   ApiPublicWebhookReceiverRoute: typeof ApiPublicWebhookReceiverRoute
 }
 
@@ -280,6 +293,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicWebhookReceiverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/test-push': {
+      id: '/api/public/test-push'
+      path: '/api/public/test-push'
+      fullPath: '/api/public/test-push'
+      preLoaderRoute: typeof ApiPublicTestPushRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/syncpay-webhook': {
       id: '/api/public/syncpay-webhook'
       path: '/api/public/syncpay-webhook'
@@ -310,6 +330,7 @@ const rootRouteChildren: RootRouteChildren = {
   RelatoriosRoute: RelatoriosRoute,
   ApiPublicSendDailySummaryRoute: ApiPublicSendDailySummaryRoute,
   ApiPublicSyncpayWebhookRoute: ApiPublicSyncpayWebhookRoute,
+  ApiPublicTestPushRoute: ApiPublicTestPushRoute,
   ApiPublicWebhookReceiverRoute: ApiPublicWebhookReceiverRoute,
 }
 export const routeTree = rootRouteImport
