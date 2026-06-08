@@ -107,7 +107,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
 }
 
 function Brand({ compact }: { compact?: boolean }) {
-  const logoUrl = "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780897931159-7aa87f62-1d34-4155-b0be-9516affb718e.png";
+  const logoUrl = "/logo-scalehot.png";
   
   return (
     <div className={`flex items-center gap-2.5 ${compact ? "" : "px-5 py-6"}`}>
