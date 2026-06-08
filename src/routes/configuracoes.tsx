@@ -11,6 +11,7 @@ import { Save, Landmark, User, Camera } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { NotificationsCard } from "@/components/NotificationsCard";
 
 export const Route = createFileRoute("/configuracoes")({
   head: () => ({ meta: [{ title: "Configurações — ScaleHot" }] }),
@@ -157,7 +158,10 @@ function Configuracoes() {
             <Save className="size-4 mr-2" /> Salvar Imposto
           </Button>
         </Card>
+
+        <NotificationsCard />
       </div>
+
     </AppLayout>
   );
 }
