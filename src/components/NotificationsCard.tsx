@@ -72,6 +72,7 @@ export function NotificationsCard() {
     try {
       const OneSignal = await getOneSignal();
       if (user?.id) await OneSignal.login(user.id);
+      await OneSignal.User.PushSubscription.optOut();
       await OneSignal.User.PushSubscription.optIn();
       const permission = OneSignal.Notifications.permission;
       const subscription = OneSignal.User.PushSubscription;
@@ -84,7 +85,7 @@ export function NotificationsCard() {
       const result = await testFn({ data: { subscriptionId: subscription.id } });
       if (!result?.ok) {
         console.error("[push] test notification failed", result);
-        toast.error("Assinatura ativada, mas o envio de teste falhou.");
+        toast.error(`Assinatura ativada, mas o teste falhou: ${result?.reason ?? "erro no OneSignal"}`);
       }
     } catch (e: any) {
       console.error(e);
@@ -122,7 +123,7 @@ export function NotificationsCard() {
       if (result?.ok) {
         toast.success("Notificação de teste enviada! Verifique seu dispositivo.");
       } else {
-        toast.error("Falha ao enviar notificação de teste.");
+        toast.error(`Falha ao enviar teste: ${result?.reason ?? "assinatura inválida no OneSignal"}`);
         console.error("[push] test failed", result);
       }
     } catch (e: any) {
