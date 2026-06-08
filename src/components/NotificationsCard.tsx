@@ -81,7 +81,7 @@ export function NotificationsCard() {
       }
       setEnabled(true);
       toast.success("Notificações ativadas com sucesso!");
-      const result = await testFn();
+      const result = await testFn({ data: { subscriptionId: subscription.id } });
       if (!result?.ok) {
         console.error("[push] test notification failed", result);
         toast.error("Assinatura ativada, mas o envio de teste falhou.");
@@ -111,7 +111,14 @@ export function NotificationsCard() {
   async function sendTest() {
     setSendingTest(true);
     try {
-      const result = await testFn();
+      const OneSignal = await getOneSignal();
+      if (user?.id) await OneSignal.login(user.id);
+      const subscriptionId = OneSignal.User?.PushSubscription?.id;
+      if (!subscriptionId) {
+        toast.error("Assinatura do dispositivo não encontrada. Desative e ative novamente as notificações.");
+        return;
+      }
+      const result = await testFn({ data: { subscriptionId } });
       if (result?.ok) {
         toast.success("Notificação de teste enviada! Verifique seu dispositivo.");
       } else {
