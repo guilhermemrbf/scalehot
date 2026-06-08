@@ -124,11 +124,8 @@ export function NotificationsCard() {
     setLoading(true);
     try {
       const OneSignal = await getOneSignal();
-      if (user?.id) await OneSignal.login(user.id);
-      await OneSignal.User.PushSubscription.optIn();
-      const permission = OneSignal.Notifications.permission;
-      const subscription = await waitForPushSubscription(OneSignal);
-      if (!permission || !subscription.optedIn || !subscription.id) {
+      const subscription = await prepareOneSignalDevice(OneSignal, user?.id);
+      if (!OneSignal.Notifications.permission || !subscription.optedIn || !subscription.id) {
         toast.error("Permissão negada. Ative nas configurações do dispositivo.");
         return;
       }
@@ -165,9 +162,7 @@ export function NotificationsCard() {
     setSendingTest(true);
     try {
       const OneSignal = await getOneSignal();
-      if (user?.id) await OneSignal.login(user.id);
-      await OneSignal.User.PushSubscription.optIn();
-      const subscription = await waitForPushSubscription(OneSignal);
+      const subscription = await prepareOneSignalDevice(OneSignal, user?.id);
       const subscriptionId = subscription.id;
       if (!subscriptionId) {
         toast.error("Assinatura do dispositivo não encontrada. Desative e ative novamente as notificações.");
