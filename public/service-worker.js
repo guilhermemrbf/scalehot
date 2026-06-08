@@ -12,6 +12,7 @@ self.addEventListener('push', function (event) {
       body: data.body || 'Nova notificação',
       icon: data.icon || LOGO,
       badge: LOGO,
+      image: data.image || LOGO,
       vibrate: [200, 100, 200],
       tag: data.tag,
       data,
