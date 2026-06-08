@@ -68,7 +68,7 @@ export function NotificationsCard() {
     fetchPrefs().then((p) => setPrefs(p)).catch(() => {});
   }, []);
 
-  async function togglePref(key: "daily_summary" | "milestones" | "per_sale", value: boolean) {
+  async function togglePref(key: "daily_summary" | "milestones" | "per_sale" | "bot_offline", value: boolean) {
     const next = { ...prefs, [key]: value };
     setPrefs(next);
     try {
