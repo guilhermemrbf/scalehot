@@ -161,6 +161,28 @@ export function NotificationsCard() {
           </div>
         </div>
       )}
+
+      {enabled && !inIframe && (
+        <div className="mt-3 space-y-2 rounded-lg border border-border bg-background/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Preferências</p>
+          {([
+            { key: "per_sale", label: "Notificação a cada venda", desc: "Alerta imediato quando entra uma venda" },
+            { key: "daily_summary", label: "Resumo diário às 20h", desc: "Fechamento do dia com faturamento e ROI" },
+            { key: "milestones", label: "Alertas de marcos conquistados", desc: "1ª venda, meta batida, 10 vendas/dia, R$ 1.000 no dia" },
+          ] as const).map((row) => (
+            <div key={row.key} className="flex items-center justify-between gap-3 py-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{row.label}</p>
+                <p className="text-xs text-muted-foreground">{row.desc}</p>
+              </div>
+              <Switch
+                checked={prefs[row.key]}
+                onCheckedChange={(v) => togglePref(row.key, v)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </Card>
   );
 }
