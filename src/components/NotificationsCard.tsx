@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, BellOff, Loader2, Smartphone, Volume2, DollarSign, WifiOff, Share, MoreVertical, X } from "lucide-react";
+import { Bell, BellOff, Loader2, Smartphone, Volume2, DollarSign, WifiOff, Share, MoreVertical, X, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import {
@@ -28,6 +28,7 @@ export function NotificationsCard() {
   const [pwa, setPwa] = useState({ isInstalled: false, isSupported: false, isBrowser: true });
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [sendingTest, setSendingTest] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
 
   const testFn = useServerFn(sendTestNotification);
@@ -104,6 +105,23 @@ export function NotificationsCard() {
       toast.error(e?.message ?? "Falha ao desativar");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function sendTest() {
+    setSendingTest(true);
+    try {
+      const result = await testFn();
+      if (result?.ok) {
+        toast.success("Notificação de teste enviada! Verifique seu dispositivo.");
+      } else {
+        toast.error("Falha ao enviar notificação de teste.");
+        console.error("[push] test failed", result);
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao enviar teste");
+    } finally {
+      setSendingTest(false);
     }
   }
 
@@ -199,7 +217,17 @@ export function NotificationsCard() {
 
       {enabled && (
         <>
-          <div className="grid grid-cols-2 gap-3 mt-2">
+          <button
+            type="button"
+            onClick={sendTest}
+            disabled={sendingTest}
+            className="mt-4 w-full rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-sm font-medium py-2.5 transition flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {sendingTest ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+            {sendingTest ? "Enviando..." : "Enviar notificação de teste"}
+          </button>
+
+          <div className="grid grid-cols-2 gap-3 mt-3">
             <button
               type="button"
               onClick={() => togglePref("per_sale", !prefs.per_sale)}
