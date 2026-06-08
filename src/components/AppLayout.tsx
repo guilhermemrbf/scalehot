@@ -111,8 +111,8 @@ function Brand({ compact }: { compact?: boolean }) {
   
   return (
     <div className={`flex items-center gap-2.5 ${compact ? "" : "px-5 py-6"}`}>
-      <div className="relative size-10 rounded-xl overflow-hidden shadow-glow bg-white flex items-center justify-center p-1">
-        <img src={logoUrl} alt="ScaleUp Logo" className="w-full h-full object-contain" />
+      <div className="relative size-10 flex items-center justify-center">
+        <img src={logoUrl} alt="ScaleHot Logo" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" />
       </div>
       <div className="leading-tight">
         <div className="font-display font-bold text-lg tracking-tight text-foreground">ScaleHot</div>
