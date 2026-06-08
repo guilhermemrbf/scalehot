@@ -107,12 +107,12 @@ export function AppLayout({ children }: { children: ReactNode }) {
 }
 
 function Brand({ compact }: { compact?: boolean }) {
-  const logoUrl = "/logo-scalehot.png";
+  const logoUrl = "/icon-192.png";
   
   return (
     <div className={`flex items-center gap-2.5 ${compact ? "" : "px-5 py-6"}`}>
-      <div className="relative size-10 flex items-center justify-center">
-        <img src={logoUrl} alt="ScaleUp Logo" className="w-full h-full object-contain drop-shadow-[0_0_8px_rgba(255,255,255,0.15)]" />
+      <div className="relative size-10 rounded-xl overflow-hidden ring-1 ring-primary/30 shadow-[0_0_18px_rgba(168,85,247,0.35)]">
+        <img src={logoUrl} alt="ScaleUp Logo" className="w-full h-full object-cover" />
       </div>
       <div className="leading-tight">
         <div className="font-display font-bold text-lg tracking-tight text-foreground">ScaleUp</div>
