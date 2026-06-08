@@ -253,6 +253,21 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
           }
         }
 
+        if (parsed.type === "cashin") {
+          try {
+            const { sendPushToUser } = await import("@/lib/push.server");
+            const valor = parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+            const who = parsed.client_name ? ` — ${parsed.client_name}` : "";
+            await sendPushToUser(userId, {
+              title: "💰 Nova venda recebida!",
+              body: `${valor} via ${parsed.gateway}${who}`,
+              tag: parsed.transaction_id ?? undefined,
+            });
+          } catch (e) {
+            console.error("[webhook-receiver] push failed:", e);
+          }
+        }
+
         return json({ status: "success" }, 200);
       },
     },
