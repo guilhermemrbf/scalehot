@@ -32,6 +32,7 @@ export function loadOneSignal(): Promise<any> {
             appId: ONESIGNAL_APP_ID,
             serviceWorkerParam: { scope: "/" },
             serviceWorkerPath: "OneSignalSDKWorker.js",
+            autoResubscribe: true,
             notifyButton: { enable: false },
             allowLocalhostAsSecureOrigin: true,
           });
