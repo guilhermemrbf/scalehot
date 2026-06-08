@@ -71,7 +71,7 @@ function Configuracoes() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const LOGO_URL = "/logo-scalehot.png";
+  const LOGO_URL = "/icon-512.png";
 
   return (
     <AppLayout>
@@ -81,8 +81,8 @@ function Configuracoes() {
         {/* Perfil */}
         <Card className="p-6 bg-gradient-card">
           <div className="flex flex-col items-center mb-6">
-            <div className="size-24 flex items-center justify-center">
-              <img src={LOGO_URL} alt="ScaleUp" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.2)]" />
+            <div className="size-24 rounded-2xl overflow-hidden ring-1 ring-primary/40 shadow-[0_0_28px_rgba(168,85,247,0.4)]">
+              <img src={LOGO_URL} alt="ScaleUp" className="w-full h-full object-cover" />
             </div>
             <p className="mt-2 text-xs text-muted-foreground tracking-widest uppercase">ScaleUp</p>
           </div>
