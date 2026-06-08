@@ -52,7 +52,7 @@ export function NotificationsCard() {
         toast.error("Permissão negada. Ative as notificações nas configurações do navegador.");
         return;
       }
-      const reg = (await navigator.serviceWorker.getRegistration()) ?? (await navigator.serviceWorker.register("/sw.js"));
+      const reg = (await navigator.serviceWorker.getRegistration()) ?? (await navigator.serviceWorker.register("/service-worker.js"));
       await navigator.serviceWorker.ready;
       const { publicKey } = await fetchVapid();
       if (!publicKey) throw new Error("Chave VAPID não configurada");
