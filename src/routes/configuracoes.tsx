@@ -72,39 +72,7 @@ function Configuracoes() {
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    try {
-      setUploading(true);
-      if (!event.target.files || event.target.files.length === 0) {
-        throw new Error('Você deve selecionar uma imagem para fazer o upload.');
-      }
-
-      const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
-      const filePath = `${user?.id}/${Math.random()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage.from('avatars').getPublicUrl(filePath);
-
-      const { error: updateError } = await supabase.from('profiles').update({
-        avatar_url: publicUrl,
-      }).eq('id', user?.id || "");
-
-      if (updateError) throw updateError;
-
-      toast.success('Foto de perfil atualizada!');
-      qc.invalidateQueries();
-    } catch (error: any) {
-      toast.error(error.message);
-    } finally {
-      setUploading(false);
-    }
-  };
+  const LOGO_URL = "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780550473717-76e036f0-c55c-4e17-acd2-d98b1b0f50d3.jpeg";
 
   return (
     <AppLayout>
@@ -114,20 +82,10 @@ function Configuracoes() {
         {/* Perfil */}
         <Card className="p-6 bg-gradient-card">
           <div className="flex flex-col items-center mb-6">
-            <div className="relative group">
-              <div className="size-24 rounded-full overflow-hidden bg-muted flex items-center justify-center border-2 border-primary shadow-glow">
-                {profile?.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="size-12 text-muted-foreground" />
-                )}
-              </div>
-              <label className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-full cursor-pointer">
-                <Camera className="size-6 text-white" />
-                <input type="file" className="hidden" accept="image/*" onChange={uploadAvatar} disabled={uploading} />
-              </label>
+            <div className="size-24 rounded-full overflow-hidden bg-muted flex items-center justify-center border-2 border-primary shadow-glow">
+              <img src={LOGO_URL} alt="ScaleHot" className="w-full h-full object-cover" />
             </div>
-            <p className="mt-2 text-xs text-muted-foreground">{uploading ? "Enviando..." : "Clique para alterar a foto"}</p>
+            <p className="mt-2 text-xs text-muted-foreground">ScaleHot</p>
           </div>
 
           <div className="space-y-4">
