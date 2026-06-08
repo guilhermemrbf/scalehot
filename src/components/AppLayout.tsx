@@ -116,7 +116,7 @@ function Brand({ compact }: { compact?: boolean }) {
       </div>
       <div className="leading-tight">
         <div className="font-display font-bold text-lg tracking-tight text-foreground">ScaleUp</div>
-        {!compact && <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-medium">Gestor Inteligente</div>}
+        {!compact && <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground font-medium">Crescimento digital</div>}
       </div>
     </div>
   );
