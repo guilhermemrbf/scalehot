@@ -5,25 +5,11 @@ import { Switch } from "@/components/ui/switch";
 import { Bell, BellOff, Loader2, Smartphone, Volume2, DollarSign, WifiOff, Share, MoreVertical, X } from "lucide-react";
 import { toast } from "sonner";
 import {
-  getVapidPublicKey,
-  savePushSubscription,
-  removePushSubscription,
   sendTestNotification,
   getNotificationPreferences,
   saveNotificationPreferences,
 } from "@/lib/push.functions";
-
-function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  // Mantém apenas caracteres válidos de base64url (remove espaços, quebras, aspas, BOM, etc.)
-  const clean = (base64String ?? "").replace(/[^A-Za-z0-9\-_]/g, "");
-  if (!clean) throw new Error("Chave VAPID vazia ou inválida");
-  const padding = "=".repeat((4 - (clean.length % 4)) % 4);
-  const base64 = (clean + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const raw = window.atob(base64);
-  const arr = new Uint8Array(raw.length);
-  for (let i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
-  return arr;
-}
+import { getOneSignal } from "@/lib/onesignal";
 
 function getPWAStatus() {
   if (typeof window === "undefined") {
@@ -32,26 +18,16 @@ function getPWAStatus() {
   const isInstalled =
     window.matchMedia("(display-mode: standalone)").matches ||
     (window.navigator as any).standalone === true;
-  const hasServiceWorker = "serviceWorker" in navigator;
-  const hasPushManager = "PushManager" in window;
-  const hasNotification = "Notification" in window;
-  return {
-    isInstalled,
-    isSupported: hasServiceWorker && hasPushManager && hasNotification,
-    isBrowser: !isInstalled,
-  };
+  const isSupported = "serviceWorker" in navigator && "Notification" in window;
+  return { isInstalled, isSupported, isBrowser: !isInstalled };
 }
 
 export function NotificationsCard() {
   const [pwa, setPwa] = useState({ isInstalled: false, isSupported: false, isBrowser: true });
-  const [permission, setPermission] = useState<NotificationPermission>("default");
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
 
-  const fetchVapid = useServerFn(getVapidPublicKey);
-  const saveSub = useServerFn(savePushSubscription);
-  const removeSub = useServerFn(removePushSubscription);
   const testFn = useServerFn(sendTestNotification);
   const fetchPrefs = useServerFn(getNotificationPreferences);
   const savePrefs = useServerFn(saveNotificationPreferences);
@@ -63,11 +39,17 @@ export function NotificationsCard() {
     const status = getPWAStatus();
     setPwa(status);
     if (!status.isSupported || !status.isInstalled) return;
-    setPermission(Notification.permission);
-    navigator.serviceWorker.ready
-      .then((reg) => reg.pushManager.getSubscription())
-      .then((sub) => setEnabled(!!sub))
-      .catch(() => {});
+
+    (async () => {
+      try {
+        const OneSignal = await getOneSignal();
+        const isOptedIn = !!OneSignal.User?.PushSubscription?.optedIn;
+        setEnabled(isOptedIn);
+      } catch (e) {
+        console.warn("[push] failed to read OneSignal state", e);
+      }
+    })();
+
     fetchPrefs().then((p) => setPrefs(p)).catch(() => {});
   }, []);
 
@@ -85,25 +67,16 @@ export function NotificationsCard() {
   async function enable() {
     setLoading(true);
     try {
-      const perm = await Notification.requestPermission();
-      setPermission(perm);
-      if (perm !== "granted") {
+      const OneSignal = await getOneSignal();
+      await OneSignal.Notifications.requestPermission();
+      const permission = OneSignal.Notifications.permission;
+      if (!permission) {
         toast.error("Permissão negada. Ative nas configurações do dispositivo.");
         return;
       }
-      const reg = (await navigator.serviceWorker.getRegistration()) ?? (await navigator.serviceWorker.register("/service-worker.js"));
-      await navigator.serviceWorker.ready;
-      const { publicKey } = await fetchVapid();
-      console.log("[push] VAPID key length:", publicKey?.length, "preview:", publicKey?.slice(0, 12), "...", publicKey?.slice(-6));
-      if (!publicKey) throw new Error("Chave VAPID não configurada");
-      let sub = await reg.pushManager.getSubscription();
-      if (!sub) {
-        sub = await reg.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(publicKey).buffer as ArrayBuffer,
-        });
+      if (!OneSignal.User.PushSubscription.optedIn) {
+        await OneSignal.User.PushSubscription.optIn();
       }
-      await saveSub({ data: { subscription: sub.toJSON() as any } });
       setEnabled(true);
       toast.success("Notificações ativadas com sucesso!");
       await testFn();
@@ -118,10 +91,8 @@ export function NotificationsCard() {
   async function disable() {
     setLoading(true);
     try {
-      const reg = await navigator.serviceWorker.getRegistration();
-      const sub = await reg?.pushManager.getSubscription();
-      if (sub) await sub.unsubscribe();
-      await removeSub({ data: undefined });
+      const OneSignal = await getOneSignal();
+      await OneSignal.User.PushSubscription.optOut();
       setEnabled(false);
       toast.success("Notificações desativadas.");
     } catch (e: any) {
@@ -193,7 +164,6 @@ export function NotificationsCard() {
     );
   }
 
-  // ESTADOS 2 e 3 — PWA instalado
   return (
     <Card className="p-6 bg-gradient-card md:col-span-2">
       <div className="flex items-start gap-3 mb-4">
@@ -209,32 +179,18 @@ export function NotificationsCard() {
             {enabled && <Volume2 className="size-4 text-primary" />}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {loading
-              ? "Configurando..."
-              : permission === "denied"
-              ? "Permissão bloqueada no dispositivo"
-              : enabled
-              ? "Alertas de vendas ativos"
-              : "Clique para ativar alertas de vendas"}
+            {loading ? "Configurando..." : enabled ? "Alertas de vendas ativos" : "Clique para ativar alertas de vendas"}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {loading && <Loader2 className="size-4 animate-spin text-muted-foreground" />}
           <Switch
             checked={enabled}
-            disabled={loading || permission === "denied"}
+            disabled={loading}
             onCheckedChange={(v) => (v ? enable() : disable())}
           />
         </div>
       </div>
-
-      {permission === "denied" && (
-        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 mb-3">
-          <p className="text-xs text-amber-200">
-            Para reativar, vá em <strong>Configurações do celular → ScaleUp → Notificações</strong> e permita o envio.
-          </p>
-        </div>
-      )}
 
       {enabled && (
         <>

@@ -123,27 +123,43 @@ function AuthGate({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
+function OneSignalBootstrap() {
+  const { user } = useAuth();
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    let cancelled = false;
+    (async () => {
+      const { loadOneSignal, loginOneSignal, logoutOneSignal } = await import("@/lib/onesignal");
+      await loadOneSignal();
+      if (cancelled) return;
+      if (user?.id) await loginOneSignal(user.id);
+      else await logoutOneSignal();
+    })().catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-    if (!('serviceWorker' in navigator)) return;
-    // Limpa registros antigos (/sw.js) e registra o novo /service-worker.js
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    // Limpa qualquer service worker antigo (VAPID); OneSignal gerencia o seu próprio
     navigator.serviceWorker.getRegistrations().then((regs) => {
       regs.forEach((r) => {
-        if (r.active && r.active.scriptURL.endsWith('/sw.js')) r.unregister();
-      });
-    });
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js').catch((err) => {
-        console.warn('SW registration failed:', err);
+        const url = r.active?.scriptURL ?? "";
+        if (url.endsWith("/sw.js") || url.endsWith("/service-worker.js")) r.unregister();
       });
     });
   }, []);
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
+        <OneSignalBootstrap />
         <AuthGate>
           <Outlet />
         </AuthGate>

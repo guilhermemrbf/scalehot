@@ -51,12 +51,16 @@ export const Route = createFileRoute("/api/public/send-daily-summary")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const { sendPushToUser } = await import("@/lib/push.server");
 
-        // Get all active subscriptions
-        const { data: subs, error: subsErr } = await supabaseAdmin
-          .from("push_subscriptions")
-          .select("user_id, preferences");
+        // Get all profiles with notification preferences
+        const { data: profilesRaw, error: subsErr } = await supabaseAdmin
+          .from("profiles")
+          .select("id, notification_preferences");
         if (subsErr) return json({ error: subsErr.message }, 500);
-        if (!subs?.length) return json({ ok: true, sent: 0, note: "no subscriptions" });
+        const subs = (profilesRaw ?? []).map((p: any) => ({
+          user_id: p.id as string,
+          preferences: p.notification_preferences ?? {},
+        }));
+        if (!subs.length) return json({ ok: true, sent: 0, note: "no users" });
 
         // Brazilian "today" — convert UTC now to São Paulo (UTC-3)
         const now = new Date();
