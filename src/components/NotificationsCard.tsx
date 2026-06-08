@@ -217,7 +217,17 @@ export function NotificationsCard() {
 
       {enabled && (
         <>
-          <div className="grid grid-cols-2 gap-3 mt-2">
+          <button
+            type="button"
+            onClick={sendTest}
+            disabled={sendingTest}
+            className="mt-4 w-full rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 text-sm font-medium py-2.5 transition flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {sendingTest ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
+            {sendingTest ? "Enviando..." : "Enviar notificação de teste"}
+          </button>
+
+          <div className="grid grid-cols-2 gap-3 mt-3">
             <button
               type="button"
               onClick={() => togglePref("per_sale", !prefs.per_sale)}
