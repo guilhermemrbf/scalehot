@@ -34,6 +34,11 @@ export function NotificationsCard() {
   const saveSub = useServerFn(savePushSubscription);
   const removeSub = useServerFn(removePushSubscription);
   const testFn = useServerFn(sendTestNotification);
+  const fetchPrefs = useServerFn(getNotificationPreferences);
+  const savePrefs = useServerFn(saveNotificationPreferences);
+
+  const [prefs, setPrefs] = useState({ daily_summary: true, milestones: true, per_sale: true });
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
