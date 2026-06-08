@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Save, Landmark, User, Camera } from "lucide-react";
+import { Save, Landmark } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
@@ -40,7 +40,6 @@ function Configuracoes() {
 
   const [imposto, setImposto] = useState("");
   const [fullName, setFullName] = useState("");
-  const [uploading, setUploading] = useState(false);
 
   useEffect(() => { 
     if (config) setImposto(String(config.imposto_fixo)); 
