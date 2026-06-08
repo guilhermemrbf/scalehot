@@ -131,7 +131,7 @@ function Dashboard() {
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
   
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
-  const totalReembolsos = fats.reduce((s, f) => s + (Number(f.reembolsos_count) || 0), 0);
+  const totalReembolsos = fats.reduce((s, f) => s + (Number(f.reembolsos_count) || 0), 0) + syncRefunds;
 
   // Faturamento bruto (não fechado) do mês
   const brutoMes = fats.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
