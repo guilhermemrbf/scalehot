@@ -82,6 +82,8 @@ function Dashboard() {
       let query = supabase.from("gastos_anuncios" as any).select("*").order("data");
       if (periodo === "mes") {
         query = query.gte("data", inicioMes).lte("data", hoje);
+      } else if (periodo === "hoje") {
+        query = query.gte("data", hoje).lte("data", hoje);
       }
       const { data, error } = await query;
       if (error) throw error;
