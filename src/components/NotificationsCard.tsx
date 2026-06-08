@@ -51,7 +51,20 @@ export function NotificationsCard() {
       .then((reg) => reg.pushManager.getSubscription())
       .then((sub) => setEnabled(!!sub))
       .catch(() => {});
+    fetchPrefs().then((p) => setPrefs(p)).catch(() => {});
   }, []);
+
+  async function togglePref(key: "daily_summary" | "milestones" | "per_sale", value: boolean) {
+    const next = { ...prefs, [key]: value };
+    setPrefs(next);
+    try {
+      await savePrefs({ data: next });
+    } catch (e: any) {
+      toast.error("Falha ao salvar preferência");
+      setPrefs(prefs);
+    }
+  }
+
 
   async function enable() {
     setLoading(true);
