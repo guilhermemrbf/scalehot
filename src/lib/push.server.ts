@@ -11,11 +11,18 @@ export async function sendPushToUser(
     return { ok: false, reason: "not-configured" };
   }
   try {
-    const res = await fetch("https://onesignal.com/api/v1/notifications", {
+    const normalizedApiKey = apiKey.trim();
+    const authorization = normalizedApiKey.startsWith("Key ")
+      ? normalizedApiKey
+      : normalizedApiKey.startsWith("Basic ")
+        ? normalizedApiKey.replace(/^Basic\s+/, "Key ")
+        : `Key ${normalizedApiKey}`;
+
+    const res = await fetch("https://api.onesignal.com/notifications?c=push", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Basic ${apiKey}`,
+        Authorization: authorization,
       },
       body: JSON.stringify({
         app_id: ONESIGNAL_APP_ID,

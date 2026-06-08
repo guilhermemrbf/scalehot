@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Bell, BellOff, Loader2, Smartphone, Volume2, DollarSign, WifiOff, Share, MoreVertical, X } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/lib/auth";
 import {
   sendTestNotification,
   getNotificationPreferences,
@@ -23,6 +24,7 @@ function getPWAStatus() {
 }
 
 export function NotificationsCard() {
+  const { user } = useAuth();
   const [pwa, setPwa] = useState({ isInstalled: false, isSupported: false, isBrowser: true });
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -68,18 +70,21 @@ export function NotificationsCard() {
     setLoading(true);
     try {
       const OneSignal = await getOneSignal();
-      await OneSignal.Notifications.requestPermission();
+      if (user?.id) await OneSignal.login(user.id);
+      await OneSignal.User.PushSubscription.optIn();
       const permission = OneSignal.Notifications.permission;
-      if (!permission) {
+      const subscription = OneSignal.User.PushSubscription;
+      if (!permission || !subscription.optedIn || !subscription.id) {
         toast.error("Permissão negada. Ative nas configurações do dispositivo.");
         return;
       }
-      if (!OneSignal.User.PushSubscription.optedIn) {
-        await OneSignal.User.PushSubscription.optIn();
-      }
       setEnabled(true);
       toast.success("Notificações ativadas com sucesso!");
-      await testFn();
+      const result = await testFn();
+      if (!result?.ok) {
+        console.error("[push] test notification failed", result);
+        toast.error("Assinatura ativada, mas o envio de teste falhou.");
+      }
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message ?? "Falha ao ativar notificações");
