@@ -18,6 +18,7 @@ import { Route as FechamentoRouteImport } from './routes/fechamento'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
 
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
@@ -64,6 +65,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSyncpayWebhookRoute = ApiPublicSyncpayWebhookRouteImport.update({
+  id: '/api/public/syncpay-webhook',
+  path: '/api/public/syncpay-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/metas'
     | '/registro'
     | '/relatorios'
+    | '/api/public/syncpay-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/metas'
     | '/registro'
     | '/relatorios'
+    | '/api/public/syncpay-webhook'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/metas'
     | '/registro'
     | '/relatorios'
+    | '/api/public/syncpay-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   MetasRoute: typeof MetasRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  ApiPublicSyncpayWebhookRoute: typeof ApiPublicSyncpayWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/syncpay-webhook': {
+      id: '/api/public/syncpay-webhook'
+      path: '/api/public/syncpay-webhook'
+      fullPath: '/api/public/syncpay-webhook'
+      preLoaderRoute: typeof ApiPublicSyncpayWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   MetasRoute: MetasRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
+  ApiPublicSyncpayWebhookRoute: ApiPublicSyncpayWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
