@@ -120,8 +120,10 @@ const GATEWAYS: Gateway[] = [
 
 function buildWebhookUrl(userId: string | undefined) {
   if (!userId) return "";
-  const origin = typeof window !== "undefined" ? window.location.origin : "https://scalehot.lovable.app";
-  return `${origin}/api/public/webhook-receiver?user_id=${userId}`;
+  // Always use the stable production domain so webhooks keep working after publish
+  // and don't break when accessed from a preview/dev URL.
+  const PRODUCTION_ORIGIN = "https://scalehot.lovable.app";
+  return `${PRODUCTION_ORIGIN}/api/public/webhook-receiver?user_id=${userId}`;
 }
 
 function CopyButton({ value, label = "Copiar" }: { value: string; label?: string }) {
