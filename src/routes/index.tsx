@@ -241,7 +241,7 @@ function Dashboard() {
             <h3 className="font-display font-semibold">Comparativo Mensal</h3>
             <span className="text-xs text-muted-foreground">Bruto vs Líquido vs Lucro</span>
           </div>
-          <div className="h-72">
+          <div className="h-52 sm:h-72">
             {monthly.length === 0 ? <Empty msg="Realize fechamentos para visualizar." /> : (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={monthly} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
