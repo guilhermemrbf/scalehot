@@ -53,7 +53,7 @@ export function NotificationsCard() {
   const fetchPrefs = useServerFn(getNotificationPreferences);
   const savePrefs = useServerFn(saveNotificationPreferences);
 
-  const [prefs, setPrefs] = useState({ daily_summary: true, milestones: true, per_sale: true });
+  const [prefs, setPrefs] = useState({ daily_summary: true, milestones: true, per_sale: true, bot_offline: true });
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -68,7 +68,7 @@ export function NotificationsCard() {
     fetchPrefs().then((p) => setPrefs(p)).catch(() => {});
   }, []);
 
-  async function togglePref(key: "daily_summary" | "milestones" | "per_sale", value: boolean) {
+  async function togglePref(key: "daily_summary" | "milestones" | "per_sale" | "bot_offline", value: boolean) {
     const next = { ...prefs, [key]: value };
     setPrefs(next);
     try {
@@ -205,7 +205,13 @@ export function NotificationsCard() {
             {enabled && <Volume2 className="size-4 text-primary" />}
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            {enabled ? "Alertas de vendas ativos" : "Ative para receber alertas de vendas em tempo real"}
+            {loading
+              ? "Configurando..."
+              : permission === "denied"
+              ? "Permissão bloqueada no dispositivo"
+              : enabled
+              ? "Alertas de vendas ativos"
+              : "Clique para ativar alertas de vendas"}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -219,40 +225,51 @@ export function NotificationsCard() {
       </div>
 
       {permission === "denied" && (
-        <p className="text-xs text-amber-400 mb-3">
-          Permissão bloqueada. Ative as notificações nas configurações do seu dispositivo.
-        </p>
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 mb-3">
+          <p className="text-xs text-amber-200">
+            Para reativar, vá em <strong>Configurações do celular → ScaleUp → Notificações</strong> e permita o envio.
+          </p>
+        </div>
       )}
 
       {enabled && (
         <>
           <div className="grid grid-cols-2 gap-3 mt-2">
-            <div className="rounded-lg border border-border bg-background/40 p-3 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => togglePref("per_sale", !prefs.per_sale)}
+              className={`text-left rounded-lg border bg-background/40 p-3 flex items-center gap-3 transition ${prefs.per_sale ? "border-emerald-500/40" : "border-border opacity-60"}`}
+            >
               <div className="size-9 rounded-lg bg-emerald-500/15 text-emerald-400 grid place-items-center">
                 <DollarSign className="size-4" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">Vendas</p>
                 <p className="text-[11px] text-muted-foreground">PIX aprovado</p>
               </div>
-            </div>
-            <div className="rounded-lg border border-border bg-background/40 p-3 flex items-center gap-3">
+              <Switch checked={prefs.per_sale} onCheckedChange={(v) => togglePref("per_sale", v)} />
+            </button>
+            <button
+              type="button"
+              onClick={() => togglePref("bot_offline", !prefs.bot_offline)}
+              className={`text-left rounded-lg border bg-background/40 p-3 flex items-center gap-3 transition ${prefs.bot_offline ? "border-emerald-500/40" : "border-border opacity-60"}`}
+            >
               <div className="size-9 rounded-lg bg-rose-500/15 text-rose-400 grid place-items-center">
                 <WifiOff className="size-4" />
               </div>
-              <div className="min-w-0">
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">Bot Offline</p>
                 <p className="text-[11px] text-muted-foreground">Bot fora do ar</p>
               </div>
-            </div>
+              <Switch checked={prefs.bot_offline} onCheckedChange={(v) => togglePref("bot_offline", v)} />
+            </button>
           </div>
 
           <div className="mt-3 space-y-2 rounded-lg border border-border bg-background/40 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Preferências</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Outras preferências</p>
             {([
-              { key: "per_sale", label: "Notificação a cada venda", desc: "Alerta imediato quando entra uma venda" },
               { key: "daily_summary", label: "Resumo diário às 20h", desc: "Fechamento do dia com faturamento e ROI" },
-              { key: "milestones", label: "Alertas de marcos conquistados", desc: "1ª venda, meta batida, 10 vendas/dia, R$ 1.000 no dia" },
+              { key: "milestones", label: "Marcos conquistados", desc: "1ª venda, meta batida, 10 vendas/dia, R$ 1.000 no dia" },
             ] as const).map((row) => (
               <div key={row.key} className="flex items-center justify-between gap-3 py-1.5">
                 <div className="flex-1 min-w-0">
