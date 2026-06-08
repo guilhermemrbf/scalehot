@@ -17,7 +17,7 @@ import { useAuth } from "@/lib/auth";
 import { VendasTempoReal } from "@/components/VendasTempoReal";
 
 export const Route = createFileRoute("/")({
-  head: () => ({ meta: [{ title: "Dashboard — ScaleHot" }] }),
+  head: () => ({ meta: [{ title: "Dashboard — ScaleUp" }] }),
   component: Dashboard,
 });
 
@@ -184,7 +184,7 @@ function Dashboard() {
     <AppLayout>
       <PageHeader 
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
-        subtitle="Visão geral do seu desempenho financeiro"
+        subtitle="Visão geral do seu crescimento digital"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">

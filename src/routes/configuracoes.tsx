@@ -14,7 +14,7 @@ import { useAuth } from "@/lib/auth";
 import { NotificationsCard } from "@/components/NotificationsCard";
 
 export const Route = createFileRoute("/configuracoes")({
-  head: () => ({ meta: [{ title: "Configurações — ScaleHot" }] }),
+  head: () => ({ meta: [{ title: "Configurações — ScaleUp" }] }),
   component: Configuracoes,
 });
 
@@ -82,9 +82,9 @@ function Configuracoes() {
         <Card className="p-6 bg-gradient-card">
           <div className="flex flex-col items-center mb-6">
             <div className="size-24 flex items-center justify-center">
-              <img src={LOGO_URL} alt="ScaleHot" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.2)]" />
+              <img src={LOGO_URL} alt="ScaleUp" className="w-full h-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.2)]" />
             </div>
-            <p className="mt-2 text-xs text-muted-foreground tracking-widest uppercase">ScaleHot</p>
+            <p className="mt-2 text-xs text-muted-foreground tracking-widest uppercase">ScaleUp</p>
           </div>
 
           <div className="space-y-4">

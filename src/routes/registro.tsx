@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { PlusCircle, Calendar } from "lucide-react";
 
 export const Route = createFileRoute("/registro")({
-  head: () => ({ meta: [{ title: "Registro Diário — ScaleHot" }] }),
+  head: () => ({ meta: [{ title: "Registro Diário — ScaleUp" }] }),
   component: Registro,
 });
 

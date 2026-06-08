@@ -8,10 +8,11 @@ self.addEventListener('push', function (event) {
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data ? event.data.text() : '' }; }
   const LOGO = '/logo-scalehot.png';
   event.waitUntil(
-    self.registration.showNotification(data.title || 'ScaleHot', {
+    self.registration.showNotification(data.title || 'ScaleUp', {
       body: data.body || 'Nova notificação',
       icon: data.icon || LOGO,
       badge: LOGO,
+      image: data.image || LOGO,
       vibrate: [200, 100, 200],
       tag: data.tag,
       data,

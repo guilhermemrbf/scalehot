@@ -46,7 +46,7 @@ export const sendTestNotification = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { sendPushToUser } = await import("./push.server");
     const res = await sendPushToUser(context.userId, {
-      title: "🎉 ScaleHot Ativado!",
+      title: "🎉 ScaleUp Ativado!",
       body: "Suas notificações estão funcionando. Você será avisado a cada nova venda!",
     });
     return res;
