@@ -185,22 +185,6 @@ function Dashboard() {
       <PageHeader 
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
         subtitle="Visão geral do seu desempenho financeiro"
-        action={
-          <div className="flex bg-muted p-0.5 rounded-md w-fit h-fit self-start sm:self-center">
-            <button 
-              onClick={() => setPeriodo("mes")}
-              className={`px-2 py-1 rounded-sm text-[10px] uppercase tracking-wider font-bold transition-all ${periodo === "mes" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Mês
-            </button>
-            <button 
-              onClick={() => setPeriodo("total")}
-              className={`px-2 py-1 rounded-sm text-[10px] uppercase tracking-wider font-bold transition-all ${periodo === "total" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Total
-            </button>
-          </div>
-        }
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
