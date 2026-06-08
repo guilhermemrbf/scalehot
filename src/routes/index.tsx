@@ -14,6 +14,7 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
+import { VendasTempoReal } from "@/components/VendasTempoReal";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Dashboard — ScaleHot" }] }),
