@@ -6,7 +6,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('push', function (event) {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = { body: event.data ? event.data.text() : '' }; }
-  const LOGO = '/logo-scalehot.png';
+  const LOGO = '/icon-192.png';
   event.waitUntil(
     self.registration.showNotification(data.title || 'ScaleUp', {
       body: data.body || 'Nova notificação',
