@@ -104,7 +104,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         )}
       </AnimatePresence>
 
-      <main className="flex-1 min-w-0 pt-14 lg:pt-0">
+      <main className="flex-1 min-w-0 lg:pt-0" style={{ paddingTop: "calc(env(safe-area-inset-top) + 3.5rem)" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-10">{children}</div>
       </main>
     </div>
