@@ -9,7 +9,10 @@ import {
   savePushSubscription,
   removePushSubscription,
   sendTestNotification,
+  getNotificationPreferences,
+  saveNotificationPreferences,
 } from "@/lib/push.functions";
+
 
 function urlBase64ToUint8Array(base64String: string) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
@@ -31,6 +34,11 @@ export function NotificationsCard() {
   const saveSub = useServerFn(savePushSubscription);
   const removeSub = useServerFn(removePushSubscription);
   const testFn = useServerFn(sendTestNotification);
+  const fetchPrefs = useServerFn(getNotificationPreferences);
+  const savePrefs = useServerFn(saveNotificationPreferences);
+
+  const [prefs, setPrefs] = useState({ daily_summary: true, milestones: true, per_sale: true });
+
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -43,7 +51,20 @@ export function NotificationsCard() {
       .then((reg) => reg.pushManager.getSubscription())
       .then((sub) => setEnabled(!!sub))
       .catch(() => {});
+    fetchPrefs().then((p) => setPrefs(p)).catch(() => {});
   }, []);
+
+  async function togglePref(key: "daily_summary" | "milestones" | "per_sale", value: boolean) {
+    const next = { ...prefs, [key]: value };
+    setPrefs(next);
+    try {
+      await savePrefs({ data: next });
+    } catch (e: any) {
+      toast.error("Falha ao salvar preferência");
+      setPrefs(prefs);
+    }
+  }
+
 
   async function enable() {
     setLoading(true);
@@ -138,6 +159,28 @@ export function NotificationsCard() {
               onCheckedChange={(v) => (v ? enable() : disable())}
             />
           </div>
+        </div>
+      )}
+
+      {enabled && !inIframe && (
+        <div className="mt-3 space-y-2 rounded-lg border border-border bg-background/40 p-4">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Preferências</p>
+          {([
+            { key: "per_sale", label: "Notificação a cada venda", desc: "Alerta imediato quando entra uma venda" },
+            { key: "daily_summary", label: "Resumo diário às 20h", desc: "Fechamento do dia com faturamento e ROI" },
+            { key: "milestones", label: "Alertas de marcos conquistados", desc: "1ª venda, meta batida, 10 vendas/dia, R$ 1.000 no dia" },
+          ] as const).map((row) => (
+            <div key={row.key} className="flex items-center justify-between gap-3 py-1.5">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{row.label}</p>
+                <p className="text-xs text-muted-foreground">{row.desc}</p>
+              </div>
+              <Switch
+                checked={prefs[row.key]}
+                onCheckedChange={(v) => togglePref(row.key, v)}
+              />
+            </div>
+          ))}
         </div>
       )}
     </Card>

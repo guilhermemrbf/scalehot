@@ -257,18 +257,112 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
           try {
             const { sendPushToUser } = await import("@/lib/push.server");
             const valor = parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-            const who = parsed.client_name ? ` — ${parsed.client_name}` : "";
-            await sendPushToUser(userId, {
-              title: "💰 Nova venda recebida!",
-              body: `${valor} via ${parsed.gateway}${who}`,
-              tag: parsed.transaction_id ?? undefined,
-            });
+
+            // Buscar preferências
+            const { data: subRow } = await supabaseAdmin
+              .from("push_subscriptions")
+              .select("preferences")
+              .eq("user_id", userId)
+              .maybeSingle();
+            const prefs = ((subRow?.preferences as any) ?? {
+              per_sale: true,
+              milestones: true,
+            }) as { per_sale?: boolean; milestones?: boolean };
+
+            // === Marcos especiais ===
+            let milestoneSent = false;
+            if (prefs.milestones !== false) {
+              // Totais do usuário
+              const { count: totalCount } = await supabaseAdmin
+                .from("transactions")
+                .select("*", { count: "exact", head: true })
+                .eq("user_id", userId)
+                .eq("type", "cashin");
+
+              // Datas (Brasília)
+              const now = new Date();
+              const sp = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+              const y = sp.getUTCFullYear();
+              const m = String(sp.getUTCMonth() + 1).padStart(2, "0");
+              const d = String(sp.getUTCDate()).padStart(2, "0");
+              const dayStart = new Date(`${y}-${m}-${d}T00:00:00-03:00`).toISOString();
+              const monthStart = new Date(`${y}-${m}-01T00:00:00-03:00`).toISOString();
+
+              const { data: dayTx } = await supabaseAdmin
+                .from("transactions")
+                .select("amount, liquid_amount")
+                .eq("user_id", userId)
+                .eq("type", "cashin")
+                .gte("created_at", dayStart);
+
+              const dayTotal = (dayTx ?? []).reduce((s, t) => s + Number(t.amount || 0), 0);
+              const dayCount = (dayTx ?? []).length;
+
+              const { data: monthTx } = await supabaseAdmin
+                .from("transactions")
+                .select("liquid_amount, amount")
+                .eq("user_id", userId)
+                .eq("type", "cashin")
+                .gte("created_at", monthStart);
+              const monthLiquid = (monthTx ?? []).reduce(
+                (s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0),
+                0
+              );
+              const prevMonthLiquid = monthLiquid - Number(parsed.liquid_amount ?? parsed.amount ?? 0);
+
+              // 1ª venda da vida
+              if (totalCount === 1) {
+                await sendPushToUser(userId, {
+                  title: "🎉 SUA PRIMEIRA VENDA!",
+                  body: `${valor} — Esse é só o começo!\nBem-vindo ao clube dos que fazem acontecer 🏆`,
+                  tag: "milestone-first-sale",
+                });
+                milestoneSent = true;
+              }
+              // Meta mensal cruzou R$ 1.650
+              else if (prevMonthLiquid < 1650 && monthLiquid >= 1650) {
+                await sendPushToUser(userId, {
+                  title: "🏆 META BATIDA!",
+                  body: `Você atingiu R$ 1.650 de lucro esse mês!\nScaleHot te viu crescer 💎`,
+                  tag: `milestone-month-${y}${m}`,
+                });
+                milestoneSent = true;
+              }
+              // 10ª venda do dia
+              else if (dayCount === 10) {
+                await sendPushToUser(userId, {
+                  title: "⚡ 10 VENDAS HOJE!",
+                  body: `Sua operação está em chamas 🔥\nFaturamento do dia: ${dayTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
+                  tag: `milestone-10-${y}${m}${d}`,
+                });
+                milestoneSent = true;
+              }
+              // Cruzou R$ 1.000 no dia
+              else if (dayTotal >= 1000 && dayTotal - Number(parsed.amount || 0) < 1000) {
+                await sendPushToUser(userId, {
+                  title: "💰 R$ 1.000 em um único dia!",
+                  body: `Você cruzou a barreira dos 4 dígitos\nIsso merece comemoração 🚀`,
+                  tag: `milestone-1k-${y}${m}${d}`,
+                });
+                milestoneSent = true;
+              }
+            }
+
+            // Notificação padrão "Venda Aprovada"
+            if (!milestoneSent && prefs.per_sale !== false) {
+              await sendPushToUser(userId, {
+                title: "💰 Venda Aprovada!",
+                body: valor,
+                tag: parsed.transaction_id ?? undefined,
+              });
+            }
           } catch (e) {
             console.error("[webhook-receiver] push failed:", e);
           }
         }
 
         return json({ status: "success" }, 200);
+
       },
     },
   },
