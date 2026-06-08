@@ -21,6 +21,7 @@ import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicWebhookReceiverRouteImport } from './routes/api/public/webhook-receiver'
 import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
+import { Route as ApiPublicSendDailySummaryRouteImport } from './routes/api/public/send-daily-summary'
 
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
@@ -83,6 +84,12 @@ const ApiPublicSyncpayWebhookRoute = ApiPublicSyncpayWebhookRouteImport.update({
   path: '/api/public/syncpay-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicSendDailySummaryRoute =
+  ApiPublicSendDailySummaryRouteImport.update({
+    id: '/api/public/send-daily-summary',
+    path: '/api/public/send-daily-summary',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -95,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
   '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
@@ -109,6 +117,7 @@ export interface FileRoutesByTo {
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
   '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
@@ -124,6 +133,7 @@ export interface FileRoutesById {
   '/metas': typeof MetasRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
   '/api/public/webhook-receiver': typeof ApiPublicWebhookReceiverRoute
 }
@@ -140,6 +150,7 @@ export interface FileRouteTypes {
     | '/metas'
     | '/registro'
     | '/relatorios'
+    | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
     | '/api/public/webhook-receiver'
   fileRoutesByTo: FileRoutesByTo
@@ -154,6 +165,7 @@ export interface FileRouteTypes {
     | '/metas'
     | '/registro'
     | '/relatorios'
+    | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
     | '/api/public/webhook-receiver'
   id:
@@ -168,6 +180,7 @@ export interface FileRouteTypes {
     | '/metas'
     | '/registro'
     | '/relatorios'
+    | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
     | '/api/public/webhook-receiver'
   fileRoutesById: FileRoutesById
@@ -183,6 +196,7 @@ export interface RootRouteChildren {
   MetasRoute: typeof MetasRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  ApiPublicSendDailySummaryRoute: typeof ApiPublicSendDailySummaryRoute
   ApiPublicSyncpayWebhookRoute: typeof ApiPublicSyncpayWebhookRoute
   ApiPublicWebhookReceiverRoute: typeof ApiPublicWebhookReceiverRoute
 }
@@ -273,6 +287,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSyncpayWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/send-daily-summary': {
+      id: '/api/public/send-daily-summary'
+      path: '/api/public/send-daily-summary'
+      fullPath: '/api/public/send-daily-summary'
+      preLoaderRoute: typeof ApiPublicSendDailySummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -287,9 +308,20 @@ const rootRouteChildren: RootRouteChildren = {
   MetasRoute: MetasRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
+  ApiPublicSendDailySummaryRoute: ApiPublicSendDailySummaryRoute,
   ApiPublicSyncpayWebhookRoute: ApiPublicSyncpayWebhookRoute,
   ApiPublicWebhookReceiverRoute: ApiPublicWebhookReceiverRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
