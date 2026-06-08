@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const [periodo, setPeriodo] = useState<"mes" | "total">("mes");
+  const [periodo, setPeriodo] = useState<"hoje" | "mes" | "total">("mes");
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
 
