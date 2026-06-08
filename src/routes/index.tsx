@@ -99,6 +99,7 @@ function Dashboard() {
         .select("*")
         .order("created_at", { ascending: false });
       if (periodo === "mes") q = q.gte("created_at", inicioMes);
+      else if (periodo === "hoje") q = q.gte("created_at", `${hoje}T00:00:00`).lte("created_at", `${hoje}T23:59:59`);
       const { data, error } = await q;
       if (error) throw error;
       return (data as any[]) ?? [];
