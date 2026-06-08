@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 function Dashboard() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const [periodo, setPeriodo] = useState<"mes" | "total">("mes");
+  const [periodo, setPeriodo] = useState<"hoje" | "mes" | "total">("mes");
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
 
@@ -52,6 +52,8 @@ function Dashboard() {
       let query = supabase.from("faturamentos").select("*").order("data");
       if (periodo === "mes") {
         query = query.gte("data", inicioMes).lte("data", hoje);
+      } else if (periodo === "hoje") {
+        query = query.gte("data", hoje).lte("data", hoje);
       }
       const { data, error } = await query;
       if (error) throw error;
@@ -65,6 +67,8 @@ function Dashboard() {
       let query = supabase.from("fechamentos").select("*").order("data_inicio");
       if (periodo === "mes") {
         query = query.gte("data_inicio", inicioMes).lte("data_fim", hoje);
+      } else if (periodo === "hoje") {
+        query = query.gte("data_inicio", hoje).lte("data_fim", hoje);
       }
       const { data, error } = await query;
       if (error) throw error;
@@ -78,6 +82,8 @@ function Dashboard() {
       let query = supabase.from("gastos_anuncios" as any).select("*").order("data");
       if (periodo === "mes") {
         query = query.gte("data", inicioMes).lte("data", hoje);
+      } else if (periodo === "hoje") {
+        query = query.gte("data", hoje).lte("data", hoje);
       }
       const { data, error } = await query;
       if (error) throw error;
@@ -93,6 +99,7 @@ function Dashboard() {
         .select("*")
         .order("created_at", { ascending: false });
       if (periodo === "mes") q = q.gte("created_at", inicioMes);
+      else if (periodo === "hoje") q = q.gte("created_at", `${hoje}T00:00:00`).lte("created_at", `${hoje}T23:59:59`);
       const { data, error } = await q;
       if (error) throw error;
       return (data as any[]) ?? [];
@@ -178,22 +185,6 @@ function Dashboard() {
       <PageHeader 
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
         subtitle="Visão geral do seu desempenho financeiro"
-        action={
-          <div className="flex bg-muted p-0.5 rounded-md w-fit h-fit self-start sm:self-center">
-            <button 
-              onClick={() => setPeriodo("mes")}
-              className={`px-2 py-1 rounded-sm text-[10px] uppercase tracking-wider font-bold transition-all ${periodo === "mes" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Mês
-            </button>
-            <button 
-              onClick={() => setPeriodo("total")}
-              className={`px-2 py-1 rounded-sm text-[10px] uppercase tracking-wider font-bold transition-all ${periodo === "total" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              Total
-            </button>
-          </div>
-        }
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -271,6 +262,34 @@ function Dashboard() {
       <VendasTempoReal />
 
       <MetasSection qc={qc} fats={fats} />
+
+      <Card className="p-6 mt-6 bg-gradient-card">
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-center">
+            <h3 className="font-display text-lg font-bold tracking-tight">Período de Visualização</h3>
+            <p className="text-xs text-muted-foreground mt-1">Escolha o intervalo aplicado aos indicadores acima</p>
+          </div>
+          <div className="flex bg-muted p-1.5 rounded-xl w-full max-w-md gap-1">
+            {([
+              { key: "hoje", label: "Hoje" },
+              { key: "mes", label: "Mês" },
+              { key: "total", label: "Total" },
+            ] as const).map((opt) => (
+              <button
+                key={opt.key}
+                onClick={() => setPeriodo(opt.key)}
+                className={`flex-1 px-4 py-3 rounded-lg text-sm sm:text-base uppercase tracking-wider font-bold transition-all ${
+                  periodo === opt.key
+                    ? "bg-background text-foreground shadow-md"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </Card>
     </AppLayout>
   );
 }
