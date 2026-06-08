@@ -1,11 +1,11 @@
 {
   "name": "ScaleHot",
   "short_name": "ScaleHot",
-  "description": "Gestor Financeiro Inteligente",
+  "description": "Gestor inteligente da sua operação digital",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0d0d1a",
-  "theme_color": "#a855f7",
+  "background_color": "#0f0f1a",
+  "theme_color": "#7c3aed",
   "orientation": "portrait",
   "icons": [
     {
