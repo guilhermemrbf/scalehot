@@ -56,6 +56,26 @@ async function waitForPushSubscription(OneSignal: any) {
   });
 }
 
+function wait(ms: number) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+async function prepareOneSignalDevice(OneSignal: any, userId?: string) {
+  if (userId) {
+    await OneSignal.login(userId);
+  }
+
+  if (!OneSignal.Notifications.permission) {
+    await OneSignal.Notifications.requestPermission?.();
+  }
+
+  await OneSignal.User.PushSubscription.optIn();
+  const subscription = await waitForPushSubscription(OneSignal);
+  await navigator.serviceWorker?.getRegistration?.("/").then((registration) => registration?.update()).catch(() => {});
+  await wait(2500);
+  return subscription;
+}
+
 export function NotificationsCard() {
   const { user } = useAuth();
   const [pwa, setPwa] = useState({ isInstalled: false, isSupported: false, isBrowser: true });
