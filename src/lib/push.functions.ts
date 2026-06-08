@@ -56,7 +56,10 @@ const prefsSchema = z.object({
   daily_summary: z.boolean(),
   milestones: z.boolean(),
   per_sale: z.boolean(),
+  bot_offline: z.boolean(),
 });
+
+const DEFAULT_PREFS = { daily_summary: true, milestones: true, per_sale: true, bot_offline: true };
 
 export const getNotificationPreferences = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -67,8 +70,13 @@ export const getNotificationPreferences = createServerFn({ method: "GET" })
       .select("preferences")
       .eq("user_id", userId)
       .maybeSingle();
-    const prefs = (data?.preferences as any) ?? { daily_summary: true, milestones: true, per_sale: true };
-    return prefs as { daily_summary: boolean; milestones: boolean; per_sale: boolean };
+    const stored = (data?.preferences as any) ?? {};
+    return { ...DEFAULT_PREFS, ...stored } as {
+      daily_summary: boolean;
+      milestones: boolean;
+      per_sale: boolean;
+      bot_offline: boolean;
+    };
   });
 
 export const saveNotificationPreferences = createServerFn({ method: "POST" })
