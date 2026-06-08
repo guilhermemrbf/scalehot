@@ -14,7 +14,9 @@ import {
 } from "@/lib/push.functions";
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
-  const clean = (base64String ?? "").trim().replace(/\s+/g, "");
+  // Mantém apenas caracteres válidos de base64url (remove espaços, quebras, aspas, BOM, etc.)
+  const clean = (base64String ?? "").replace(/[^A-Za-z0-9\-_]/g, "");
+  if (!clean) throw new Error("Chave VAPID vazia ou inválida");
   const padding = "=".repeat((4 - (clean.length % 4)) % 4);
   const base64 = (clean + padding).replace(/-/g, "+").replace(/_/g, "/");
   const raw = window.atob(base64);
