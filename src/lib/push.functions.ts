@@ -51,3 +51,36 @@ export const sendTestNotification = createServerFn({ method: "POST" })
     });
     return res;
   });
+
+const prefsSchema = z.object({
+  daily_summary: z.boolean(),
+  milestones: z.boolean(),
+  per_sale: z.boolean(),
+});
+
+export const getNotificationPreferences = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data } = await supabase
+      .from("push_subscriptions")
+      .select("preferences")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const prefs = (data?.preferences as any) ?? { daily_summary: true, milestones: true, per_sale: true };
+    return prefs as { daily_summary: boolean; milestones: boolean; per_sale: boolean };
+  });
+
+export const saveNotificationPreferences = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => prefsSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("push_subscriptions")
+      .update({ preferences: data, updated_at: new Date().toISOString() })
+      .eq("user_id", userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
