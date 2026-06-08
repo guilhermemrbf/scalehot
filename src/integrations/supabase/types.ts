@@ -185,6 +185,69 @@ export type Database = {
         }
         Relationships: []
       }
+      syncpay_transactions: {
+        Row: {
+          amount: number
+          beneficiary_name: string | null
+          client_document: string | null
+          client_email: string | null
+          client_name: string | null
+          created_at: string
+          data_registro: string | null
+          external_reference: string | null
+          id: string
+          liquid_amount: number | null
+          pix_key: string | null
+          raw_payload: Json | null
+          status: string
+          taxa_adquirente: number | null
+          taxa_deposito: number | null
+          transaction_id: string
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          beneficiary_name?: string | null
+          client_document?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          created_at?: string
+          data_registro?: string | null
+          external_reference?: string | null
+          id?: string
+          liquid_amount?: number | null
+          pix_key?: string | null
+          raw_payload?: Json | null
+          status: string
+          taxa_adquirente?: number | null
+          taxa_deposito?: number | null
+          transaction_id: string
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          beneficiary_name?: string | null
+          client_document?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          created_at?: string
+          data_registro?: string | null
+          external_reference?: string | null
+          id?: string
+          liquid_amount?: number | null
+          pix_key?: string | null
+          raw_payload?: Json | null
+          status?: string
+          taxa_adquirente?: number | null
+          taxa_deposito?: number | null
+          transaction_id?: string
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
