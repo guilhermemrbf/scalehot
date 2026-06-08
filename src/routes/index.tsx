@@ -67,6 +67,8 @@ function Dashboard() {
       let query = supabase.from("fechamentos").select("*").order("data_inicio");
       if (periodo === "mes") {
         query = query.gte("data_inicio", inicioMes).lte("data_fim", hoje);
+      } else if (periodo === "hoje") {
+        query = query.gte("data_inicio", hoje).lte("data_fim", hoje);
       }
       const { data, error } = await query;
       if (error) throw error;
