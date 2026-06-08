@@ -23,6 +23,39 @@ function getPWAStatus() {
   return { isInstalled, isSupported, isBrowser: !isInstalled };
 }
 
+async function waitForPushSubscription(OneSignal: any) {
+  const read = () => ({
+    id: OneSignal.User?.PushSubscription?.id as string | undefined,
+    token: OneSignal.User?.PushSubscription?.token as string | undefined,
+    optedIn: !!OneSignal.User?.PushSubscription?.optedIn,
+  });
+
+  const current = read();
+  if (current.id && current.token && current.optedIn) return current;
+
+  return new Promise<typeof current>((resolve) => {
+    const timeout = window.setTimeout(() => {
+      OneSignal.User?.PushSubscription?.removeEventListener?.("change", listener);
+      resolve(read());
+    }, 8000);
+
+    function listener(event: any) {
+      const next = {
+        id: event?.current?.id as string | undefined,
+        token: event?.current?.token as string | undefined,
+        optedIn: !!event?.current?.optedIn,
+      };
+      if (next.id && next.token && next.optedIn) {
+        window.clearTimeout(timeout);
+        OneSignal.User?.PushSubscription?.removeEventListener?.("change", listener);
+        resolve(next);
+      }
+    }
+
+    OneSignal.User?.PushSubscription?.addEventListener?.("change", listener);
+  });
+}
+
 export function NotificationsCard() {
   const { user } = useAuth();
   const [pwa, setPwa] = useState({ isInstalled: false, isSupported: false, isBrowser: true });
@@ -74,7 +107,7 @@ export function NotificationsCard() {
       if (user?.id) await OneSignal.login(user.id);
       await OneSignal.User.PushSubscription.optIn();
       const permission = OneSignal.Notifications.permission;
-      const subscription = OneSignal.User.PushSubscription;
+      const subscription = await waitForPushSubscription(OneSignal);
       if (!permission || !subscription.optedIn || !subscription.id) {
         toast.error("Permissão negada. Ative nas configurações do dispositivo.");
         return;
@@ -84,7 +117,7 @@ export function NotificationsCard() {
       const result = await testFn({ data: { subscriptionId: subscription.id } });
       if (!result?.ok) {
         console.error("[push] test notification failed", result);
-        toast.error("Assinatura ativada, mas o envio de teste falhou.");
+        toast.error(`Assinatura ativada, mas o teste falhou: ${result?.reason ?? "erro no OneSignal"}`);
       }
     } catch (e: any) {
       console.error(e);
@@ -113,7 +146,9 @@ export function NotificationsCard() {
     try {
       const OneSignal = await getOneSignal();
       if (user?.id) await OneSignal.login(user.id);
-      const subscriptionId = OneSignal.User?.PushSubscription?.id;
+      await OneSignal.User.PushSubscription.optIn();
+      const subscription = await waitForPushSubscription(OneSignal);
+      const subscriptionId = subscription.id;
       if (!subscriptionId) {
         toast.error("Assinatura do dispositivo não encontrada. Desative e ative novamente as notificações.");
         return;
@@ -122,7 +157,7 @@ export function NotificationsCard() {
       if (result?.ok) {
         toast.success("Notificação de teste enviada! Verifique seu dispositivo.");
       } else {
-        toast.error("Falha ao enviar notificação de teste.");
+        toast.error(`Falha ao enviar teste: ${result?.reason ?? "assinatura inválida no OneSignal"}`);
         console.error("[push] test failed", result);
       }
     } catch (e: any) {
