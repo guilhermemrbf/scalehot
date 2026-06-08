@@ -60,15 +60,20 @@ export function AppLayout({ children }: { children: ReactNode }) {
       </aside>
 
       {/* Topbar mobile */}
-      <div className="lg:hidden fixed top-0 inset-x-0 z-40 flex items-center justify-between px-4 h-14 border-b border-border bg-background/80 backdrop-blur-xl">
-        <Brand compact />
-        <div className="flex items-center gap-2">
-           {profile?.avatar_url && (
-            <img src={profile.avatar_url} alt="Profile" className="size-8 rounded-full object-cover border border-border" />
-          )}
-          <button onClick={() => setOpen(true)} className="p-2 rounded-lg hover:bg-muted">
-            <Menu className="size-5" />
-          </button>
+      <div
+        className="lg:hidden fixed top-0 inset-x-0 z-40 border-b border-border bg-background/80 backdrop-blur-xl"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <div className="flex items-center justify-between px-4 h-14">
+          <Brand compact />
+          <div className="flex items-center gap-2">
+             {profile?.avatar_url && (
+              <img src={profile.avatar_url} alt="Profile" className="size-8 rounded-full object-cover border border-border" />
+            )}
+            <button onClick={() => setOpen(true)} className="p-2 rounded-lg hover:bg-muted">
+              <Menu className="size-5" />
+            </button>
+          </div>
         </div>
       </div>
 
