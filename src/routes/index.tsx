@@ -261,6 +261,8 @@ function Dashboard() {
         </Card>
       </div>
 
+      <VendasTempoReal />
+
       <MetasSection qc={qc} fats={fats} />
     </AppLayout>
   );
