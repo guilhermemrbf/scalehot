@@ -25,6 +25,7 @@ export function NotificationsCard() {
   const [permission, setPermission] = useState<NotificationPermission>("default");
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [inIframe, setInIframe] = useState(false);
 
   const fetchVapid = useServerFn(getVapidPublicKey);
   const saveSub = useServerFn(savePushSubscription);
@@ -33,6 +34,7 @@ export function NotificationsCard() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+    try { setInIframe(window.self !== window.top); } catch { setInIframe(true); }
     const ok = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
     setSupported(ok);
     if (!ok) return;
@@ -107,16 +109,25 @@ export function NotificationsCard() {
 
       {!supported ? (
         <p className="text-sm text-destructive">Seu navegador não suporta notificações push.</p>
+      ) : inIframe ? (
+        <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+          <p className="font-medium">Você está vendo o preview do editor</p>
+          <p className="mt-1 text-xs text-amber-200/80">
+            As notificações push só funcionam no app publicado. Abra
+            <span className="font-mono mx-1">scalehot.lovable.app</span>
+            no celular, instale como PWA (Adicionar à tela inicial) e ative o toggle por lá.
+          </p>
+        </div>
       ) : (
         <div className="flex items-center justify-between bg-background/40 rounded-lg p-4 border border-border">
-          <div>
+          <div className="flex-1 pr-4">
             <p className="text-sm font-medium">Ativar Notificações</p>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground mt-0.5">
               {permission === "denied"
-                ? "Bloqueado. Ative manualmente nas configurações do navegador."
+                ? "Permissão bloqueada neste navegador. Toque no cadeado da barra de endereço → Notificações → Permitir."
                 : enabled
-                ? "Você receberá alertas a cada nova venda."
-                : "Receba alertas a cada nova venda."}
+                ? "✅ Ativado — você receberá alertas a cada nova venda."
+                : "Toque no botão para receber alertas a cada nova venda."}
             </p>
           </div>
           <div className="flex items-center gap-2">
