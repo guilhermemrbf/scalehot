@@ -4,11 +4,15 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const sendTestNotification = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
+  .inputValidator((input: unknown) =>
+    z.object({ subscriptionId: z.string().min(1).max(200).optional() }).parse(input ?? {})
+  )
+  .handler(async ({ context, data }) => {
     const { sendPushToUser } = await import("./push.server");
     return sendPushToUser(context.userId, {
       title: "🎉 ScaleUp Ativado!",
       body: "Suas notificações estão funcionando. Você será avisado a cada nova venda!",
+      subscriptionId: data.subscriptionId,
     });
   });
 

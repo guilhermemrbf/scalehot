@@ -3,7 +3,7 @@ export const ONESIGNAL_APP_ID = "d3c273de-eca7-4b06-84db-4a3d41272b6b";
 
 export async function sendPushToUser(
   userId: string,
-  payload: { title: string; body: string; url?: string; tag?: string }
+  payload: { title: string; body: string; url?: string; tag?: string; subscriptionId?: string }
 ) {
   const apiKey = process.env.ONESIGNAL_REST_API_KEY;
   if (!apiKey) {
@@ -28,7 +28,9 @@ export async function sendPushToUser(
         app_id: ONESIGNAL_APP_ID,
         headings: { en: payload.title, pt: payload.title },
         contents: { en: payload.body, pt: payload.body },
-        include_aliases: { external_id: [userId] },
+        ...(payload.subscriptionId
+          ? { include_subscription_ids: [payload.subscriptionId] }
+          : { include_aliases: { external_id: [userId] } }),
         target_channel: "push",
         url: payload.url,
         web_push_topic: payload.tag,
