@@ -1,7 +1,7 @@
 {
   "name": "ScaleUp",
   "short_name": "ScaleUp",
-  "description": "Gestor inteligente da sua operação digital",
+  "description": "Infraestrutura para crescimento digital",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f0f1a",
@@ -9,9 +9,9 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "https://ynvrijkuampxpsmshftm.supabase.co/storage/v1/object/public/prompt-images/uploads/1780550473717-76e036f0-c55c-4e17-acd2-d98b1b0f50d3.jpeg",
+      "src": "/logo-scalehot.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
