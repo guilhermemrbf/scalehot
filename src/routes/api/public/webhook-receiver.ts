@@ -258,13 +258,13 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
             const { sendPushToUser } = await import("@/lib/push.server");
             const valor = parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
-            // Buscar preferências
+            // Buscar preferências (profiles.notification_preferences)
             const { data: subRow } = await supabaseAdmin
-              .from("push_subscriptions")
-              .select("preferences")
-              .eq("user_id", userId)
+              .from("profiles")
+              .select("notification_preferences")
+              .eq("id", userId)
               .maybeSingle();
-            const prefs = ((subRow?.preferences as any) ?? {
+            const prefs = (((subRow as any)?.notification_preferences as any) ?? {
               per_sale: true,
               milestones: true,
             }) as { per_sale?: boolean; milestones?: boolean };
