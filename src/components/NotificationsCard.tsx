@@ -108,6 +108,23 @@ export function NotificationsCard() {
     }
   }
 
+  async function sendTest() {
+    setSendingTest(true);
+    try {
+      const result = await testFn();
+      if (result?.ok) {
+        toast.success("Notificação de teste enviada! Verifique seu dispositivo.");
+      } else {
+        toast.error("Falha ao enviar notificação de teste.");
+        console.error("[push] test failed", result);
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erro ao enviar teste");
+    } finally {
+      setSendingTest(false);
+    }
+  }
+
   // ESTADO 1 — App não instalado (browser)
   if (pwa.isBrowser) {
     return (
