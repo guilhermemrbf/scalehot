@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Bell, BellOff, Loader2, Smartphone, Volume2, DollarSign, WifiOff, Share, MoreVertical, X } from "lucide-react";
+import { Bell, BellOff, Loader2, Smartphone, Volume2, DollarSign, WifiOff, Share, MoreVertical, X, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import {
