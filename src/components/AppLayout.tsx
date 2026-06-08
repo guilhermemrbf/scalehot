@@ -17,6 +17,14 @@ const nav = [
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
+const mobileNav = [
+  { to: "/", label: "Início", icon: LayoutDashboard },
+  { to: "/registro", label: "Registro", icon: PlusCircle },
+  { to: "/anuncios", label: "Anúncios", icon: Megaphone },
+  { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
+  { to: "/configuracoes", label: "Ajustes", icon: Settings },
+];
+
 export function AppLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [dark, setDark] = useState(true);
@@ -104,9 +112,44 @@ export function AppLayout({ children }: { children: ReactNode }) {
         )}
       </AnimatePresence>
 
-      <main className="flex-1 min-w-0 pt-[calc(env(safe-area-inset-top)+3.5rem)] lg:pt-0">
+      <main
+        className="flex-1 min-w-0 pt-[calc(env(safe-area-inset-top)+3.5rem)] lg:pt-0 pb-[calc(env(safe-area-inset-bottom)+5rem)] lg:pb-0"
+        style={{ paddingLeft: "env(safe-area-inset-left)", paddingRight: "env(safe-area-inset-right)" }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 lg:py-10">{children}</div>
       </main>
+
+      {/* Bottom nav mobile */}
+      <nav
+        className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t border-sidebar-border bg-sidebar/95 backdrop-blur-xl"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
+        <div className="flex items-stretch justify-around h-16">
+          {mobileNav.map((item) => {
+            const active = pathname === item.to;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-medium transition-colors relative ${
+                  active ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="bottom-nav-pill"
+                    className="absolute top-0 h-0.5 w-8 rounded-full bg-primary"
+                    transition={{ type: "spring", damping: 22, stiffness: 280 }}
+                  />
+                )}
+                <Icon className="size-5" />
+                <span className="leading-tight">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
     </div>
   );
 }
