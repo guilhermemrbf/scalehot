@@ -77,7 +77,13 @@ function Dashboard() {
         .select("*")
         .order("created_at", { ascending: false });
       if (periodo === "mes") q = q.gte("created_at", inicioMes);
-      else if (periodo === "hoje") q = q.gte("created_at", `${hoje}T03:00:00.000Z`).lt("created_at", `${hoje}T03:00:00.000Z`.replace(hoje, new Date(new Date(hoje + "T12:00:00Z").getTime() + 86400000).toISOString().slice(0, 10)));
+      else if (periodo === "hoje") {
+        // BRT (UTC-3): "hoje" começa às 03:00 UTC do dia e termina às 03:00 UTC do dia seguinte
+        const inicioUtc = `${hoje}T03:00:00.000Z`;
+        const amanha = new Date(new Date(`${hoje}T12:00:00Z`).getTime() + 86400000).toISOString().slice(0, 10);
+        const fimUtc = `${amanha}T03:00:00.000Z`;
+        q = q.gte("created_at", inicioUtc).lt("created_at", fimUtc);
+      }
       const { data, error } = await q;
       if (error) throw error;
       return (data as any[]) ?? [];
