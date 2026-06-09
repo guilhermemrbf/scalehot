@@ -223,8 +223,8 @@ function Dashboard() {
 
   const cards = [
     { label: "Faturamento Líquido", value: brl(totalLiquidoGateway), icon: Wallet, hint: "", color: "text-chart-2" },
-    { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "", color: lucroTotal >= 0 ? "text-success" : "text-destructive" },
-    { label: "ROI", value: roi.toFixed(2) + "x", icon: Activity, hint: "Lucro / anúncios", color: roi >= 1 ? "text-success" : "text-destructive" },
+    { label: "Lucro", value: `${lucroTotal >= 0 ? "+" : "-"} ${brl(Math.abs(lucroTotal))}`, icon: Trophy, hint: lucroTotal >= 0 ? "Lucro positivo" : "Prejuízo", color: lucroTotal >= 0 ? "text-success" : "text-destructive" },
+    { label: "ROI", value: `${roi >= 1 ? "+" : "-"} ${roi.toFixed(2)}x`, icon: Activity, hint: roi >= 1 ? "Retorno positivo" : "Retorno negativo", color: roi >= 1 ? "text-success" : "text-destructive" },
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: "", color: "text-destructive" },
     { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
     { label: "Impostos", value: brl(totalImposto), icon: Landmark, hint: "", color: "text-chart-5" },
