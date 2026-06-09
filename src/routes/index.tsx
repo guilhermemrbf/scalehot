@@ -216,16 +216,13 @@ function Dashboard() {
   });
 
   const cards = [
-    { label: "Faturamento Bruto", value: brl(totalBruto), icon: TrendingUp, hint: `${qtdVendas} venda${qtdVendas === 1 ? "" : "s"} aprovada${qtdVendas === 1 ? "" : "s"}`, color: "text-chart-2" },
-    { label: "Faturamento Líquido", value: brl(totalLiquidoGateway), icon: Wallet, hint: "Após taxa do gateway", color: "text-chart-2" },
-    { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Líq − bot − imposto − anúncios", color: lucroTotal >= 0 ? "text-success" : "text-destructive" },
+    { label: "Faturamento Líquido", value: brl(totalLiquidoGateway), icon: Wallet, hint: `${qtdVendas} venda${qtdVendas === 1 ? "" : "s"} aprovada${qtdVendas === 1 ? "" : "s"}`, color: "text-chart-2" },
+    { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Líq − taxas − imposto − anúncios", color: lucroTotal >= 0 ? "text-success" : "text-destructive" },
     { label: "ROI", value: roi.toFixed(2) + "x", icon: Activity, hint: "Lucro / anúncios", color: roi >= 1 ? "text-success" : "text-destructive" },
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamento${gastos.length === 1 ? "" : "s"}`, color: "text-destructive" },
-    { label: "Taxa Gateway", value: brl(taxaGateway), icon: Percent, hint: "Bruto − líquido", color: "text-warning" },
-    { label: "Taxa Bot", value: brl(taxaBot), icon: BarChart3, hint: `${brl(taxaBotPorVenda)} × ${qtdVendas}`, color: "text-warning" },
+    { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
     { label: "Impostos", value: brl(totalImposto), icon: Landmark, hint: `${brl(impostoMensal)} × ${mesesComVendas.size} mês${mesesComVendas.size === 1 ? "" : "es"}`, color: "text-chart-5" },
     { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total no período", color: "text-destructive" },
-    { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
   ];
 
   return (
