@@ -109,16 +109,24 @@ function Configuracoes() {
           <div className="flex items-center gap-3 mb-5">
             <div className="size-10 rounded-xl bg-accent grid place-items-center"><Landmark className="size-5 text-accent-foreground" /></div>
             <div>
-              <h3 className="font-display font-semibold">Imposto Fixo</h3>
-              <p className="text-xs text-muted-foreground">Descontado automaticamente em todos os fechamentos</p>
+              <h3 className="font-display font-semibold">Custos Fixos</h3>
+              <p className="text-xs text-muted-foreground">Aplicados automaticamente no dashboard</p>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label>Valor (R$)</Label>
-            <Input inputMode="decimal" value={imposto} onChange={(e) => setImposto(e.target.value)} className="text-xl font-display font-semibold h-12" />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Imposto fixo mensal (R$)</Label>
+              <Input inputMode="decimal" value={imposto} onChange={(e) => setImposto(e.target.value)} className="text-xl font-display font-semibold h-12" />
+              <p className="text-[11px] text-muted-foreground">Descontado uma vez por mês no fechamento automático.</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Taxa do bot por venda (R$)</Label>
+              <Input inputMode="decimal" value={taxaBot} onChange={(e) => setTaxaBot(e.target.value)} className="text-xl font-display font-semibold h-12" />
+              <p className="text-[11px] text-muted-foreground">Multiplicado pela quantidade de vendas aprovadas no período.</p>
+            </div>
           </div>
           <Button onClick={() => saveConfig.mutate()} disabled={saveConfig.isPending} className="mt-5 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow">
-            <Save className="size-4 mr-2" /> Salvar Imposto
+            <Save className="size-4 mr-2" /> Salvar
           </Button>
         </Card>
 
