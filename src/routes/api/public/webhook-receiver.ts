@@ -45,15 +45,16 @@ function detect(p: AnyObj): Parsed | null {
     };
   }
 
-  // Syncpay CashIn
-  if ((p.client_name || p.paymentcode) && (upper === "PAID_OUT" || upper === "PAID")) {
+  // Syncpay CashIn — status vem como PAID_OUT/PAID/COMPLETED
+  if (upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED") {
+    const txId = p.idtransaction ?? p.id ?? p.externalreference ?? null;
     return {
       gateway: "syncpay",
       type: "cashin",
       status: upper,
       amount: num(p.amount) ?? 0,
-      liquid_amount: num(p.deposito_liquido) ?? num(p.liquid_amount),
-      transaction_id: p.idtransaction ?? p.id ?? null,
+      liquid_amount: num(p.deposito_liquido) ?? num(p.liquid_amount) ?? num(p.amount),
+      transaction_id: txId != null ? String(txId) : null,
       client_name: p.client_name ?? null,
       client_email: p.client_email ?? null,
       accepted: true,
@@ -205,7 +206,9 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
       POST: async ({ request }) => {
         const url = new URL(request.url);
         const userId = url.searchParams.get("user_id");
+        console.log("[webhook-receiver] incoming. supabase user_id:", userId);
         if (!userId || !/^[0-9a-f-]{36}$/i.test(userId)) {
+          console.warn("[webhook-receiver] missing/invalid user_id");
           return json({ error: "Missing or invalid user_id" }, 400);
         }
 
@@ -215,10 +218,11 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
         } catch {
           return json({ error: "Invalid JSON" }, 400);
         }
+        console.log("[webhook-receiver] payload:", JSON.stringify(payload));
 
         const parsed = detect(payload);
+        console.log("[webhook-receiver] parsed:", JSON.stringify(parsed));
         if (!parsed) {
-          // Acknowledge so gateways don't retry forever
           return json({ status: "success", note: "Unrecognized payload" }, 200);
         }
 
