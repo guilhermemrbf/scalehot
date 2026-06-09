@@ -39,10 +39,14 @@ function Configuracoes() {
   });
 
   const [imposto, setImposto] = useState("");
+  const [taxaBot, setTaxaBot] = useState("");
   const [fullName, setFullName] = useState("");
 
   useEffect(() => { 
-    if (config) setImposto(String(config.imposto_fixo)); 
+    if (config) {
+      setImposto(String(config.imposto_fixo));
+      setTaxaBot(String((config as any).taxa_bot_fixa ?? 0));
+    }
   }, [config]);
 
   useEffect(() => {
@@ -53,11 +57,13 @@ function Configuracoes() {
     mutationFn: async () => {
       if (!config) return;
       const v = parseFloat(imposto.replace(",", "."));
-      if (isNaN(v) || v < 0) throw new Error("Valor inválido.");
-      const { error } = await supabase.from("configuracoes").update({ imposto_fixo: v, updated_at: new Date().toISOString() }).eq("id", config.id);
+      const t = parseFloat(taxaBot.replace(",", "."));
+      if (isNaN(v) || v < 0) throw new Error("Imposto inválido.");
+      if (isNaN(t) || t < 0) throw new Error("Taxa do bot inválida.");
+      const { error } = await supabase.from("configuracoes").update({ imposto_fixo: v, taxa_bot_fixa: t, updated_at: new Date().toISOString() } as any).eq("id", config.id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Imposto atualizado."); qc.invalidateQueries(); },
+    onSuccess: () => { toast.success("Configurações atualizadas."); qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
