@@ -8,9 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const nav = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard },
-  { to: "/registro", label: "Registro Diário", icon: PlusCircle },
   { to: "/anuncios", label: "Gastos c/ Anúncios", icon: Megaphone },
-  { to: "/fechamento", label: "Fechamento", icon: Calculator },
   { to: "/integracoes", label: "Integrações", icon: Plug },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/historico", label: "Histórico", icon: History },
@@ -19,8 +17,8 @@ const nav = [
 
 const mobileNav = [
   { to: "/", label: "Início", icon: LayoutDashboard },
-  { to: "/registro", label: "Registro", icon: PlusCircle },
   { to: "/anuncios", label: "Anúncios", icon: Megaphone },
+  { to: "/integracoes", label: "Gateways", icon: Plug },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/configuracoes", label: "Ajustes", icon: Settings },
 ];
