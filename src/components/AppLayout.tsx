@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, PlusCircle, Calculator, FileBarChart, History, Settings, Wallet, Menu, X, Moon, Sun, LogOut, Megaphone, User, Upload, Plug } from "lucide-react";
+import { LayoutDashboard, FileBarChart, History, Settings, Menu, X, Moon, Sun, LogOut, Megaphone, User, Plug } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
