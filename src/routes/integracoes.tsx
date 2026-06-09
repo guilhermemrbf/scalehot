@@ -173,13 +173,18 @@ function IntegracoesPage() {
   const activate = useMutation({
     mutationFn: async ({ gateway, name }: { gateway: string; name: string }) => {
       if (!user) throw new Error("Não autenticado");
-      const { error } = await supabase.from("user_integrations" as any).insert({
-        user_id: user.id,
-        gateway,
-        name,
-        status: "active",
-        webhook_url: url,
-      });
+      const { error } = await supabase
+        .from("user_integrations" as any)
+        .upsert(
+          {
+            user_id: user.id,
+            gateway,
+            name,
+            status: "active",
+            webhook_url: url,
+          },
+          { onConflict: "user_id,gateway,name" }
+        );
       if (error) throw error;
     },
     onSuccess: () => {
