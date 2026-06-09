@@ -18,12 +18,32 @@ export async function sendPushToUser(
         ? normalizedApiKey.replace(/^Basic\s+/, "Key ")
         : `Key ${normalizedApiKey}`;
 
+    let savedSubscriptionIds: string[] = [];
+    if (!payload.subscriptionId) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data, error } = await supabaseAdmin
+        .from("push_subscriptions" as any)
+        .select("subscription_id")
+        .eq("user_id", userId)
+        .eq("active", true)
+        .order("updated_at", { ascending: false })
+        .limit(10);
+      if (error) console.error("[push] failed to load saved subscriptions:", error.message);
+      savedSubscriptionIds = ((data ?? []) as any[]).map((row) => row.subscription_id).filter(Boolean);
+      console.log("[push] saved subscription targets:", savedSubscriptionIds.length);
+    }
+
     const targets = payload.subscriptionId
       ? [
           { kind: "subscription", body: { include_subscription_ids: [payload.subscriptionId] } },
           { kind: "external_id", body: { include_aliases: { external_id: [userId] } } },
         ]
-      : [{ kind: "external_id", body: { include_aliases: { external_id: [userId] } } }];
+      : [
+          ...(savedSubscriptionIds.length
+            ? [{ kind: "saved_subscriptions", body: { include_subscription_ids: savedSubscriptionIds } }]
+            : []),
+          { kind: "external_id", body: { include_aliases: { external_id: [userId] } } },
+        ];
 
     let lastError: { status: number; data: unknown; target: string } | null = null;
     for (const target of targets) {

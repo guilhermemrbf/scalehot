@@ -25,6 +25,43 @@ const prefsSchema = z.object({
 
 const DEFAULT_PREFS = { daily_summary: true, milestones: true, per_sale: true, bot_offline: true };
 
+const subscriptionSchema = z.object({
+  subscriptionId: z.string().min(1).max(255),
+  token: z.string().min(1).max(1000).optional(),
+});
+
+export const registerPushSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => subscriptionSchema.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase.from("push_subscriptions" as any).upsert(
+      {
+        user_id: userId,
+        subscription_id: data.subscriptionId,
+        token: data.token ?? null,
+        active: true,
+      },
+      { onConflict: "subscription_id" }
+    );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deactivatePushSubscription = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => subscriptionSchema.pick({ subscriptionId: true }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("push_subscriptions" as any)
+      .update({ active: false })
+      .eq("user_id", userId)
+      .eq("subscription_id", data.subscriptionId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 export const getNotificationPreferences = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

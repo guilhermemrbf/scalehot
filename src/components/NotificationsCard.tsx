@@ -9,6 +9,8 @@ import {
   sendTestNotification,
   getNotificationPreferences,
   saveNotificationPreferences,
+  registerPushSubscription,
+  deactivatePushSubscription,
 } from "@/lib/push.functions";
 import { getOneSignal } from "@/lib/onesignal";
 
@@ -87,6 +89,8 @@ export function NotificationsCard() {
   const testFn = useServerFn(sendTestNotification);
   const fetchPrefs = useServerFn(getNotificationPreferences);
   const savePrefs = useServerFn(saveNotificationPreferences);
+  const registerSubscription = useServerFn(registerPushSubscription);
+  const deactivateSubscription = useServerFn(deactivatePushSubscription);
 
   const [prefs, setPrefs] = useState({ daily_summary: true, milestones: true, per_sale: true, bot_offline: true });
 
@@ -101,13 +105,18 @@ export function NotificationsCard() {
         const OneSignal = await getOneSignal();
         const isOptedIn = !!OneSignal.User?.PushSubscription?.optedIn;
         setEnabled(isOptedIn);
+        const subscriptionId = OneSignal.User?.PushSubscription?.id as string | undefined;
+        const token = OneSignal.User?.PushSubscription?.token as string | undefined;
+        if (isOptedIn && subscriptionId && user?.id) {
+          await registerSubscription({ data: { subscriptionId, token } });
+        }
       } catch (e) {
         console.warn("[push] failed to read OneSignal state", e);
       }
     })();
 
     fetchPrefs().then((p) => setPrefs(p)).catch(() => {});
-  }, []);
+  }, [user?.id]);
 
   async function togglePref(key: "daily_summary" | "milestones" | "per_sale" | "bot_offline", value: boolean) {
     const next = { ...prefs, [key]: value };
@@ -129,6 +138,7 @@ export function NotificationsCard() {
         toast.error("Permissão negada. Ative nas configurações do dispositivo.");
         return;
       }
+      await registerSubscription({ data: { subscriptionId: subscription.id, token: subscription.token } });
       setEnabled(true);
       toast.success("Notificações ativadas com sucesso!");
       const result = await testFn({ data: { subscriptionId: subscription.id } });
@@ -148,7 +158,9 @@ export function NotificationsCard() {
     setLoading(true);
     try {
       const OneSignal = await getOneSignal();
+      const subscriptionId = OneSignal.User?.PushSubscription?.id as string | undefined;
       await OneSignal.User.PushSubscription.optOut();
+      if (subscriptionId) await deactivateSubscription({ data: { subscriptionId } });
       setEnabled(false);
       toast.success("Notificações desativadas.");
     } catch (e: any) {
@@ -168,6 +180,7 @@ export function NotificationsCard() {
         toast.error("Assinatura do dispositivo não encontrada. Desative e ative novamente as notificações.");
         return;
       }
+      await registerSubscription({ data: { subscriptionId, token: subscription.token } });
       const result = await testFn({ data: { subscriptionId } });
       if (result?.ok) {
         toast.success("Notificação de teste enviada! Verifique seu dispositivo.");
