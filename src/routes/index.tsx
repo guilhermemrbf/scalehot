@@ -248,7 +248,7 @@ function Dashboard() {
                   <p className={`font-display text-2xl font-bold tracking-tight ${(c.label === "ROI" || c.label === "Lucro") ? c.color : ""}`}>
                     {c.value}
                   </p>
-                  <p className="text-xs text-muted-foreground">{c.hint}</p>
+                  {c.hint && <p className="text-xs text-muted-foreground">{c.hint}</p>}
                 </div>
                 <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
                   <c.icon className="size-5" />
