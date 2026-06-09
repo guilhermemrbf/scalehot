@@ -18,18 +18,21 @@ export type Database = {
         Row: {
           id: string
           imposto_fixo: number
+          taxa_bot_fixa: number
           updated_at: string
           user_id: string
         }
         Insert: {
           id?: string
           imposto_fixo?: number
+          taxa_bot_fixa?: number
           updated_at?: string
           user_id: string
         }
         Update: {
           id?: string
           imposto_fixo?: number
+          taxa_bot_fixa?: number
           updated_at?: string
           user_id?: string
         }

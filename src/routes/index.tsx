@@ -39,42 +39,20 @@ function Dashboard() {
     enabled: !!user,
   });
 
+  const { data: config } = useQuery({
+    queryKey: ["configuracoes"],
+    queryFn: async () => (await supabase.from("configuracoes").select("*").limit(1).single()).data,
+  });
+
+  const impostoMensal = Number((config as any)?.imposto_fixo ?? 0);
+  const taxaBotPorVenda = Number((config as any)?.taxa_bot_fixa ?? 0);
+
   const saudacao = () => {
     const hora = new Date().getHours();
     if (hora < 12) return "Bom dia";
     if (hora < 18) return "Boa tarde";
     return "Boa noite";
   };
-
-  const { data: fats = [] } = useQuery({
-    queryKey: ["faturamentos", periodo],
-    queryFn: async () => {
-      let query = supabase.from("faturamentos").select("*").order("data");
-      if (periodo === "mes") {
-        query = query.gte("data", inicioMes).lte("data", hoje);
-      } else if (periodo === "hoje") {
-        query = query.gte("data", hoje).lte("data", hoje);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const { data: fechs = [] } = useQuery({
-    queryKey: ["fechamentos", periodo],
-    queryFn: async () => {
-      let query = supabase.from("fechamentos").select("*").order("data_inicio");
-      if (periodo === "mes") {
-        query = query.gte("data_inicio", inicioMes).lte("data_fim", hoje);
-      } else if (periodo === "hoje") {
-        query = query.gte("data_inicio", hoje).lte("data_fim", hoje);
-      }
-      const { data, error } = await query;
-      if (error) throw error;
-      return data;
-    },
-  });
 
   const { data: gastos = [] } = useQuery({
     queryKey: ["gastos_anuncios", periodo],
@@ -127,66 +105,87 @@ function Dashboard() {
     };
   }, [qc, user?.id]);
 
-  const syncCashinBruto = txs
-    .filter((t: any) => t.type === "cashin")
-    .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
-  const syncCashinLiquido = txs
-    .filter((t: any) => t.type === "cashin")
-    .reduce((s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
-  const syncRefunds = txs.filter((t: any) => t.type === "refund").length;
+  // ============ Cálculos automáticos via webhooks ============
+  const cashins = txs.filter((t: any) => t.type === "cashin");
+  const refunds = txs.filter((t: any) => t.type === "refund");
 
-  const totalBruto = fechs.reduce((s, f) => s + Number(f.faturamento_bruto), 0) + syncCashinBruto;
-  const totalLiquido = fechs.reduce((s, f) => s + Number(f.faturamento_liquido), 0) + syncCashinLiquido;
-  const totalTaxas = fechs.reduce((s, f) => s + Number(f.taxa_valor), 0);
-  const totalImposto = fechs.reduce((s, f) => s + Number(f.imposto), 0);
-  const lucroBruto = fechs.reduce((s, f) => s + Number(f.lucro_real), 0) + syncCashinLiquido;
+  const totalBruto = cashins.reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
+  const totalLiquidoGateway = cashins.reduce(
+    (s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0),
+    0
+  );
+  const taxaGateway = totalBruto - totalLiquidoGateway;
+  const qtdVendas = cashins.length;
+  const taxaBot = qtdVendas * taxaBotPorVenda;
+  const totalTaxas = taxaGateway + taxaBot;
+
+  // Meses únicos com vendas no período → imposto fixo aplicado uma vez por mês
+  const mesesComVendas = new Set<string>();
+  cashins.forEach((t: any) => {
+    if (!t.created_at) return;
+    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+    mesesComVendas.add(`${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}`);
+  });
+  const totalImposto = mesesComVendas.size * impostoMensal;
+
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
-  const lucroTotal = lucroBruto - totalAnuncios;
+  const totalReembolsos = refunds.length;
+
+  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
-  
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
-  const totalReembolsos = fats.reduce((s, f) => s + (Number(f.reembolsos_count) || 0), 0) + syncRefunds;
 
-  // Faturamento bruto (não fechado) do mês
-  const brutoMes = fats.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
-
-  // Daily chart - last 30 days (combina faturamentos manuais + vendas via webhook)
+  // Daily chart - last 30 days (vendas via webhook em horário Brasília UTC-3)
   const dailyMap = new Map<string, number>();
-  fats.forEach((f) => dailyMap.set(f.data, (dailyMap.get(f.data) || 0) + Number(f.faturamento_bruto)));
-  txs
-    .filter((t: any) => t.type === "cashin" && t.created_at)
-    .forEach((t: any) => {
-      // Converte created_at (UTC) para data em Brasília (UTC-3) — alinha com agrupamento de marcos
-      const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
-      const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
-      dailyMap.set(d, (dailyMap.get(d) || 0) + Number(t.amount || 0));
-    });
+  cashins.forEach((t: any) => {
+    if (!t.created_at) return;
+    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+    const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
+    dailyMap.set(d, (dailyMap.get(d) || 0) + Number(t.amount || 0));
+  });
   const dailyData = Array.from(dailyMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-30)
     .map(([data, bruto]) => ({ data: data.slice(5).replace("-", "/"), bruto }));
 
-  // Monthly aggregation
+  // Monthly aggregation (apenas via webhooks)
   const monthMap = new Map<string, { bruto: number; liquido: number; lucro: number }>();
-  fechs.forEach((f) => {
-    const k = String(f.data_inicio).slice(0, 7);
+  cashins.forEach((t: any) => {
+    if (!t.created_at) return;
+    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+    const k = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}`;
     const cur = monthMap.get(k) || { bruto: 0, liquido: 0, lucro: 0 };
-    cur.bruto += Number(f.faturamento_bruto);
-    cur.liquido += Number(f.faturamento_liquido);
-    cur.lucro += Number(f.lucro_real);
+    const bruto = Number(t.amount || 0);
+    const liq = Number(t.liquid_amount ?? t.amount ?? 0);
+    cur.bruto += bruto;
+    cur.liquido += liq;
+    cur.lucro += liq - taxaBotPorVenda;
     monthMap.set(k, cur);
   });
+  // desconta imposto fixo uma vez por mês
+  monthMap.forEach((v) => { v.lucro -= impostoMensal; });
   const monthly = Array.from(monthMap.entries()).slice(-6).map(([m, v]) => ({ mes: m, ...v }));
 
+  // Faturamentos legados (mantém para metas)
+  const { data: fats = [] } = useQuery({
+    queryKey: ["faturamentos_metas"],
+    queryFn: async () => {
+      const { data } = await supabase.from("faturamentos").select("*").gte("data", inicioMes).lte("data", hoje);
+      return data ?? [];
+    },
+  });
+
   const cards = [
-    { label: "Faturamento Bruto", value: brl(totalBruto || brutoMes), icon: TrendingUp, hint: totalBruto ? "Fechamentos totais" : "Bruto do período", color: "text-chart-2" },
-    { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Após taxas, imposto e anúncios", color: "text-success" },
-    { label: "ROI Total", value: roi.toFixed(2) + "x", icon: Activity, hint: "Retorno sobre investimento", color: roi >= 1 ? "text-success" : "text-destructive" },
-    { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total de solicitações", color: "text-destructive" },
-    { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamentos`, color: "text-destructive" },
-    { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " média", color: "text-warning" },
-    { label: "Impostos Pagos", value: brl(totalImposto), icon: Landmark, hint: "Imposto fixo acumulado", color: "text-chart-5" },
-    { label: "Taxa Média", value: pct(taxaMedia), icon: BarChart3, hint: "Sobre o bruto", color: "text-chart-3" },
+    { label: "Faturamento Bruto", value: brl(totalBruto), icon: TrendingUp, hint: `${qtdVendas} venda${qtdVendas === 1 ? "" : "s"} aprovada${qtdVendas === 1 ? "" : "s"}`, color: "text-chart-2" },
+    { label: "Faturamento Líquido", value: brl(totalLiquidoGateway), icon: Wallet, hint: "Após taxa do gateway", color: "text-chart-2" },
+    { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "Líq − bot − imposto − anúncios", color: lucroTotal >= 0 ? "text-success" : "text-destructive" },
+    { label: "ROI", value: roi.toFixed(2) + "x", icon: Activity, hint: "Lucro / anúncios", color: roi >= 1 ? "text-success" : "text-destructive" },
+    { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: `${gastos.length} lançamento${gastos.length === 1 ? "" : "s"}`, color: "text-destructive" },
+    { label: "Taxa Gateway", value: brl(taxaGateway), icon: Percent, hint: "Bruto − líquido", color: "text-warning" },
+    { label: "Taxa Bot", value: brl(taxaBot), icon: BarChart3, hint: `${brl(taxaBotPorVenda)} × ${qtdVendas}`, color: "text-warning" },
+    { label: "Impostos", value: brl(totalImposto), icon: Landmark, hint: `${brl(impostoMensal)} × ${mesesComVendas.size} mês${mesesComVendas.size === 1 ? "" : "es"}`, color: "text-chart-5" },
+    { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total no período", color: "text-destructive" },
+    { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
   ];
 
   return (
@@ -271,7 +270,17 @@ function Dashboard() {
 
       <VendasTempoReal />
 
-      <MetasSection qc={qc} fats={fats} />
+      <MetasSection qc={qc} fats={fats as any[]} brutoWebhook={(() => {
+        const ini = startOfMonthISO();
+        return txs
+          .filter((t: any) => t.type === "cashin" && t.created_at)
+          .filter((t: any) => {
+            const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+            const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
+            return d >= ini;
+          })
+          .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
+      })()} />
 
       <Card className="p-6 mt-6 bg-gradient-card">
         <div className="flex flex-col items-center gap-4">
@@ -304,7 +313,7 @@ function Dashboard() {
   );
 }
 
-function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fats: any[] }) {
+function MetasSection({ qc, fats, brutoWebhook }: { qc: ReturnType<typeof useQueryClient>; fats: any[]; brutoWebhook: number }) {
   const { data: metas } = useQuery({
     queryKey: ["metas"],
     queryFn: async () => (await supabase.from("metas").select("*").limit(1).single()).data,
@@ -334,7 +343,8 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
 
   const hoje = todayISO();
   const ini30 = startOfMonthISO();
-  const sum = (since: string) => fats.filter((f: any) => f.data >= since && f.data <= hoje).reduce((s: number, f: any) => s + Number(f.faturamento_bruto), 0);
+  const sumFats = fats.filter((f: any) => f.data >= ini30 && f.data <= hoje).reduce((s: number, f: any) => s + Number(f.faturamento_bruto), 0);
+  const atualMes = sumFats + brutoWebhook;
 
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -343,7 +353,7 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
   const periodoMes = `${fmtShort(start)} - ${fmtShort(end)}`;
 
   const blocos = [
-    { label: `Meta Mensal: ${periodoMes}`, atual: sum(ini30), meta: Number(metas?.meta_mensal || 0) },
+    { label: `Meta Mensal: ${periodoMes}`, atual: atualMes, meta: Number(metas?.meta_mensal || 0) },
   ];
 
   return (

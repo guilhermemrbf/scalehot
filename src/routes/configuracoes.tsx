@@ -39,10 +39,14 @@ function Configuracoes() {
   });
 
   const [imposto, setImposto] = useState("");
+  const [taxaBot, setTaxaBot] = useState("");
   const [fullName, setFullName] = useState("");
 
   useEffect(() => { 
-    if (config) setImposto(String(config.imposto_fixo)); 
+    if (config) {
+      setImposto(String(config.imposto_fixo));
+      setTaxaBot(String((config as any).taxa_bot_fixa ?? 0));
+    }
   }, [config]);
 
   useEffect(() => {
@@ -53,11 +57,13 @@ function Configuracoes() {
     mutationFn: async () => {
       if (!config) return;
       const v = parseFloat(imposto.replace(",", "."));
-      if (isNaN(v) || v < 0) throw new Error("Valor inválido.");
-      const { error } = await supabase.from("configuracoes").update({ imposto_fixo: v, updated_at: new Date().toISOString() }).eq("id", config.id);
+      const t = parseFloat(taxaBot.replace(",", "."));
+      if (isNaN(v) || v < 0) throw new Error("Imposto inválido.");
+      if (isNaN(t) || t < 0) throw new Error("Taxa do bot inválida.");
+      const { error } = await supabase.from("configuracoes").update({ imposto_fixo: v, taxa_bot_fixa: t, updated_at: new Date().toISOString() } as any).eq("id", config.id);
       if (error) throw error;
     },
-    onSuccess: () => { toast.success("Imposto atualizado."); qc.invalidateQueries(); },
+    onSuccess: () => { toast.success("Configurações atualizadas."); qc.invalidateQueries(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -103,16 +109,24 @@ function Configuracoes() {
           <div className="flex items-center gap-3 mb-5">
             <div className="size-10 rounded-xl bg-accent grid place-items-center"><Landmark className="size-5 text-accent-foreground" /></div>
             <div>
-              <h3 className="font-display font-semibold">Imposto Fixo</h3>
-              <p className="text-xs text-muted-foreground">Descontado automaticamente em todos os fechamentos</p>
+              <h3 className="font-display font-semibold">Custos Fixos</h3>
+              <p className="text-xs text-muted-foreground">Aplicados automaticamente no dashboard</p>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label>Valor (R$)</Label>
-            <Input inputMode="decimal" value={imposto} onChange={(e) => setImposto(e.target.value)} className="text-xl font-display font-semibold h-12" />
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Imposto fixo mensal (R$)</Label>
+              <Input inputMode="decimal" value={imposto} onChange={(e) => setImposto(e.target.value)} className="text-xl font-display font-semibold h-12" />
+              <p className="text-[11px] text-muted-foreground">Descontado uma vez por mês no fechamento automático.</p>
+            </div>
+            <div className="space-y-2">
+              <Label>Taxa do bot por venda (R$)</Label>
+              <Input inputMode="decimal" value={taxaBot} onChange={(e) => setTaxaBot(e.target.value)} className="text-xl font-display font-semibold h-12" />
+              <p className="text-[11px] text-muted-foreground">Multiplicado pela quantidade de vendas aprovadas no período.</p>
+            </div>
           </div>
           <Button onClick={() => saveConfig.mutate()} disabled={saveConfig.isPending} className="mt-5 bg-gradient-primary text-primary-foreground hover:opacity-90 shadow-glow">
-            <Save className="size-4 mr-2" /> Salvar Imposto
+            <Save className="size-4 mr-2" /> Salvar
           </Button>
         </Card>
 
