@@ -85,6 +85,20 @@ function Dashboard() {
     enabled: !!user,
   });
 
+  // Legacy: registros diários antigos (antes dos webhooks) — mantém histórico
+  const { data: legacyFats = [] } = useQuery({
+    queryKey: ["faturamentos_legacy", periodo],
+    queryFn: async () => {
+      let q = supabase.from("faturamentos").select("*").order("data", { ascending: false });
+      if (periodo === "mes") q = q.gte("data", inicioMes).lte("data", hoje);
+      else if (periodo === "hoje") q = q.eq("data", hoje);
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data as any[]) ?? [];
+    },
+    enabled: !!user,
+  });
+
   useEffect(() => {
     if (!user) return;
     const channel = supabase
