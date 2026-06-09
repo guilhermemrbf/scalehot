@@ -150,10 +150,19 @@ function Dashboard() {
   // Faturamento bruto (não fechado) do mês
   const brutoMes = fats.reduce((s, f) => s + Number(f.faturamento_bruto), 0);
 
-  // Daily chart - last 30 days
+  // Daily chart - last 30 days (combina faturamentos manuais + vendas via webhook)
   const dailyMap = new Map<string, number>();
   fats.forEach((f) => dailyMap.set(f.data, (dailyMap.get(f.data) || 0) + Number(f.faturamento_bruto)));
+  txs
+    .filter((t: any) => t.type === "cashin" && t.created_at)
+    .forEach((t: any) => {
+      // Converte created_at (UTC) para data em Brasília (UTC-3) — alinha com agrupamento de marcos
+      const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+      const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
+      dailyMap.set(d, (dailyMap.get(d) || 0) + Number(t.amount || 0));
+    });
   const dailyData = Array.from(dailyMap.entries())
+    .sort(([a], [b]) => a.localeCompare(b))
     .slice(-30)
     .map(([data, bruto]) => ({ data: data.slice(5).replace("-", "/"), bruto }));
 
