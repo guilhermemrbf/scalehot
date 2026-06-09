@@ -313,7 +313,7 @@ function Dashboard() {
   );
 }
 
-function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fats: any[] }) {
+function MetasSection({ qc, fats, brutoWebhook }: { qc: ReturnType<typeof useQueryClient>; fats: any[]; brutoWebhook: number }) {
   const { data: metas } = useQuery({
     queryKey: ["metas"],
     queryFn: async () => (await supabase.from("metas").select("*").limit(1).single()).data,
@@ -343,7 +343,8 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
 
   const hoje = todayISO();
   const ini30 = startOfMonthISO();
-  const sum = (since: string) => fats.filter((f: any) => f.data >= since && f.data <= hoje).reduce((s: number, f: any) => s + Number(f.faturamento_bruto), 0);
+  const sumFats = fats.filter((f: any) => f.data >= ini30 && f.data <= hoje).reduce((s: number, f: any) => s + Number(f.faturamento_bruto), 0);
+  const atualMes = sumFats + brutoWebhook;
 
   const now = new Date();
   const start = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -352,7 +353,7 @@ function MetasSection({ qc, fats }: { qc: ReturnType<typeof useQueryClient>; fat
   const periodoMes = `${fmtShort(start)} - ${fmtShort(end)}`;
 
   const blocos = [
-    { label: `Meta Mensal: ${periodoMes}`, atual: sum(ini30), meta: Number(metas?.meta_mensal || 0) },
+    { label: `Meta Mensal: ${periodoMes}`, atual: atualMes, meta: Number(metas?.meta_mensal || 0) },
   ];
 
   return (
