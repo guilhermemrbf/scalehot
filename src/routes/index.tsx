@@ -85,6 +85,20 @@ function Dashboard() {
     enabled: !!user,
   });
 
+  // Legacy: registros diários antigos (antes dos webhooks) — mantém histórico
+  const { data: legacyFats = [] } = useQuery({
+    queryKey: ["faturamentos_legacy", periodo],
+    queryFn: async () => {
+      let q = supabase.from("faturamentos").select("*").order("data", { ascending: false });
+      if (periodo === "mes") q = q.gte("data", inicioMes).lte("data", hoje);
+      else if (periodo === "hoje") q = q.eq("data", hoje);
+      const { data, error } = await q;
+      if (error) throw error;
+      return (data as any[]) ?? [];
+    },
+    enabled: !!user,
+  });
+
   useEffect(() => {
     if (!user) return;
     const channel = supabase
@@ -105,37 +119,48 @@ function Dashboard() {
     };
   }, [qc, user?.id]);
 
-  // ============ Cálculos automáticos via webhooks ============
+  // ============ Cálculos automáticos via webhooks + histórico legado ============
   const cashins = txs.filter((t: any) => t.type === "cashin");
   const refunds = txs.filter((t: any) => t.type === "refund");
 
-  const totalBruto = cashins.reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
-  const totalLiquidoGateway = cashins.reduce(
+  const brutoWebhooks = cashins.reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
+  const liquidoWebhooks = cashins.reduce(
     (s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0),
     0
   );
+
+  // Legado: registros antigos antes dos webhooks (sem dado de taxa de gateway → líquido = bruto)
+  const brutoLegacy = legacyFats.reduce((s: number, f: any) => s + Number(f.faturamento_bruto || 0), 0);
+  const reembolsosLegacy = legacyFats.reduce((s: number, f: any) => s + Number(f.reembolsos_count || 0), 0);
+
+  const totalBruto = brutoWebhooks + brutoLegacy;
+  const totalLiquidoGateway = liquidoWebhooks + brutoLegacy;
   const taxaGateway = totalBruto - totalLiquidoGateway;
   const qtdVendas = cashins.length;
   const taxaBot = qtdVendas * taxaBotPorVenda;
   const totalTaxas = taxaGateway + taxaBot;
 
-  // Meses únicos com vendas no período → imposto fixo aplicado uma vez por mês
+  // Meses únicos com qualquer movimento → imposto fixo aplicado uma vez por mês
   const mesesComVendas = new Set<string>();
   cashins.forEach((t: any) => {
     if (!t.created_at) return;
     const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
     mesesComVendas.add(`${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}`);
   });
+  legacyFats.forEach((f: any) => {
+    if (!f.data) return;
+    mesesComVendas.add(String(f.data).slice(0, 7));
+  });
   const totalImposto = mesesComVendas.size * impostoMensal;
 
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
-  const totalReembolsos = refunds.length;
+  const totalReembolsos = refunds.length + reembolsosLegacy;
 
   const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
 
-  // Daily chart - last 30 days (vendas via webhook em horário Brasília UTC-3)
+  // Daily chart - vendas webhook (UTC-3) + registros legados
   const dailyMap = new Map<string, number>();
   cashins.forEach((t: any) => {
     if (!t.created_at) return;
@@ -143,12 +168,17 @@ function Dashboard() {
     const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
     dailyMap.set(d, (dailyMap.get(d) || 0) + Number(t.amount || 0));
   });
+  legacyFats.forEach((f: any) => {
+    if (!f.data) return;
+    const d = String(f.data);
+    dailyMap.set(d, (dailyMap.get(d) || 0) + Number(f.faturamento_bruto || 0));
+  });
   const dailyData = Array.from(dailyMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
     .slice(-30)
     .map(([data, bruto]) => ({ data: data.slice(5).replace("-", "/"), bruto }));
 
-  // Monthly aggregation (apenas via webhooks)
+  // Monthly aggregation (webhooks + legado)
   const monthMap = new Map<string, { bruto: number; liquido: number; lucro: number }>();
   cashins.forEach((t: any) => {
     if (!t.created_at) return;
@@ -160,6 +190,16 @@ function Dashboard() {
     cur.bruto += bruto;
     cur.liquido += liq;
     cur.lucro += liq - taxaBotPorVenda;
+    monthMap.set(k, cur);
+  });
+  legacyFats.forEach((f: any) => {
+    if (!f.data) return;
+    const k = String(f.data).slice(0, 7);
+    const cur = monthMap.get(k) || { bruto: 0, liquido: 0, lucro: 0 };
+    const bruto = Number(f.faturamento_bruto || 0);
+    cur.bruto += bruto;
+    cur.liquido += bruto;
+    cur.lucro += bruto;
     monthMap.set(k, cur);
   });
   // desconta imposto fixo uma vez por mês
