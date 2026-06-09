@@ -270,7 +270,17 @@ function Dashboard() {
 
       <VendasTempoReal />
 
-      <MetasSection qc={qc} fats={fats} />
+      <MetasSection qc={qc} fats={fats as any[]} brutoWebhook={(() => {
+        const ini = startOfMonthISO();
+        return txs
+          .filter((t: any) => t.type === "cashin" && t.created_at)
+          .filter((t: any) => {
+            const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+            const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
+            return d >= ini;
+          })
+          .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
+      })()} />
 
       <Card className="p-6 mt-6 bg-gradient-card">
         <div className="flex flex-col items-center gap-4">
