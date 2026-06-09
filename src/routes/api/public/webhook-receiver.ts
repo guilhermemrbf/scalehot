@@ -27,37 +27,69 @@ type Parsed = {
 };
 
 function detect(p: AnyObj): Parsed | null {
-  const status = String(p.status ?? p.order_status ?? p.event ?? "").trim();
+  const nested = p.data && typeof p.data === "object" && !Array.isArray(p.data) ? (p.data as AnyObj) : null;
+  const source = nested ?? p;
+  const status = String(source.status ?? p.status ?? p.order_status ?? p.event ?? "").trim();
   const upper = status.toUpperCase();
 
+  const looksLikeSyncpay = Boolean(
+    p.externalreference ||
+      source.externalreference ||
+      p.idtransaction ||
+      source.idtransaction ||
+      source.pix_code ||
+      source.end_to_end ||
+      source.final_amount != null ||
+      source.payment_method === "PIX" ||
+      source.client ||
+      source.debtor_account ||
+      source.adquirente_ref
+  );
+
   // Syncpay refund
-  if (upper === "MED") {
+  if (looksLikeSyncpay && upper === "MED") {
     return {
       gateway: "syncpay",
       type: "refund",
       status: "MED",
-      amount: num(p.amount) ?? 0,
-      liquid_amount: num(p.deposito_liquido) ?? num(p.liquid_amount),
-      transaction_id: p.idtransaction ?? p.id ?? null,
-      client_name: p.client_name ?? null,
-      client_email: p.client_email ?? null,
+      amount: num(source.amount) ?? num(p.amount) ?? 0,
+      liquid_amount: num(source.deposito_liquido) ?? num(source.liquid_amount) ?? num(source.final_amount),
+      transaction_id: source.idtransaction ?? source.id ?? p.idtransaction ?? p.id ?? source.externalreference ?? null,
+      client_name: source.client_name ?? source.client?.name ?? p.client_name ?? null,
+      client_email: source.client_email ?? source.client?.email ?? p.client_email ?? null,
       accepted: true,
     };
   }
 
-  // Syncpay CashIn — status vem como PAID_OUT/PAID/COMPLETED
-  if (upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED") {
-    const txId = p.idtransaction ?? p.id ?? p.externalreference ?? null;
+  // Syncpay CashIn — pode vir no topo ou dentro de data, com status PAID_OUT/PAID/COMPLETED/completed.
+  if (looksLikeSyncpay && ["PAID_OUT", "PAID", "COMPLETED", "PENDING"].includes(upper)) {
+    const txId =
+      source.idtransaction ??
+      source.transaction_id ??
+      source.transactionId ??
+      source.id ??
+      p.idtransaction ??
+      p.id ??
+      source.externalreference ??
+      p.externalreference ??
+      source.end_to_end ??
+      null;
     return {
       gateway: "syncpay",
       type: "cashin",
       status: upper,
-      amount: num(p.amount) ?? 0,
-      liquid_amount: num(p.deposito_liquido) ?? num(p.liquid_amount) ?? num(p.amount),
+      amount: num(source.amount) ?? num(p.amount) ?? 0,
+      liquid_amount:
+        num(source.deposito_liquido) ??
+        num(source.liquid_amount) ??
+        num(source.final_amount) ??
+        num(source.net_amount) ??
+        num(source.amount) ??
+        num(p.amount),
       transaction_id: txId != null ? String(txId) : null,
-      client_name: p.client_name ?? null,
-      client_email: p.client_email ?? null,
-      accepted: true,
+      client_name: source.client_name ?? source.client?.name ?? p.client_name ?? null,
+      client_email: source.client_email ?? source.client?.email ?? p.client_email ?? null,
+      accepted: upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED",
     };
   }
 
