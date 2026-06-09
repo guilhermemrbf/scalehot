@@ -206,7 +206,9 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
       POST: async ({ request }) => {
         const url = new URL(request.url);
         const userId = url.searchParams.get("user_id");
+        console.log("[webhook-receiver] incoming. supabase user_id:", userId);
         if (!userId || !/^[0-9a-f-]{36}$/i.test(userId)) {
+          console.warn("[webhook-receiver] missing/invalid user_id");
           return json({ error: "Missing or invalid user_id" }, 400);
         }
 
@@ -216,10 +218,11 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
         } catch {
           return json({ error: "Invalid JSON" }, 400);
         }
+        console.log("[webhook-receiver] payload:", JSON.stringify(payload));
 
         const parsed = detect(payload);
+        console.log("[webhook-receiver] parsed:", JSON.stringify(parsed));
         if (!parsed) {
-          // Acknowledge so gateways don't retry forever
           return json({ status: "success", note: "Unrecognized payload" }, 200);
         }
 
