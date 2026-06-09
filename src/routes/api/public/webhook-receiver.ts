@@ -236,6 +236,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        console.log("WEBHOOK VERSION 2026-06-08-A");
         const url = new URL(request.url);
         const userId = url.searchParams.get("user_id");
         console.log("[webhook-receiver] incoming. supabase user_id:", userId);
