@@ -255,7 +255,12 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
         const parsed = detect(payload);
         console.log("[webhook-receiver] parsed:", JSON.stringify(parsed));
         if (!parsed) {
+          console.warn("[webhook-receiver] stop=unrecognized_payload keys:", Object.keys(payload));
           return json({ status: "success", note: "Unrecognized payload" }, 200);
+        }
+        if (!parsed.accepted) {
+          console.log("[webhook-receiver] stop=non_final_status", parsed.status);
+          return json({ status: "ignored", reason: `status=${parsed.status}` }, 200);
         }
 
         const row = {
@@ -274,6 +279,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
         if (row.transaction_id) {
+          console.log("[webhook-receiver] db=upsert row:", JSON.stringify(row));
           const { error } = await supabaseAdmin
             .from("transactions")
             .upsert(row, { onConflict: "user_id,gateway,transaction_id" });
@@ -281,12 +287,15 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
             console.error("[webhook-receiver] upsert error:", error);
             return json({ status: "success", warn: error.message }, 200);
           }
+          console.log("[webhook-receiver] db=upsert ok transaction_id:", row.transaction_id);
         } else {
+          console.log("[webhook-receiver] db=insert row:", JSON.stringify(row));
           const { error } = await supabaseAdmin.from("transactions").insert(row);
           if (error) {
             console.error("[webhook-receiver] insert error:", error);
             return json({ status: "success", warn: error.message }, 200);
           }
+          console.log("[webhook-receiver] db=insert ok");
         }
 
         if (parsed.type === "cashin") {
@@ -304,6 +313,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
               per_sale: true,
               milestones: true,
             }) as { per_sale?: boolean; milestones?: boolean };
+            console.log("[webhook-receiver] prefs:", JSON.stringify(prefs));
 
             // === Marcos especiais ===
             let milestoneSent = false;
@@ -353,6 +363,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
                   body: `${valor} — Esse é só o começo!\nBem-vindo ao clube dos que fazem acontecer 🏆`,
                   tag: "milestone-first-sale",
                 });
+                console.log("[webhook-receiver] push=milestone-first-sale requested");
                 milestoneSent = true;
               }
               // Meta mensal cruzou R$ 1.650
@@ -362,6 +373,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
                   body: `Você atingiu R$ 1.650 de lucro esse mês!\nScaleUp te viu crescer 💎`,
                   tag: `milestone-month-${y}${m}`,
                 });
+                console.log("[webhook-receiver] push=milestone-month requested");
                 milestoneSent = true;
               }
               // 10ª venda do dia
@@ -371,6 +383,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
                   body: `Sua operação está em chamas 🔥\nFaturamento do dia: ${dayTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}`,
                   tag: `milestone-10-${y}${m}${d}`,
                 });
+                console.log("[webhook-receiver] push=milestone-10 requested");
                 milestoneSent = true;
               }
               // Cruzou R$ 1.000 no dia
@@ -380,17 +393,21 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
                   body: `Você cruzou a barreira dos 4 dígitos\nIsso merece comemoração 🚀`,
                   tag: `milestone-1k-${y}${m}${d}`,
                 });
+                console.log("[webhook-receiver] push=milestone-1k requested");
                 milestoneSent = true;
               }
             }
 
             // Notificação padrão "Venda Aprovada"
             if (!milestoneSent && prefs.per_sale !== false) {
-              await sendPushToUser(userId, {
+              const pushResult = await sendPushToUser(userId, {
                 title: "💰 Venda Aprovada!",
                 body: valor,
                 tag: parsed.transaction_id ?? undefined,
               });
+              console.log("[webhook-receiver] push=per-sale result:", JSON.stringify(pushResult));
+            } else if (!milestoneSent) {
+              console.log("[webhook-receiver] push skipped: per_sale disabled");
             }
           } catch (e) {
             console.error("[webhook-receiver] push failed:", e);
