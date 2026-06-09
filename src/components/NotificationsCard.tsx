@@ -105,13 +105,18 @@ export function NotificationsCard() {
         const OneSignal = await getOneSignal();
         const isOptedIn = !!OneSignal.User?.PushSubscription?.optedIn;
         setEnabled(isOptedIn);
+        const subscriptionId = OneSignal.User?.PushSubscription?.id as string | undefined;
+        const token = OneSignal.User?.PushSubscription?.token as string | undefined;
+        if (isOptedIn && subscriptionId && user?.id) {
+          await registerSubscription({ data: { subscriptionId, token } });
+        }
       } catch (e) {
         console.warn("[push] failed to read OneSignal state", e);
       }
     })();
 
     fetchPrefs().then((p) => setPrefs(p)).catch(() => {});
-  }, []);
+  }, [user?.id]);
 
   async function togglePref(key: "daily_summary" | "milestones" | "per_sale" | "bot_offline", value: boolean) {
     const next = { ...prefs, [key]: value };
