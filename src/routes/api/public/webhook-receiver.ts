@@ -45,15 +45,16 @@ function detect(p: AnyObj): Parsed | null {
     };
   }
 
-  // Syncpay CashIn
-  if ((p.client_name || p.paymentcode) && (upper === "PAID_OUT" || upper === "PAID")) {
+  // Syncpay CashIn — status vem como PAID_OUT/PAID/COMPLETED
+  if (upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED") {
+    const txId = p.idtransaction ?? p.id ?? p.externalreference ?? null;
     return {
       gateway: "syncpay",
       type: "cashin",
       status: upper,
       amount: num(p.amount) ?? 0,
-      liquid_amount: num(p.deposito_liquido) ?? num(p.liquid_amount),
-      transaction_id: p.idtransaction ?? p.id ?? null,
+      liquid_amount: num(p.deposito_liquido) ?? num(p.liquid_amount) ?? num(p.amount),
+      transaction_id: txId != null ? String(txId) : null,
       client_name: p.client_name ?? null,
       client_email: p.client_email ?? null,
       accepted: true,
