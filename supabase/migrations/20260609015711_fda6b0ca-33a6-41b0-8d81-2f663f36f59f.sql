@@ -1,0 +1,1 @@
+ALTER TABLE public.configuracoes ADD COLUMN IF NOT EXISTS taxa_bot_fixa numeric NOT NULL DEFAULT 0;
