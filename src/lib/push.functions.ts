@@ -30,6 +30,8 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
         maxValue: z.number().min(0.1).max(10000).default(19.9),
         minIntervalMs: z.number().int().min(100).max(60000).default(3000),
         maxIntervalMs: z.number().int().min(100).max(60000).default(7000),
+        title: z.string().min(1).max(100).default("venda aprovada!"),
+        icon: z.string().url().max(2000).optional(),
       })
       .parse(input ?? {})
   )
@@ -45,9 +47,10 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
     for (let i = 0; i < data.count; i++) {
       const valor = +(Math.random() * (hi - lo) + lo).toFixed(2);
       const res = await sendPushToUser(context.userId, {
-        title: "venda aprovada!",
+        title: data.title,
         body: brl(valor),
         tag: `marketing-${Date.now()}-${i}`,
+        icon: data.icon,
       });
       if (res.ok) sent++;
       else errors.push({ i, reason: (res as any).reason });
