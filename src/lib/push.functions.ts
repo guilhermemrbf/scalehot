@@ -36,8 +36,8 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
     let sent = 0;
     const errors: any[] = [];
     for (let i = 0; i < data.count; i++) {
-      // valor entre R$ 1,00 e R$ 19,90
-      const valor = +(Math.random() * (19.9 - 1) + 1).toFixed(2);
+      // valor entre R$ 5,90 e R$ 19,90
+      const valor = +(Math.random() * (19.9 - 5.9) + 5.9).toFixed(2);
       const res = await sendPushToUser(context.userId, {
         title: "venda aprovada!",
         body: brl(valor),
