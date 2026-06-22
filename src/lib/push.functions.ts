@@ -16,6 +16,63 @@ export const sendTestNotification = createServerFn({ method: "POST" })
     });
   });
 
+function brl(v: number) {
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+}
+
+export const sendMarketingBurst = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        count: z.number().int().min(1).max(200).default(100),
+        intervalMs: z.number().int().min(100).max(5000).default(600),
+      })
+      .parse(input ?? {})
+  )
+  .handler(async ({ context, data }) => {
+    const { sendPushToUser } = await import("./push.server");
+    const titles = [
+      "💰 Nova venda aprovada!",
+      "🤑 PIX caiu na conta",
+      "🔥 Mais uma venda!",
+      "💎 Venda confirmada",
+      "⚡ Conversão aprovada",
+      "🚀 Faturamento subindo",
+      "🎯 PIX recebido",
+      "✨ Cliente pagou agora",
+    ];
+    const produtos = [
+      "Pack Premium",
+      "VIP Mensal",
+      "Acesso Vitalício",
+      "Combo Completo",
+      "Plano Trimestral",
+      "Upsell Exclusivo",
+      "Bump Adicional",
+    ];
+
+    let sent = 0;
+    const errors: any[] = [];
+    for (let i = 0; i < data.count; i++) {
+      // valor entre R$ 9,90 e R$ 297,00
+      const valor = +(Math.random() * (297 - 9.9) + 9.9).toFixed(2);
+      const title = titles[Math.floor(Math.random() * titles.length)];
+      const produto = produtos[Math.floor(Math.random() * produtos.length)];
+      const res = await sendPushToUser(context.userId, {
+        title,
+        body: `${brl(valor)} • ${produto}`,
+        tag: `marketing-${Date.now()}-${i}`,
+      });
+      if (res.ok) sent++;
+      else errors.push({ i, reason: (res as any).reason });
+      if (i < data.count - 1) {
+        await new Promise((r) => setTimeout(r, data.intervalMs));
+      }
+    }
+    return { ok: true, sent, total: data.count, errors: errors.slice(0, 5) };
+  });
+
 const prefsSchema = z.object({
   daily_summary: z.boolean(),
   milestones: z.boolean(),
