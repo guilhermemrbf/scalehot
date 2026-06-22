@@ -74,7 +74,7 @@ function GeradorNotificacoes() {
         subtitle="Dispare notificações de teste de venda aprovada"
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-5xl mb-6">
         <Card className="p-6 bg-gradient-card">
           <div className="flex items-start gap-4">
             <div className="size-14 rounded-2xl overflow-hidden ring-1 ring-primary/30 shadow-glow shrink-0 bg-background/40 grid place-items-center">
