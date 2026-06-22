@@ -73,28 +73,54 @@ function GeradorNotificacoes() {
         subtitle="Dispare notificações de teste de venda aprovada"
       />
 
-      <Card className="p-6 bg-gradient-card max-w-2xl mb-6">
-        <div className="flex items-start gap-4">
-          <div className="size-14 rounded-2xl overflow-hidden ring-1 ring-primary/30 shadow-glow shrink-0 bg-background/40 grid place-items-center">
-            <img src={sharkBotAsset.url} alt="Shark Bot" className="w-full h-full object-contain" />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mb-6">
+        <Card className="p-6 bg-gradient-card">
+          <div className="flex items-start gap-4">
+            <div className="size-14 rounded-2xl overflow-hidden ring-1 ring-primary/30 shadow-glow shrink-0 bg-background/40 grid place-items-center">
+              <img src={sharkBotAsset.url} alt="Shark Bot" className="w-full h-full object-contain" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-display font-semibold">Gerar notificação Shark Bot</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Dispara o lote usando a logo do Shark Bot como ícone.
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-display font-semibold">Gerar notificação Shark Bot</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              Dispara o lote usando a logo do Shark Bot como ícone da notificação.
-            </p>
-            <button
-              type="button"
-              onClick={() => dispatch({ title: "Shark Bot • venda aprovada!", icon: sharkBotAsset.url, label: "Shark Bot" })}
-              disabled={sending || sendingShark}
-              className="mt-3 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
-            >
-              {sendingShark ? <Loader2 className="size-4 animate-spin" /> : <DollarSign className="size-4" />}
-              {sendingShark ? "Disparando Shark Bot..." : `Gerar ${count} notificações Shark Bot`}
-            </button>
+          <button
+            type="button"
+            onClick={() => dispatch({ title: "Shark Bot • venda aprovada!", icon: sharkBotAsset.url, label: "Shark Bot", key: "shark" })}
+            disabled={sending || !!activePreset}
+            className="mt-4 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {activePreset === "shark" ? <Loader2 className="size-4 animate-spin" /> : <DollarSign className="size-4" />}
+            {activePreset === "shark" ? "Disparando..." : `Gerar ${count} notificações`}
+          </button>
+        </Card>
+
+        <Card className="p-6 bg-gradient-card">
+          <div className="flex items-start gap-4">
+            <div className="size-14 rounded-2xl overflow-hidden ring-1 ring-primary/30 shadow-glow shrink-0 bg-background/40 grid place-items-center">
+              <img src="/icon-192.png" alt="ScaleUp" className="w-full h-full object-cover" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-display font-semibold">Gerar notificação ScaleUp</h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Dispara o lote usando a logo do ScaleUp como ícone.
+              </p>
+            </div>
           </div>
-        </div>
-      </Card>
+          <button
+            type="button"
+            onClick={() => dispatch({ title: "ScaleUp • venda aprovada!", icon: "/icon-192.png", label: "ScaleUp", key: "scaleup" })}
+            disabled={sending || !!activePreset}
+            className="mt-4 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
+          >
+            {activePreset === "scaleup" ? <Loader2 className="size-4 animate-spin" /> : <DollarSign className="size-4" />}
+            {activePreset === "scaleup" ? "Disparando..." : `Gerar ${count} notificações`}
+          </button>
+        </Card>
+      </div>
+
 
 
       <Card className="p-6 bg-gradient-card max-w-2xl">
