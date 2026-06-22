@@ -85,9 +85,11 @@ export function NotificationsCard() {
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sendingTest, setSendingTest] = useState(false);
+  const [sendingBurst, setSendingBurst] = useState(false);
   const [showHowTo, setShowHowTo] = useState(false);
 
   const testFn = useServerFn(sendTestNotification);
+  const burstFn = useServerFn(sendMarketingBurst);
   const fetchPrefs = useServerFn(getNotificationPreferences);
   const savePrefs = useServerFn(saveNotificationPreferences);
   const registerSubscription = useServerFn(registerPushSubscription);
