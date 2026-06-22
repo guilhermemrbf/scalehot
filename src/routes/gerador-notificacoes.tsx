@@ -113,7 +113,7 @@ function GeradorNotificacoes() {
           </div>
           <button
             type="button"
-            onClick={() => dispatch({ title: "ScaleUp • venda aprovada!", icon: "/icon-192.png", label: "ScaleUp", key: "scaleup" })}
+            onClick={() => dispatch({ title: "Venda Aprovada!\nfrom ScaleUp", bodyTemplate: "Você recebeu: {valor}!", icon: "/icon-192.png", label: "ScaleUp", key: "scaleup" })}
             disabled={sending || !!activePreset}
             className="mt-4 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
           >
