@@ -15,6 +15,7 @@ import { Route as MetasRouteImport } from './routes/metas'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as HistoricoRouteImport } from './routes/historico'
+import { Route as GeradorNotificacoesRouteImport } from './routes/gerador-notificacoes'
 import { Route as FechamentoRouteImport } from './routes/fechamento'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AnunciosRouteImport } from './routes/anuncios'
@@ -51,6 +52,11 @@ const IntegracoesRoute = IntegracoesRouteImport.update({
 const HistoricoRoute = HistoricoRouteImport.update({
   id: '/historico',
   path: '/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GeradorNotificacoesRoute = GeradorNotificacoesRouteImport.update({
+  id: '/gerador-notificacoes',
+  path: '/gerador-notificacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FechamentoRoute = FechamentoRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/anuncios': typeof AnunciosRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
+  '/gerador-notificacoes': typeof GeradorNotificacoesRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/anuncios': typeof AnunciosRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
+  '/gerador-notificacoes': typeof GeradorNotificacoesRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/anuncios': typeof AnunciosRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/fechamento': typeof FechamentoRoute
+  '/gerador-notificacoes': typeof GeradorNotificacoesRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/anuncios'
     | '/configuracoes'
     | '/fechamento'
+    | '/gerador-notificacoes'
     | '/historico'
     | '/integracoes'
     | '/login'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/anuncios'
     | '/configuracoes'
     | '/fechamento'
+    | '/gerador-notificacoes'
     | '/historico'
     | '/integracoes'
     | '/login'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/anuncios'
     | '/configuracoes'
     | '/fechamento'
+    | '/gerador-notificacoes'
     | '/historico'
     | '/integracoes'
     | '/login'
@@ -190,6 +202,7 @@ export interface RootRouteChildren {
   AnunciosRoute: typeof AnunciosRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   FechamentoRoute: typeof FechamentoRoute
+  GeradorNotificacoesRoute: typeof GeradorNotificacoesRoute
   HistoricoRoute: typeof HistoricoRoute
   IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
@@ -243,6 +256,13 @@ declare module '@tanstack/react-router' {
       path: '/historico'
       fullPath: '/historico'
       preLoaderRoute: typeof HistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/gerador-notificacoes': {
+      id: '/gerador-notificacoes'
+      path: '/gerador-notificacoes'
+      fullPath: '/gerador-notificacoes'
+      preLoaderRoute: typeof GeradorNotificacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fechamento': {
@@ -302,6 +322,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnunciosRoute: AnunciosRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   FechamentoRoute: FechamentoRoute,
+  GeradorNotificacoesRoute: GeradorNotificacoesRoute,
   HistoricoRoute: HistoricoRoute,
   IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
