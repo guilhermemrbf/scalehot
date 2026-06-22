@@ -11,6 +11,7 @@ import {
   saveNotificationPreferences,
   registerPushSubscription,
   deactivatePushSubscription,
+  sendMarketingBurst,
 } from "@/lib/push.functions";
 import { getOneSignal } from "@/lib/onesignal";
 
