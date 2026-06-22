@@ -47,9 +47,10 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
     const errors: any[] = [];
     for (let i = 0; i < data.count; i++) {
       const valor = +(Math.random() * (hi - lo) + lo).toFixed(2);
+      const body = data.bodyTemplate.replace(/\{valor\}/g, brl(valor));
       const res = await sendPushToUser(context.userId, {
         title: data.title,
-        body: brl(valor),
+        body,
         tag: `marketing-${Date.now()}-${i}`,
         icon: data.icon,
       });
