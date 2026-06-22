@@ -3,7 +3,7 @@ export const ONESIGNAL_APP_ID = "d3c273de-eca7-4b06-84db-4a3d41272b6b";
 
 export async function sendPushToUser(
   userId: string,
-  payload: { title: string; body: string; url?: string; tag?: string; subscriptionId?: string }
+  payload: { title: string; body: string; url?: string; tag?: string; subscriptionId?: string; icon?: string }
 ) {
   const apiKey = process.env.ONESIGNAL_REST_API_KEY;
   if (!apiKey) {
@@ -61,6 +61,14 @@ export async function sendPushToUser(
           target_channel: "push",
           url: payload.url,
           web_push_topic: payload.tag,
+          ...(payload.icon
+            ? {
+                chrome_web_icon: payload.icon,
+                chrome_web_image: payload.icon,
+                firefox_icon: payload.icon,
+                large_icon: payload.icon,
+              }
+            : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
