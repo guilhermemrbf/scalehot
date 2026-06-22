@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, DollarSign, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { sendMarketingBurst } from "@/lib/push.functions";
+import sharkBotAsset from "@/assets/shark-bot.png.asset.json";
 
 export const Route = createFileRoute("/gerador-notificacoes")({
   head: () => ({ meta: [{ title: "Geradora de Notificações — ScaleUp" }] }),
@@ -23,9 +24,10 @@ function GeradorNotificacoes() {
   const [minInterval, setMinInterval] = useState(3);
   const [maxInterval, setMaxInterval] = useState(7);
   const [sending, setSending] = useState(false);
+  const [sendingShark, setSendingShark] = useState(false);
 
-  async function dispatch() {
-    if (sending) return;
+  async function dispatch(opts?: { title?: string; icon?: string; label?: string }) {
+    if (sending || sendingShark) return;
     if (minValue >= maxValue) {
       toast.error("Valor mínimo deve ser menor que o máximo");
       return;
@@ -34,9 +36,13 @@ function GeradorNotificacoes() {
       toast.error("Intervalo mínimo deve ser menor ou igual ao máximo");
       return;
     }
-    setSending(true);
-    toast.info(`Disparando ${count} notificações...`);
+    const isShark = !!opts?.icon;
+    if (isShark) setSendingShark(true);
+    else setSending(true);
+    toast.info(`Disparando ${count} notificações${opts?.label ? ` (${opts.label})` : ""}...`);
     try {
+      const origin = typeof window !== "undefined" ? window.location.origin : "";
+      const icon = opts?.icon ? (opts.icon.startsWith("http") ? opts.icon : `${origin}${opts.icon}`) : undefined;
       const res = await burstFn({
         data: {
           count,
@@ -44,6 +50,8 @@ function GeradorNotificacoes() {
           maxValue,
           minIntervalMs: Math.round(minInterval * 1000),
           maxIntervalMs: Math.round(maxInterval * 1000),
+          title: opts?.title ?? "venda aprovada!",
+          ...(icon ? { icon } : {}),
         },
       });
       if ((res as any)?.ok) {
@@ -55,6 +63,7 @@ function GeradorNotificacoes() {
       toast.error(e?.message ?? "Erro ao disparar lote");
     } finally {
       setSending(false);
+      setSendingShark(false);
     }
   }
 
@@ -64,6 +73,30 @@ function GeradorNotificacoes() {
         title="Geradora de Notificações"
         subtitle="Dispare notificações de teste de venda aprovada"
       />
+
+      <Card className="p-6 bg-gradient-card max-w-2xl mb-6">
+        <div className="flex items-start gap-4">
+          <div className="size-14 rounded-2xl overflow-hidden ring-1 ring-primary/30 shadow-glow shrink-0 bg-background/40 grid place-items-center">
+            <img src={sharkBotAsset.url} alt="Shark Bot" className="w-full h-full object-contain" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display font-semibold">Gerar notificação Shark Bot</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              Dispara o lote usando a logo do Shark Bot como ícone da notificação.
+            </p>
+            <button
+              type="button"
+              onClick={() => dispatch({ title: "Shark Bot • venda aprovada!", icon: sharkBotAsset.url, label: "Shark Bot" })}
+              disabled={sending || sendingShark}
+              className="mt-3 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {sendingShark ? <Loader2 className="size-4 animate-spin" /> : <DollarSign className="size-4" />}
+              {sendingShark ? "Disparando Shark Bot..." : `Gerar ${count} notificações Shark Bot`}
+            </button>
+          </div>
+        </div>
+      </Card>
+
 
       <Card className="p-6 bg-gradient-card max-w-2xl">
         <div className="flex items-start gap-3 mb-6">
