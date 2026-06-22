@@ -67,6 +67,10 @@ export async function sendPushToUser(
                 chrome_web_image: payload.icon,
                 firefox_icon: payload.icon,
                 large_icon: payload.icon,
+                small_icon: payload.icon,
+                huawei_large_icon: payload.icon,
+                adm_large_icon: payload.icon,
+                ios_attachments: { id1: payload.icon },
               }
             : {}),
         }),
