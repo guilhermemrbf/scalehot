@@ -27,7 +27,7 @@ function GeradorNotificacoes() {
   const [sending, setSending] = useState(false);
   const [activePreset, setActivePreset] = useState<null | "shark" | "scaleup" | "apex">(null);
 
-  async function dispatch(opts?: { title?: string; icon?: string; label?: string; key?: "shark" | "scaleup" | "apex" }) {
+  async function dispatch(opts?: { title?: string; bodyTemplate?: string; icon?: string; label?: string; key?: "shark" | "scaleup" | "apex" }) {
     if (sending || activePreset) return;
     if (minValue >= maxValue) {
       toast.error("Valor mínimo deve ser menor que o máximo");
@@ -51,6 +51,7 @@ function GeradorNotificacoes() {
           minIntervalMs: Math.round(minInterval * 1000),
           maxIntervalMs: Math.round(maxInterval * 1000),
           title: opts?.title ?? "venda aprovada!",
+          bodyTemplate: opts?.bodyTemplate ?? "{valor}",
           ...(icon ? { icon } : {}),
         },
       });
