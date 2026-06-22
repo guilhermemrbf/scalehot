@@ -25,9 +25,9 @@ function GeradorNotificacoes() {
   const [minInterval, setMinInterval] = useState(3);
   const [maxInterval, setMaxInterval] = useState(7);
   const [sending, setSending] = useState(false);
-  const [activePreset, setActivePreset] = useState<null | "shark" | "scaleup">(null);
+  const [activePreset, setActivePreset] = useState<null | "shark" | "scaleup" | "apex">(null);
 
-  async function dispatch(opts?: { title?: string; icon?: string; label?: string; key?: "shark" | "scaleup" }) {
+  async function dispatch(opts?: { title?: string; icon?: string; label?: string; key?: "shark" | "scaleup" | "apex" }) {
     if (sending || activePreset) return;
     if (minValue >= maxValue) {
       toast.error("Valor mínimo deve ser menor que o máximo");
