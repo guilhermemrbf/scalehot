@@ -1,4 +1,4 @@
-import cashAsset from "@/assets/cash-register.mp3.asset.json";
+import notifAsset from "@/assets/notification.mp3.asset.json";
 
 let audioEl: HTMLAudioElement | null = null;
 let listenerInstalled = false;
@@ -6,7 +6,7 @@ let listenerInstalled = false;
 function getAudio(): HTMLAudioElement | null {
   if (typeof window === "undefined") return null;
   if (!audioEl) {
-    audioEl = new Audio(cashAsset.url);
+    audioEl = new Audio(notifAsset.url);
     audioEl.preload = "auto";
     audioEl.volume = 0.9;
   }
