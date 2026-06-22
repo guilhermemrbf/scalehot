@@ -10,6 +10,7 @@ import { Loader2, DollarSign, Bell } from "lucide-react";
 import { toast } from "sonner";
 import { sendMarketingBurst } from "@/lib/push.functions";
 import sharkBotAsset from "@/assets/shark-bot.png.asset.json";
+import apexvipsAsset from "@/assets/apexvips.jpg.asset.json";
 
 export const Route = createFileRoute("/gerador-notificacoes")({
   head: () => ({ meta: [{ title: "Geradora de Notificações — ScaleUp" }] }),
