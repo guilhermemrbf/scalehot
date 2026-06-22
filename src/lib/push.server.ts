@@ -61,6 +61,14 @@ export async function sendPushToUser(
           target_channel: "push",
           url: payload.url,
           web_push_topic: payload.tag,
+          ...(payload.icon
+            ? {
+                chrome_web_icon: payload.icon,
+                chrome_web_image: payload.icon,
+                firefox_icon: payload.icon,
+                large_icon: payload.icon,
+              }
+            : {}),
         }),
       });
       const data = await res.json().catch(() => ({}));
