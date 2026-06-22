@@ -32,36 +32,15 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const { sendPushToUser } = await import("./push.server");
-    const titles = [
-      "💰 Nova venda aprovada!",
-      "🤑 PIX caiu na conta",
-      "🔥 Mais uma venda!",
-      "💎 Venda confirmada",
-      "⚡ Conversão aprovada",
-      "🚀 Faturamento subindo",
-      "🎯 PIX recebido",
-      "✨ Cliente pagou agora",
-    ];
-    const produtos = [
-      "Pack Premium",
-      "VIP Mensal",
-      "Acesso Vitalício",
-      "Combo Completo",
-      "Plano Trimestral",
-      "Upsell Exclusivo",
-      "Bump Adicional",
-    ];
 
     let sent = 0;
     const errors: any[] = [];
     for (let i = 0; i < data.count; i++) {
-      // valor entre R$ 9,90 e R$ 297,00
-      const valor = +(Math.random() * (297 - 9.9) + 9.9).toFixed(2);
-      const title = titles[Math.floor(Math.random() * titles.length)];
-      const produto = produtos[Math.floor(Math.random() * produtos.length)];
+      // valor entre R$ 1,00 e R$ 19,90
+      const valor = +(Math.random() * (19.9 - 1) + 1).toFixed(2);
       const res = await sendPushToUser(context.userId, {
-        title,
-        body: `${brl(valor)} • ${produto}`,
+        title: "venda aprovada!",
+        body: brl(valor),
         tag: `marketing-${Date.now()}-${i}`,
       });
       if (res.ok) sent++;
