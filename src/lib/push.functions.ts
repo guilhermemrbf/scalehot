@@ -26,18 +26,24 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
     z
       .object({
         count: z.number().int().min(1).max(200).default(100),
-        intervalMs: z.number().int().min(100).max(5000).default(600),
+        minValue: z.number().min(0.1).max(10000).default(5.9),
+        maxValue: z.number().min(0.1).max(10000).default(19.9),
+        minIntervalMs: z.number().int().min(100).max(60000).default(3000),
+        maxIntervalMs: z.number().int().min(100).max(60000).default(7000),
       })
       .parse(input ?? {})
   )
   .handler(async ({ context, data }) => {
     const { sendPushToUser } = await import("./push.server");
+    const lo = Math.min(data.minValue, data.maxValue);
+    const hi = Math.max(data.minValue, data.maxValue);
+    const iLo = Math.min(data.minIntervalMs, data.maxIntervalMs);
+    const iHi = Math.max(data.minIntervalMs, data.maxIntervalMs);
 
     let sent = 0;
     const errors: any[] = [];
     for (let i = 0; i < data.count; i++) {
-      // valor entre R$ 5,90 e R$ 19,90
-      const valor = +(Math.random() * (19.9 - 5.9) + 5.9).toFixed(2);
+      const valor = +(Math.random() * (hi - lo) + lo).toFixed(2);
       const res = await sendPushToUser(context.userId, {
         title: "venda aprovada!",
         body: brl(valor),
@@ -46,8 +52,7 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
       if (res.ok) sent++;
       else errors.push({ i, reason: (res as any).reason });
       if (i < data.count - 1) {
-        // intervalo aleatório entre 3s e 7s
-        const delay = Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000;
+        const delay = Math.floor(Math.random() * (iHi - iLo + 1)) + iLo;
         await new Promise((r) => setTimeout(r, delay));
       }
     }
