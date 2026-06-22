@@ -46,7 +46,9 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
       if (res.ok) sent++;
       else errors.push({ i, reason: (res as any).reason });
       if (i < data.count - 1) {
-        await new Promise((r) => setTimeout(r, data.intervalMs));
+        // intervalo aleatório entre 3s e 7s
+        const delay = Math.floor(Math.random() * (7000 - 3000 + 1)) + 3000;
+        await new Promise((r) => setTimeout(r, delay));
       }
     }
     return { ok: true, sent, total: data.count, errors: errors.slice(0, 5) };
