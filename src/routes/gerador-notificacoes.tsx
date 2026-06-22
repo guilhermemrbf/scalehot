@@ -176,7 +176,7 @@ function GeradorNotificacoes() {
 
         <button
           type="button"
-          onClick={dispatch}
+          onClick={() => dispatch()}
           disabled={sending}
           className="mt-6 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-3 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
         >
