@@ -24,10 +24,10 @@ function GeradorNotificacoes() {
   const [minInterval, setMinInterval] = useState(3);
   const [maxInterval, setMaxInterval] = useState(7);
   const [sending, setSending] = useState(false);
-  const [sendingShark, setSendingShark] = useState(false);
+  const [activePreset, setActivePreset] = useState<null | "shark" | "scaleup">(null);
 
-  async function dispatch(opts?: { title?: string; icon?: string; label?: string }) {
-    if (sending || sendingShark) return;
+  async function dispatch(opts?: { title?: string; icon?: string; label?: string; key?: "shark" | "scaleup" }) {
+    if (sending || activePreset) return;
     if (minValue >= maxValue) {
       toast.error("Valor mínimo deve ser menor que o máximo");
       return;
@@ -36,8 +36,7 @@ function GeradorNotificacoes() {
       toast.error("Intervalo mínimo deve ser menor ou igual ao máximo");
       return;
     }
-    const isShark = !!opts?.icon;
-    if (isShark) setSendingShark(true);
+    if (opts?.key) setActivePreset(opts.key);
     else setSending(true);
     toast.info(`Disparando ${count} notificações${opts?.label ? ` (${opts.label})` : ""}...`);
     try {
@@ -63,7 +62,7 @@ function GeradorNotificacoes() {
       toast.error(e?.message ?? "Erro ao disparar lote");
     } finally {
       setSending(false);
-      setSendingShark(false);
+      setActivePreset(null);
     }
   }
 
