@@ -27,7 +27,7 @@ function GeradorNotificacoes() {
   const [sending, setSending] = useState(false);
   const [activePreset, setActivePreset] = useState<null | "shark" | "scaleup" | "apex">(null);
 
-  async function dispatch(opts?: { title?: string; icon?: string; label?: string; key?: "shark" | "scaleup" | "apex" }) {
+  async function dispatch(opts?: { title?: string; bodyTemplate?: string; icon?: string; label?: string; key?: "shark" | "scaleup" | "apex" }) {
     if (sending || activePreset) return;
     if (minValue >= maxValue) {
       toast.error("Valor mínimo deve ser menor que o máximo");
@@ -51,6 +51,7 @@ function GeradorNotificacoes() {
           minIntervalMs: Math.round(minInterval * 1000),
           maxIntervalMs: Math.round(maxInterval * 1000),
           title: opts?.title ?? "venda aprovada!",
+          bodyTemplate: opts?.bodyTemplate ?? "{valor}",
           ...(icon ? { icon } : {}),
         },
       });
@@ -89,7 +90,7 @@ function GeradorNotificacoes() {
           </div>
           <button
             type="button"
-            onClick={() => dispatch({ title: "Shark Bot • venda aprovada!", icon: sharkBotAsset.url, label: "Shark Bot", key: "shark" })}
+            onClick={() => dispatch({ title: "🦈 Nova Venda!\nfrom Shark Bot", bodyTemplate: "Você recebeu {valor}", icon: sharkBotAsset.url, label: "Shark Bot", key: "shark" })}
             disabled={sending || !!activePreset}
             className="mt-4 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
           >
@@ -112,7 +113,7 @@ function GeradorNotificacoes() {
           </div>
           <button
             type="button"
-            onClick={() => dispatch({ title: "ScaleUp • venda aprovada!", icon: "/icon-192.png", label: "ScaleUp", key: "scaleup" })}
+            onClick={() => dispatch({ title: "Venda Aprovada!\nfrom ScaleUp", bodyTemplate: "Você recebeu: {valor}!", icon: "/icon-192.png", label: "ScaleUp", key: "scaleup" })}
             disabled={sending || !!activePreset}
             className="mt-4 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
           >
@@ -135,7 +136,7 @@ function GeradorNotificacoes() {
           </div>
           <button
             type="button"
-            onClick={() => dispatch({ title: "APEXVIPS • venda aprovada!", icon: apexvipsAsset.url, label: "APEXVIPS", key: "apex" })}
+            onClick={() => dispatch({ title: "Venda Aprovada!\nfrom ApexVips", bodyTemplate: "Você recebeu: {valor}!", icon: apexvipsAsset.url, label: "APEXVIPS", key: "apex" })}
             disabled={sending || !!activePreset}
             className="mt-4 w-full rounded-lg bg-gradient-primary text-primary-foreground text-sm font-medium py-2.5 hover:opacity-90 shadow-glow transition flex items-center justify-center gap-2 disabled:opacity-50"
           >
