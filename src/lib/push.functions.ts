@@ -33,6 +33,16 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
         title: z.string().min(1).max(150).default("venda aprovada!"),
         bodyTemplate: z.string().min(1).max(200).default("{valor}"),
         icon: z.string().url().max(2000).optional(),
+        presets: z
+          .array(
+            z.object({
+              title: z.string().min(1).max(150),
+              bodyTemplate: z.string().min(1).max(200),
+              icon: z.string().url().max(2000).optional(),
+            })
+          )
+          .max(10)
+          .optional(),
       })
       .parse(input ?? {})
   )
@@ -43,16 +53,22 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
     const iLo = Math.min(data.minIntervalMs, data.maxIntervalMs);
     const iHi = Math.max(data.minIntervalMs, data.maxIntervalMs);
 
+    const variants =
+      data.presets && data.presets.length > 0
+        ? data.presets
+        : [{ title: data.title, bodyTemplate: data.bodyTemplate, icon: data.icon }];
+
     let sent = 0;
     const errors: any[] = [];
     for (let i = 0; i < data.count; i++) {
       const valor = +(Math.random() * (hi - lo) + lo).toFixed(2);
-      const body = data.bodyTemplate.replace(/\{valor\}/g, brl(valor));
+      const v = variants[Math.floor(Math.random() * variants.length)];
+      const body = v.bodyTemplate.replace(/\{valor\}/g, brl(valor));
       const res = await sendPushToUser(context.userId, {
-        title: data.title,
+        title: v.title,
         body,
         tag: `marketing-${Date.now()}-${i}`,
-        icon: data.icon,
+        icon: v.icon,
       });
       if (res.ok) sent++;
       else errors.push({ i, reason: (res as any).reason });
