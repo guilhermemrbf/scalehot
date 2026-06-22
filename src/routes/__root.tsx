@@ -130,8 +130,17 @@ function OneSignalBootstrap() {
     let cancelled = false;
     (async () => {
       const { loadOneSignal, loginOneSignal, logoutOneSignal } = await import("@/lib/onesignal");
-      await loadOneSignal();
+      const { installSaleSoundListener, playSaleSound } = await import("@/lib/sale-sound");
+      installSaleSoundListener();
+      const OneSignal = await loadOneSignal();
       if (cancelled) return;
+      try {
+        OneSignal.Notifications.addEventListener("foregroundWillDisplay", () => {
+          playSaleSound();
+        });
+      } catch {
+        // ignora
+      }
       if (user?.id) await loginOneSignal(user.id);
       else await logoutOneSignal();
     })().catch(() => {});
