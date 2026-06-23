@@ -3,7 +3,7 @@ export const ONESIGNAL_APP_ID = "d3c273de-eca7-4b06-84db-4a3d41272b6b";
 
 export async function sendPushToUser(
   userId: string,
-  payload: { title: string; body: string; url?: string; tag?: string; subscriptionId?: string; icon?: string }
+  payload: { title: string; body: string; subtitle?: string; url?: string; tag?: string; subscriptionId?: string; icon?: string }
 ) {
   const apiKey = process.env.ONESIGNAL_REST_API_KEY;
   if (!apiKey) {
@@ -56,6 +56,7 @@ export async function sendPushToUser(
         body: JSON.stringify({
           app_id: ONESIGNAL_APP_ID,
           headings: { en: payload.title, pt: payload.title },
+          ...(payload.subtitle ? { subtitles: { en: payload.subtitle, pt: payload.subtitle } } : {}),
           contents: { en: payload.body, pt: payload.body },
           ...target.body,
           target_channel: "push",
@@ -65,11 +66,15 @@ export async function sendPushToUser(
             ? {
                 chrome_web_icon: payload.icon,
                 chrome_web_image: payload.icon,
+                chrome_big_picture: payload.icon,
                 firefox_icon: payload.icon,
                 large_icon: payload.icon,
+                big_picture: payload.icon,
                 small_icon: payload.icon,
                 huawei_large_icon: payload.icon,
+                huawei_big_picture: payload.icon,
                 adm_large_icon: payload.icon,
+                adm_big_picture: payload.icon,
                 ios_attachments: { id1: payload.icon },
               }
             : {}),
