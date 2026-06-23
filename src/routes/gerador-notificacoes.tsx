@@ -35,7 +35,7 @@ const PRESETS: Preset[] = [
     label: "Shark Bot",
     iconUrl: sharkBotAsset.url,
     isAbsolute: false,
-    title: "🦈 Nova Venda!",
+    title: "🦈 Nova Venda! · from Shark Bot",
     subtitle: "from Shark Bot",
     bodyTemplate: "Você recebeu {valor}",
   },
@@ -44,7 +44,7 @@ const PRESETS: Preset[] = [
     label: "ScaleUp",
     iconUrl: "/icon-192.png",
     isAbsolute: false,
-    title: "Venda Aprovada!",
+    title: "Venda Aprovada! · from ScaleUp",
     subtitle: "from ScaleUp",
     bodyTemplate: "Você recebeu: {valor}!",
   },
@@ -53,10 +53,11 @@ const PRESETS: Preset[] = [
     label: "ApexVips",
     iconUrl: apexvipsAsset.url,
     isAbsolute: false,
-    title: "Venda Aprovada!",
+    title: "Venda Aprovada! · from ApexVips",
     subtitle: "from ApexVips",
     bodyTemplate: "Você recebeu: {valor}!",
   },
+
 ];
 
 function GeradorNotificacoes() {
