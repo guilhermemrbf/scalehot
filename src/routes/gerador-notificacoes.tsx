@@ -25,6 +25,7 @@ type Preset = {
   iconUrl: string;
   isAbsolute: boolean;
   title: string;
+  subtitle: string;
   bodyTemplate: string;
 };
 
@@ -35,7 +36,8 @@ const PRESETS: Preset[] = [
     iconUrl: sharkBotAsset.url,
     isAbsolute: false,
     title: "🦈 Nova Venda!",
-    bodyTemplate: "from Shark Bot\nVocê recebeu {valor}",
+    subtitle: "from Shark Bot",
+    bodyTemplate: "Você recebeu {valor}",
   },
   {
     key: "scaleup",
@@ -43,7 +45,8 @@ const PRESETS: Preset[] = [
     iconUrl: "/icon-192.png",
     isAbsolute: false,
     title: "Venda Aprovada!",
-    bodyTemplate: "from ScaleUp\nVocê recebeu: {valor}!",
+    subtitle: "from ScaleUp",
+    bodyTemplate: "Você recebeu: {valor}!",
   },
   {
     key: "apex",
@@ -51,7 +54,8 @@ const PRESETS: Preset[] = [
     iconUrl: apexvipsAsset.url,
     isAbsolute: false,
     title: "Venda Aprovada!",
-    bodyTemplate: "from ApexVips\nVocê recebeu: {valor}!",
+    subtitle: "from ApexVips",
+    bodyTemplate: "Você recebeu: {valor}!",
   },
 ];
 
@@ -94,6 +98,7 @@ function GeradorNotificacoes() {
       const origin = typeof window !== "undefined" ? window.location.origin : "";
       const presets = PRESETS.filter((p) => selected.has(p.key)).map((p) => ({
         title: p.title,
+        subtitle: p.subtitle,
         bodyTemplate: p.bodyTemplate,
         icon: p.isAbsolute || p.iconUrl.startsWith("http") ? p.iconUrl : `${origin}${p.iconUrl}`,
       }));
