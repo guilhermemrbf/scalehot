@@ -47,39 +47,52 @@ export async function sendPushToUser(
 
     let lastError: { status: number; data: unknown; target: string } | null = null;
     for (const target of targets) {
+      const requestBody = {
+        app_id: ONESIGNAL_APP_ID,
+        headings: { en: payload.title, pt: payload.title },
+        ...(payload.subtitle ? { subtitles: { en: payload.subtitle, pt: payload.subtitle } } : {}),
+        contents: { en: payload.body, pt: payload.body },
+        ...target.body,
+        target_channel: "push",
+        url: payload.url,
+        web_push_topic: payload.tag,
+        ...(payload.icon
+          ? {
+              chrome_web_icon: payload.icon,
+              chrome_web_image: payload.icon,
+              chrome_big_picture: payload.icon,
+              firefox_icon: payload.icon,
+              large_icon: payload.icon,
+              big_picture: payload.icon,
+              small_icon: payload.icon,
+              huawei_large_icon: payload.icon,
+              huawei_big_picture: payload.icon,
+              adm_large_icon: payload.icon,
+              adm_big_picture: payload.icon,
+              ios_attachments: { id1: payload.icon },
+            }
+          : {}),
+      };
+      console.log("[push] payload:", JSON.stringify({
+        target: target.kind,
+        title: payload.title,
+        subtitle: payload.subtitle ?? null,
+        body: payload.body,
+        icon: payload.icon ?? null,
+        hasSubtitles: !!(requestBody as any).subtitles,
+        hasLargeIcon: !!(requestBody as any).large_icon,
+        hasBigPicture: !!(requestBody as any).big_picture,
+        hasIosAttachments: !!(requestBody as any).ios_attachments,
+      }));
       const res = await fetch("https://api.onesignal.com/notifications?c=push", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: authorization,
         },
-        body: JSON.stringify({
-          app_id: ONESIGNAL_APP_ID,
-          headings: { en: payload.title, pt: payload.title },
-          ...(payload.subtitle ? { subtitles: { en: payload.subtitle, pt: payload.subtitle } } : {}),
-          contents: { en: payload.body, pt: payload.body },
-          ...target.body,
-          target_channel: "push",
-          url: payload.url,
-          web_push_topic: payload.tag,
-          ...(payload.icon
-            ? {
-                chrome_web_icon: payload.icon,
-                chrome_web_image: payload.icon,
-                chrome_big_picture: payload.icon,
-                firefox_icon: payload.icon,
-                large_icon: payload.icon,
-                big_picture: payload.icon,
-                small_icon: payload.icon,
-                huawei_large_icon: payload.icon,
-                huawei_big_picture: payload.icon,
-                adm_large_icon: payload.icon,
-                adm_big_picture: payload.icon,
-                ios_attachments: { id1: payload.icon },
-              }
-            : {}),
-        }),
+        body: JSON.stringify(requestBody),
       });
+
       const data = await res.json().catch(() => ({}));
       if (res.ok && !data.errors) return { ok: true, id: data.id, target: target.kind };
 
