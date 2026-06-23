@@ -37,6 +37,7 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
           .array(
             z.object({
               title: z.string().min(1).max(150),
+              subtitle: z.string().min(1).max(80).optional(),
               bodyTemplate: z.string().min(1).max(200),
               icon: z.string().url().max(2000).optional(),
             })
@@ -66,6 +67,7 @@ export const sendMarketingBurst = createServerFn({ method: "POST" })
       const body = v.bodyTemplate.replace(/\{valor\}/g, brl(valor));
       const res = await sendPushToUser(context.userId, {
         title: v.title,
+        subtitle: v.subtitle,
         body,
         tag: `marketing-${Date.now()}-${i}`,
         icon: v.icon,
