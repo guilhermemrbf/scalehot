@@ -11,6 +11,8 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as PainelEquipeRouteImport } from './routes/painel-equipe'
+import { Route as PainelRouteImport } from './routes/painel'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
@@ -32,6 +34,16 @@ const RelatoriosRoute = RelatoriosRouteImport.update({
 const RegistroRoute = RegistroRouteImport.update({
   id: '/registro',
   path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelEquipeRoute = PainelEquipeRouteImport.update({
+  id: '/painel-equipe',
+  path: '/painel-equipe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelRoute = PainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MetasRoute = MetasRouteImport.update({
@@ -107,6 +119,8 @@ export interface FileRoutesByFullPath {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
+  '/painel': typeof PainelRoute
+  '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
@@ -123,6 +137,8 @@ export interface FileRoutesByTo {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
+  '/painel': typeof PainelRoute
+  '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
@@ -140,6 +156,8 @@ export interface FileRoutesById {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
+  '/painel': typeof PainelRoute
+  '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
@@ -158,6 +176,8 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/metas'
+    | '/painel'
+    | '/painel-equipe'
     | '/registro'
     | '/relatorios'
     | '/api/public/send-daily-summary'
@@ -174,6 +194,8 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/metas'
+    | '/painel'
+    | '/painel-equipe'
     | '/registro'
     | '/relatorios'
     | '/api/public/send-daily-summary'
@@ -190,6 +212,8 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/metas'
+    | '/painel'
+    | '/painel-equipe'
     | '/registro'
     | '/relatorios'
     | '/api/public/send-daily-summary'
@@ -207,6 +231,8 @@ export interface RootRouteChildren {
   IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MetasRoute: typeof MetasRoute
+  PainelRoute: typeof PainelRoute
+  PainelEquipeRoute: typeof PainelEquipeRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
   ApiPublicSendDailySummaryRoute: typeof ApiPublicSendDailySummaryRoute
@@ -228,6 +254,20 @@ declare module '@tanstack/react-router' {
       path: '/registro'
       fullPath: '/registro'
       preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel-equipe': {
+      id: '/painel-equipe'
+      path: '/painel-equipe'
+      fullPath: '/painel-equipe'
+      preLoaderRoute: typeof PainelEquipeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel': {
+      id: '/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof PainelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/metas': {
@@ -327,6 +367,8 @@ const rootRouteChildren: RootRouteChildren = {
   IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MetasRoute: MetasRoute,
+  PainelRoute: PainelRoute,
+  PainelEquipeRoute: PainelEquipeRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
   ApiPublicSendDailySummaryRoute: ApiPublicSendDailySummaryRoute,
@@ -336,13 +378,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

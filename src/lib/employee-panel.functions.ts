@@ -28,7 +28,7 @@ export const unlockEmployeePanel = createServerFn({ method: "POST" })
       .eq("password", data.password)
       .limit(1);
     if (error) throw new Error(error.message);
-    const match = (rows ?? [])[0] as { user_id: string; password: string } | undefined;
+    const match = (rows ?? [])[0] as unknown as { user_id: string; password: string } | undefined;
     if (!match) return { ok: false as const };
     const session = await useSession<PanelSession>(getSessionConfig());
     await session.update({ ownerId: match.user_id });
@@ -65,7 +65,7 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   if (e1) throw new Error(e1.message);
   if (e2) throw new Error(e2.message);
 
-  const list = (txs ?? []) as Array<{
+  const list = (txs ?? []) as unknown as Array<{
     id: string; type: string; amount: number; liquid_amount: number | null;
     client_name: string | null; gateway: string; created_at: string;
   }>;
@@ -147,7 +147,7 @@ export const listAdminTransactions = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
-    return (data ?? []) as Array<{
+    return (data ?? []) as unknown as Array<{
       id: string; type: string; amount: number; liquid_amount: number | null;
       client_name: string | null; gateway: string; created_at: string; employee_visible: boolean;
     }>;
