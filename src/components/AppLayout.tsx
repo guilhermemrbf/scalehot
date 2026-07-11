@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, FileBarChart, History, Settings, Menu, X, Moon, Sun, LogOut, Megaphone, User, Plug, Bell } from "lucide-react";
+import { LayoutDashboard, FileBarChart, History, Settings, Menu, X, Moon, Sun, LogOut, Megaphone, User, Plug, Bell, Users } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
@@ -13,6 +13,7 @@ const nav = [
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/historico", label: "Histórico", icon: History },
   { to: "/gerador-notificacoes", label: "Geradora de Notificações", icon: Bell },
+  { to: "/painel-equipe", label: "Painel da Equipe", icon: Users },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
