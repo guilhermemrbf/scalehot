@@ -38,6 +38,24 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_panels: {
+        Row: {
+          password: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          password: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          password?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       faturamentos: {
         Row: {
           created_at: string
@@ -290,6 +308,7 @@ export type Database = {
           client_email: string | null
           client_name: string | null
           created_at: string
+          employee_visible: boolean
           gateway: string
           id: string
           liquid_amount: number | null
@@ -304,6 +323,7 @@ export type Database = {
           client_email?: string | null
           client_name?: string | null
           created_at?: string
+          employee_visible?: boolean
           gateway: string
           id?: string
           liquid_amount?: number | null
@@ -318,6 +338,7 @@ export type Database = {
           client_email?: string | null
           client_name?: string | null
           created_at?: string
+          employee_visible?: boolean
           gateway?: string
           id?: string
           liquid_amount?: number | null
