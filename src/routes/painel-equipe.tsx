@@ -173,15 +173,17 @@ function PainelEquipeAdmin() {
       <Card className="p-5">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div>
-            <h3 className="font-display font-semibold">Controlar vendas exibidas</h3>
-            <p className="text-xs text-muted-foreground">Ative apenas as vendas que os funcionários devem ver.</p>
+            <h3 className="font-display font-semibold">Aprovação de vendas</h3>
+            <p className="text-xs text-muted-foreground">
+              Cada venda recebida via webhook fica <strong>pendente</strong> até você aprovar. Só vendas aprovadas aparecem no painel dos funcionários/clientes.
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="flex bg-muted rounded-lg p-1">
               {([
+                { key: "hidden", label: `Pendentes (${pending.length})` },
+                { key: "visible", label: `Aprovadas (${approved.length})` },
                 { key: "all", label: "Todas" },
-                { key: "visible", label: "Visíveis" },
-                { key: "hidden", label: "Ocultas" },
               ] as const).map((o) => (
                 <button
                   key={o.key}
@@ -195,16 +197,18 @@ function PainelEquipeAdmin() {
               ))}
             </div>
             <Button variant="outline" size="sm" onClick={() => bulkMut.mutate(true)} disabled={bulkMut.isPending}>
-              Liberar todas
+              <CheckCircle2 className="size-4 mr-1" /> Aprovar todas
             </Button>
             <Button variant="outline" size="sm" onClick={() => bulkMut.mutate(false)} disabled={bulkMut.isPending}>
-              Ocultar todas
+              <XCircle className="size-4 mr-1" /> Ocultar todas
             </Button>
           </div>
         </div>
 
         {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-10">Nenhuma venda neste filtro.</p>
+          <p className="text-sm text-muted-foreground text-center py-10">
+            {filter === "hidden" ? "Nenhuma venda pendente 🎉" : "Nenhuma venda neste filtro."}
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -215,7 +219,8 @@ function PainelEquipeAdmin() {
                   <th className="text-left py-3 px-4 font-medium">Tipo</th>
                   <th className="text-right py-3 px-4 font-medium">Valor</th>
                   <th className="text-left py-3 px-4 font-medium">Data</th>
-                  <th className="text-right py-3 px-4 font-medium">Visível</th>
+                  <th className="text-center py-3 px-4 font-medium">Status</th>
+                  <th className="text-right py-3 px-4 font-medium">Ação</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -234,11 +239,41 @@ function PainelEquipeAdmin() {
                     <td className="py-3 px-4 text-muted-foreground text-xs">
                       {new Date(t.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}
                     </td>
-                    <td className="py-3 px-4 text-right">
-                      <Switch
-                        checked={t.employee_visible}
-                        onCheckedChange={(v) => toggle.mutate({ id: t.id, visible: v })}
-                      />
+                    <td className="py-3 px-4 text-center">
+                      {t.employee_visible ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-success/10 text-success">
+                          <CheckCircle2 className="size-3" /> Aprovada
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-warning/10 text-warning">
+                          <Clock className="size-3" /> Pendente
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4">
+                      <div className="flex items-center justify-end gap-2">
+                        {t.employee_visible ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggle.mutate({ id: t.id, visible: false })}
+                          >
+                            <XCircle className="size-4 mr-1" /> Ocultar
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            className="bg-success text-success-foreground hover:bg-success/90"
+                            onClick={() => toggle.mutate({ id: t.id, visible: true })}
+                          >
+                            <CheckCircle2 className="size-4 mr-1" /> Aprovar
+                          </Button>
+                        )}
+                        <Switch
+                          checked={t.employee_visible}
+                          onCheckedChange={(v) => toggle.mutate({ id: t.id, visible: v })}
+                        />
+                      </div>
                     </td>
                   </tr>
                 ))}
