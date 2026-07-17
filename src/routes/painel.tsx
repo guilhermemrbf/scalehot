@@ -148,6 +148,9 @@ function PainelEquipe() {
 
         <WithdrawalSection />
 
+        <InstallAppCard />
+
+
         <Card className="p-5 mt-6">
           <div className="flex items-center gap-2 mb-4">
             <Activity className="size-5 text-primary" />
