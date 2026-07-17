@@ -348,3 +348,110 @@ function WithdrawalSection() {
     </Card>
   );
 }
+
+function InstallAppCard() {
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
+  const isIOS = /iPad|iPhone|iPod/.test(ua);
+  const isAndroid = /Android/.test(ua);
+  const [defaultTab, setDefaultTab] = useState<"ios" | "android">(isIOS ? "ios" : "android");
+  void isAndroid;
+
+  return (
+    <Card className="p-6 bg-gradient-card mt-6">
+      <div className="flex items-start gap-3 mb-5">
+        <div className="size-10 rounded-xl bg-primary/15 grid place-items-center shrink-0">
+          <Smartphone className="size-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-display font-semibold">Instalar o aplicativo</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Adicione o painel à tela inicial do seu celular para abrir como app e receber notificações.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 mb-4">
+        <Button
+          type="button"
+          variant={defaultTab === "ios" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setDefaultTab("ios")}
+          className={defaultTab === "ios" ? "bg-gradient-primary text-primary-foreground" : ""}
+        >
+          iPhone / iPad
+        </Button>
+        <Button
+          type="button"
+          variant={defaultTab === "android" ? "default" : "outline"}
+          size="sm"
+          onClick={() => setDefaultTab("android")}
+          className={defaultTab === "android" ? "bg-gradient-primary text-primary-foreground" : ""}
+        >
+          Android
+        </Button>
+      </div>
+
+      {defaultTab === "ios" ? (
+        <ol className="space-y-3 text-sm">
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">1</span>
+            <p>Abra este painel no <strong>Safari</strong> (não funciona pelo Chrome no iPhone).</p>
+          </li>
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">2</span>
+            <p className="flex items-center gap-1 flex-wrap">
+              Toque no botão de compartilhar
+              <Share className="size-4 inline text-primary" />
+              na barra inferior.
+            </p>
+          </li>
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">3</span>
+            <p className="flex items-center gap-1 flex-wrap">
+              Selecione <strong>Adicionar à Tela de Início</strong>
+              <PlusSquare className="size-4 inline text-primary" />
+              e confirme em <strong>Adicionar</strong>.
+            </p>
+          </li>
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">4</span>
+            <p>Pronto! O ícone do <strong>ScaleUp</strong> aparece na tela inicial. Abra por lá para ativar as notificações.</p>
+          </li>
+        </ol>
+      ) : (
+        <ol className="space-y-3 text-sm">
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">1</span>
+            <p>Abra este painel no <strong>Google Chrome</strong>.</p>
+          </li>
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">2</span>
+            <p className="flex items-center gap-1 flex-wrap">
+              Toque no menu
+              <MoreVertical className="size-4 inline text-primary" />
+              no canto superior direito.
+            </p>
+          </li>
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">3</span>
+            <p className="flex items-center gap-1 flex-wrap">
+              Toque em <strong>Instalar aplicativo</strong>
+              <Download className="size-4 inline text-primary" />
+              (ou <strong>Adicionar à tela inicial</strong>).
+            </p>
+          </li>
+          <li className="flex gap-3">
+            <span className="size-6 rounded-full bg-primary/15 text-primary text-xs font-bold grid place-items-center shrink-0">4</span>
+            <p>Confirme em <strong>Instalar</strong>. O <strong>ScaleUp</strong> aparece como aplicativo no seu celular.</p>
+          </li>
+        </ol>
+      )}
+
+      <div className="mt-5 p-3 rounded-lg bg-muted/40 border border-border/60">
+        <p className="text-xs text-muted-foreground">
+          💡 Dica: depois de instalado, abra sempre pelo ícone na tela inicial para receber as notificações de vendas em tempo real.
+        </p>
+      </div>
+    </Card>
+  );
+}
