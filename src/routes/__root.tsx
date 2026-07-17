@@ -106,20 +106,22 @@ function AuthGate({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { pathname } = useLocation();
 
+  const isPublicRoute = pathname === "/login" || pathname === "/painel";
+
   useEffect(() => {
     if (loading) return;
-    if (!user && pathname !== "/login") navigate({ to: "/login", replace: true });
-  }, [user, loading, pathname, navigate]);
+    if (!user && !isPublicRoute) navigate({ to: "/login", replace: true });
+  }, [user, loading, isPublicRoute, navigate]);
 
   useEffect(() => {
     queryClient.invalidateQueries();
     router.invalidate();
   }, [user?.id, queryClient, router]);
 
-  if (loading) {
+  if (loading && !isPublicRoute) {
     return <div className="min-h-screen grid place-items-center text-sm text-muted-foreground">Carregando...</div>;
   }
-  if (!user && pathname !== "/login") return null;
+  if (!user && !isPublicRoute) return null;
   return <>{children}</>;
 }
 
