@@ -38,7 +38,7 @@ function PainelEquipeAdmin() {
 
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
-  const [filter, setFilter] = useState<"all" | "visible" | "hidden">("all");
+  const [filter, setFilter] = useState<"all" | "visible" | "hidden">("hidden");
 
   useEffect(() => { if (pwd?.password) setPassword(pwd.password); }, [pwd?.password]);
 
