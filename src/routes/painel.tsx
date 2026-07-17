@@ -6,13 +6,16 @@ import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { brl, pct } from "@/lib/format";
-import { Wallet, Trophy, Percent, Landmark, RotateCcw, CheckCircle2, LogOut, Lock, Activity } from "lucide-react";
+import { Wallet, Trophy, Percent, Landmark, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle } from "lucide-react";
 import {
   getEmployeePanelData,
   unlockEmployeePanel,
   lockEmployeePanel,
 } from "@/lib/employee-panel.functions";
+import { requestWithdrawal, listMyWithdrawals } from "@/lib/withdrawals.functions";
 
 export const Route = createFileRoute("/painel")({
   head: () => ({
@@ -143,7 +146,9 @@ function PainelEquipe() {
           ))}
         </div>
 
-        <Card className="p-5">
+        <WithdrawalSection />
+
+        <Card className="p-5 mt-6">
           <div className="flex items-center gap-2 mb-4">
             <Activity className="size-5 text-primary" />
             <h2 className="font-display text-xl font-bold tracking-tight">Últimas Vendas</h2>
@@ -185,5 +190,158 @@ function PainelEquipe() {
         </Card>
       </main>
     </div>
+  );
+}
+
+function statusBadge(s: "pending" | "approved" | "rejected") {
+  if (s === "approved") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-success/10 text-success">
+        <CheckCircle2 className="size-3" /> Aprovado
+      </span>
+    );
+  }
+  if (s === "rejected") {
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-destructive/10 text-destructive">
+        <XCircle className="size-3" /> Rejeitado
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-warning/10 text-warning">
+      <Clock className="size-3" /> Pendente
+    </span>
+  );
+}
+
+function WithdrawalSection() {
+  const qc = useQueryClient();
+  const req = useServerFn(requestWithdrawal);
+  const list = useServerFn(listMyWithdrawals);
+
+  const { data: history } = useQuery({
+    queryKey: ["my-withdrawals"],
+    queryFn: () => list(),
+  });
+
+  const [amount, setAmount] = useState("");
+  const [name, setName] = useState("");
+  const [pixKey, setPixKey] = useState("");
+  const [note, setNote] = useState("");
+
+  const submit = useMutation({
+    mutationFn: async () => {
+      const value = Number(amount.replace(",", "."));
+      if (!Number.isFinite(value) || value <= 0) throw new Error("Informe um valor válido.");
+      if (name.trim().length < 2) throw new Error("Informe seu nome.");
+      if (pixKey.trim().length < 3) throw new Error("Informe uma chave Pix válida.");
+      return req({
+        data: {
+          amount: value,
+          requesterName: name.trim(),
+          pixKey: pixKey.trim(),
+          note: note.trim() || undefined,
+        },
+      });
+    },
+    onSuccess: (r) => {
+      if (!r || (r as any).ok !== true) {
+        toast.error("Sessão expirada. Faça login novamente.");
+        return;
+      }
+      toast.success("Pedido enviado! Aguarde a aprovação.");
+      setAmount("");
+      setNote("");
+      qc.invalidateQueries({ queryKey: ["my-withdrawals"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const items = (history && !("locked" in history && history.locked) ? (history as any).items : []) as Array<{
+    id: string;
+    amount: number;
+    requester_name: string;
+    pix_key: string;
+    note: string | null;
+    status: "pending" | "approved" | "rejected";
+    owner_note: string | null;
+    created_at: string;
+  }>;
+
+  return (
+    <Card className="p-6 bg-gradient-card">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="size-10 rounded-xl bg-primary/15 grid place-items-center">
+          <Send className="size-5 text-primary" />
+        </div>
+        <div>
+          <h3 className="font-display font-semibold">Solicitar saque</h3>
+          <p className="text-xs text-muted-foreground">
+            Envie o pedido e aguarde a aprovação. A transferência é feita fora do sistema.
+          </p>
+        </div>
+      </div>
+
+      <form
+        onSubmit={(e) => { e.preventDefault(); submit.mutate(); }}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+      >
+        <div className="space-y-1.5">
+          <Label>Seu nome</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome completo" maxLength={120} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Valor do saque</Label>
+          <Input
+            value={amount}
+            onChange={(e) => setAmount(e.target.value.replace(/[^\d,.]/g, ""))}
+            placeholder="0,00"
+            inputMode="decimal"
+          />
+        </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label>Chave Pix</Label>
+          <Input value={pixKey} onChange={(e) => setPixKey(e.target.value)} placeholder="CPF, e-mail, telefone ou chave aleatória" maxLength={200} />
+        </div>
+        <div className="space-y-1.5 sm:col-span-2">
+          <Label>Observação (opcional)</Label>
+          <Textarea value={note} onChange={(e) => setNote(e.target.value)} maxLength={500} rows={2} placeholder="Alguma observação para o dono da conta?" />
+        </div>
+        <div className="sm:col-span-2 flex justify-end">
+          <Button
+            type="submit"
+            disabled={submit.isPending || !amount || !name || !pixKey}
+            className="bg-gradient-primary text-primary-foreground shadow-glow"
+          >
+            <Send className="size-4 mr-2" /> {submit.isPending ? "Enviando…" : "Solicitar saque"}
+          </Button>
+        </div>
+      </form>
+
+      {items.length > 0 && (
+        <div className="mt-6">
+          <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-medium mb-2">Seus pedidos</h4>
+          <div className="space-y-2">
+            {items.slice(0, 8).map((w) => (
+              <div key={w.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium truncate">{w.requester_name}</p>
+                    {statusBadge(w.status)}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(w.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                    {" · "}Pix: {w.pix_key}
+                  </p>
+                  {w.owner_note && <p className="text-xs text-muted-foreground mt-1">Retorno: {w.owner_note}</p>}
+                </div>
+                <p className="font-display font-bold tracking-tight shrink-0">{brl(Number(w.amount))}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </Card>
   );
 }
