@@ -6,13 +6,16 @@ import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { brl, pct } from "@/lib/format";
-import { Wallet, Trophy, Percent, Landmark, RotateCcw, CheckCircle2, LogOut, Lock, Activity } from "lucide-react";
+import { Wallet, Trophy, Percent, Landmark, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle } from "lucide-react";
 import {
   getEmployeePanelData,
   unlockEmployeePanel,
   lockEmployeePanel,
 } from "@/lib/employee-panel.functions";
+import { requestWithdrawal, listMyWithdrawals } from "@/lib/withdrawals.functions";
 
 export const Route = createFileRoute("/painel")({
   head: () => ({
