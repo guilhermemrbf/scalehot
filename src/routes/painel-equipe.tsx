@@ -283,6 +283,149 @@ function PainelEquipeAdmin() {
           </div>
         )}
       </Card>
+
+      <WithdrawalAdminSection />
     </AppLayout>
+  );
+}
+
+function WithdrawalAdminSection() {
+  const qc = useQueryClient();
+  const list = useServerFn(listWithdrawalRequests);
+  const decide = useServerFn(decideWithdrawal);
+
+  const { data: items = [] } = useQuery({
+    queryKey: ["admin-withdrawals"],
+    queryFn: () => list(),
+    refetchInterval: 15_000,
+  });
+
+  const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | "all">("pending");
+
+  const decideMut = useMutation({
+    mutationFn: async (v: { id: string; status: "approved" | "rejected" }) => decide({ data: v }),
+    onSuccess: (_r, v) => {
+      toast.success(v.status === "approved" ? "Saque aprovado." : "Saque rejeitado.");
+      qc.invalidateQueries({ queryKey: ["admin-withdrawals"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const pending = items.filter((i) => i.status === "pending");
+  const approved = items.filter((i) => i.status === "approved");
+  const rejected = items.filter((i) => i.status === "rejected");
+  const filtered = filter === "all" ? items : items.filter((i) => i.status === filter);
+
+  return (
+    <Card className="p-5 mt-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3">
+          <div className="size-10 rounded-xl bg-primary/15 grid place-items-center">
+            <Send className="size-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-display font-semibold">Pedidos de saque</h3>
+            <p className="text-xs text-muted-foreground">
+              Aprove ou rejeite as solicitações. A transferência é feita fora do sistema.
+            </p>
+          </div>
+        </div>
+        <div className="flex bg-muted rounded-lg p-1">
+          {([
+            { key: "pending", label: `Pendentes (${pending.length})` },
+            { key: "approved", label: `Aprovados (${approved.length})` },
+            { key: "rejected", label: `Rejeitados (${rejected.length})` },
+            { key: "all", label: "Todos" },
+          ] as const).map((o) => (
+            <button
+              key={o.key}
+              onClick={() => setFilter(o.key)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium uppercase tracking-wider transition ${
+                filter === o.key ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-10">
+          {filter === "pending" ? "Nenhum pedido pendente 🎉" : "Nenhum pedido neste filtro."}
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((w) => (
+            <div key={w.id} className="p-4 rounded-lg border bg-card">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="font-medium">{w.requester_name}</p>
+                    {w.status === "pending" && (
+                      <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-warning/10 text-warning">
+                        <Clock className="size-3" /> Pendente
+                      </span>
+                    )}
+                    {w.status === "approved" && (
+                      <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-success/10 text-success">
+                        <CheckCircle2 className="size-3" /> Aprovado
+                      </span>
+                    )}
+                    {w.status === "rejected" && (
+                      <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-destructive/10 text-destructive">
+                        <XCircle className="size-3" /> Rejeitado
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Solicitado em {new Date(w.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                  </p>
+                  <p className="text-sm mt-2">
+                    <strong>Chave Pix:</strong>{" "}
+                    <span className="font-mono">{w.pix_key}</span>
+                    <button
+                      type="button"
+                      className="ml-2 text-xs text-primary hover:underline"
+                      onClick={() => { navigator.clipboard.writeText(w.pix_key); toast.success("Chave copiada."); }}
+                    >
+                      copiar
+                    </button>
+                  </p>
+                  {w.note && <p className="text-xs text-muted-foreground mt-1">Obs.: {w.note}</p>}
+                  {w.owner_note && (
+                    <p className="text-xs text-muted-foreground mt-1">Sua nota: {w.owner_note}</p>
+                  )}
+                </div>
+                <div className="text-right shrink-0">
+                  <p className="font-display text-2xl font-bold tracking-tight">{brl(Number(w.amount))}</p>
+                </div>
+              </div>
+
+              {w.status === "pending" && (
+                <div className="flex flex-wrap justify-end gap-2 mt-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => decideMut.mutate({ id: w.id, status: "rejected" })}
+                    disabled={decideMut.isPending}
+                  >
+                    <XCircle className="size-4 mr-1" /> Rejeitar
+                  </Button>
+                  <Button
+                    size="sm"
+                    className="bg-success text-success-foreground hover:bg-success/90"
+                    onClick={() => decideMut.mutate({ id: w.id, status: "approved" })}
+                    disabled={decideMut.isPending}
+                  >
+                    <CheckCircle2 className="size-4 mr-1" /> Aprovar
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
   );
 }
