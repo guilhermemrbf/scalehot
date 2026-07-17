@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { brl } from "@/lib/format";
-import { Copy, Save, Users, Link as LinkIcon, Eye, EyeOff, CheckCircle2, Clock, DollarSign, XCircle } from "lucide-react";
+import { Copy, Save, Users, Link as LinkIcon, Eye, EyeOff, CheckCircle2, Clock, DollarSign, XCircle, Send } from "lucide-react";
 import {
   getEmployeePanelPassword,
   setEmployeePanelPassword,
@@ -19,6 +19,7 @@ import {
   setTransactionVisibility,
   bulkSetVisibility,
 } from "@/lib/employee-panel.functions";
+import { listWithdrawalRequests, decideWithdrawal } from "@/lib/withdrawals.functions";
 
 export const Route = createFileRoute("/painel-equipe")({
   head: () => ({ meta: [{ title: "Painel da Equipe — ScaleUp" }] }),
