@@ -63,14 +63,50 @@ function PainelEquipeAdmin() {
   const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/painel` : "/painel";
 
   const filtered = txs.filter((t) => filter === "all" ? true : filter === "visible" ? t.employee_visible : !t.employee_visible);
-  const visibleCount = txs.filter((t) => t.employee_visible).length;
+  const cashins = txs.filter((t) => t.type !== "refund");
+  const approved = cashins.filter((t) => t.employee_visible);
+  const pending = cashins.filter((t) => !t.employee_visible);
+  const sumApproved = approved.reduce((s, t) => s + Number(t.amount || 0), 0);
+  const sumPending = pending.reduce((s, t) => s + Number(t.amount || 0), 0);
+  const visibleCount = approved.length;
 
   return (
     <AppLayout>
       <PageHeader
         title="Painel da Equipe"
-        subtitle="Configure a senha compartilhada e escolha quais vendas seus funcionários enxergam"
+        subtitle="Aprove cada venda individualmente antes que ela apareça no painel dos funcionários"
       />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Card className="p-4">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+            <Clock className="size-4" /> Pendentes
+          </div>
+          <p className="font-display text-2xl font-bold">{pending.length}</p>
+          <p className="text-xs text-muted-foreground">{brl(sumPending)}</p>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-2 text-success text-xs uppercase tracking-wider mb-1">
+            <CheckCircle2 className="size-4" /> Aprovadas
+          </div>
+          <p className="font-display text-2xl font-bold">{approved.length}</p>
+          <p className="text-xs text-muted-foreground">{brl(sumApproved)}</p>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+            <DollarSign className="size-4" /> Total de vendas
+          </div>
+          <p className="font-display text-2xl font-bold">{cashins.length}</p>
+          <p className="text-xs text-muted-foreground">{brl(sumApproved + sumPending)}</p>
+        </Card>
+        <Card className="p-4">
+          <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+            <Eye className="size-4" /> Exibindo no painel
+          </div>
+          <p className="font-display text-2xl font-bold">{visibleCount}</p>
+          <p className="text-xs text-muted-foreground">de {txs.length} totais</p>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Card className="p-6 bg-gradient-card">
