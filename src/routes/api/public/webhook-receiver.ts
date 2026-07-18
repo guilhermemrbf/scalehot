@@ -319,7 +319,16 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
           console.log("[webhook-receiver] db=insert ok");
         }
 
+        // Incrementa uso do plano após venda aprovada. No-op para fundadores.
+        if (parsed.type === "cashin" && parsed.accepted) {
+          const { error: incErr } = await supabaseAdmin.rpc("increment_sale_usage", {
+            _user_id: userId,
+          });
+          if (incErr) console.error("[webhook-receiver] increment_sale_usage error:", incErr);
+        }
+
         if (parsed.type === "cashin") {
+
           try {
             const { sendPushToUser } = await import("@/lib/push.server");
             const valor = parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
