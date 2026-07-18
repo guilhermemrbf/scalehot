@@ -13,6 +13,7 @@ import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as PainelEquipeRouteImport } from './routes/painel-equipe'
 import { Route as PainelRouteImport } from './routes/painel'
+import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
@@ -43,6 +44,11 @@ const PainelEquipeRoute = PainelEquipeRouteImport.update({
 const PainelRoute = PainelRouteImport.update({
   id: '/painel',
   path: '/painel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificacoesRoute = NotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MetasRoute = MetasRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/painel': typeof PainelRoute
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/painel': typeof PainelRoute
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/integracoes': typeof IntegracoesRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
+  '/notificacoes': typeof NotificacoesRoute
   '/painel': typeof PainelRoute
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/metas'
+    | '/notificacoes'
     | '/painel'
     | '/painel-equipe'
     | '/registro'
@@ -183,6 +193,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/metas'
+    | '/notificacoes'
     | '/painel'
     | '/painel-equipe'
     | '/registro'
@@ -200,6 +211,7 @@ export interface FileRouteTypes {
     | '/integracoes'
     | '/login'
     | '/metas'
+    | '/notificacoes'
     | '/painel'
     | '/painel-equipe'
     | '/registro'
@@ -218,6 +230,7 @@ export interface RootRouteChildren {
   IntegracoesRoute: typeof IntegracoesRoute
   LoginRoute: typeof LoginRoute
   MetasRoute: typeof MetasRoute
+  NotificacoesRoute: typeof NotificacoesRoute
   PainelRoute: typeof PainelRoute
   PainelEquipeRoute: typeof PainelEquipeRoute
   RegistroRoute: typeof RegistroRoute
@@ -255,6 +268,13 @@ declare module '@tanstack/react-router' {
       path: '/painel'
       fullPath: '/painel'
       preLoaderRoute: typeof PainelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notificacoes': {
+      id: '/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof NotificacoesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/metas': {
@@ -346,6 +366,7 @@ const rootRouteChildren: RootRouteChildren = {
   IntegracoesRoute: IntegracoesRoute,
   LoginRoute: LoginRoute,
   MetasRoute: MetasRoute,
+  NotificacoesRoute: NotificacoesRoute,
   PainelRoute: PainelRoute,
   PainelEquipeRoute: PainelEquipeRoute,
   RegistroRoute: RegistroRoute,
