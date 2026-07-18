@@ -12,7 +12,7 @@ const nav = [
   { to: "/integracoes", label: "Integrações", icon: Plug },
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/historico", label: "Histórico", icon: History },
-  { to: "/gerador-notificacoes", label: "Geradora de Notificações", icon: Bell },
+  { to: "/notificacoes", label: "Notificações", icon: Bell },
   { to: "/painel-equipe", label: "Painel da Equipe", icon: Users },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
@@ -21,7 +21,7 @@ const mobileNav = [
   { to: "/", label: "Início", icon: LayoutDashboard },
   { to: "/anuncios", label: "Anúncios", icon: Megaphone },
   { to: "/integracoes", label: "Gateways", icon: Plug },
-  { to: "/gerador-notificacoes", label: "Notif.", icon: Bell },
+  { to: "/notificacoes", label: "Notif.", icon: Bell },
   { to: "/configuracoes", label: "Ajustes", icon: Settings },
 ];
 
