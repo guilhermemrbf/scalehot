@@ -182,12 +182,58 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_days: number
+          features: Json
+          id: string
+          is_active: boolean
+          name: string
+          price_cents: number
+          sales_limit: number
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          price_cents: number
+          sales_limit: number
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_days?: number
+          features?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_cents?: number
+          sales_limit?: number
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
           created_at: string | null
           full_name: string | null
           id: string
+          is_founder: boolean
           notification_preferences: Json
           updated_at: string | null
         }
@@ -196,6 +242,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id: string
+          is_founder?: boolean
           notification_preferences?: Json
           updated_at?: string | null
         }
@@ -204,6 +251,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string | null
           id?: string
+          is_founder?: boolean
           notification_preferences?: Json
           updated_at?: string | null
         }
@@ -238,6 +286,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          created_at: string
+          expires_at: string
+          id: string
+          last_payment_id: string | null
+          plan_id: string
+          sales_limit_snapshot: number
+          sales_used: number
+          started_at: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          id?: string
+          last_payment_id?: string | null
+          plan_id: string
+          sales_limit_snapshot: number
+          sales_used?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          id?: string
+          last_payment_id?: string | null
+          plan_id?: string
+          sales_limit_snapshot?: number
+          sales_used?: number
+          started_at?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       syncpay_transactions: {
         Row: {
@@ -427,7 +525,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_process_sale: { Args: { _user_id: string }; Returns: boolean }
+      increment_sale_usage: { Args: { _user_id: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
