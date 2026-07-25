@@ -91,7 +91,8 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   const totalImposto = meses.size * imposto;
 
   const faturamentoLiquido = liquidoGateway;
-  const lucro = faturamentoLiquido - taxaBot - totalImposto;
+  // No painel do cliente, lucro nunca é negativo — reflete apenas o valor recebido líquido do gateway.
+  const lucro = Math.max(0, faturamentoLiquido);
   const roi = 0; // gastos com anúncios não expostos no painel
 
   return {
