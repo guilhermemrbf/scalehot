@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { brl, pct } from "@/lib/format";
-import { Wallet, Trophy, Percent, Landmark, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle, Smartphone, Share, PlusSquare, MoreVertical, Download } from "lucide-react";
+import { brl } from "@/lib/format";
+import { Wallet, Trophy, Percent, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle, Smartphone, Share, PlusSquare, MoreVertical, Download } from "lucide-react";
 import {
   getEmployeePanelData,
   unlockEmployeePanel,
