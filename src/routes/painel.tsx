@@ -8,8 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { brl, pct } from "@/lib/format";
-import { Wallet, Trophy, Percent, Landmark, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle, Smartphone, Share, PlusSquare, MoreVertical, Download } from "lucide-react";
+import { brl } from "@/lib/format";
+import { Wallet, Trophy, Percent, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle, Smartphone, Share, PlusSquare, MoreVertical, Download } from "lucide-react";
 import {
   getEmployeePanelData,
   unlockEmployeePanel,
@@ -103,8 +103,7 @@ function PainelEquipe() {
   const cards = [
     { label: "Faturamento Líquido", value: brl(k.faturamentoLiquido), icon: Wallet, color: "text-chart-2" },
     { label: "Lucro", value: brl(k.lucro), icon: Trophy, color: k.lucro >= 0 ? "text-success" : "text-destructive" },
-    { label: "Total de Taxas", value: brl(k.totalTaxas), icon: Percent, hint: pct(k.taxaMediaPct) + " do bruto", color: "text-warning" },
-    { label: "Impostos", value: brl(k.totalImposto), icon: Landmark, color: "text-chart-5" },
+    { label: "Total de Taxas", value: brl(k.totalTaxas), icon: Percent, color: "text-warning" },
     { label: "Vendas Aprovadas", value: String(k.qtdVendas), icon: CheckCircle2, color: "text-success" },
     { label: "Vendas Reembolsadas", value: String(k.totalReembolsos), icon: RotateCcw, color: "text-destructive" },
   ];
@@ -136,7 +135,7 @@ function PainelEquipe() {
                 <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
                   <p className={`font-display text-2xl font-bold tracking-tight mt-1 ${c.label === "Lucro" ? c.color : ""}`}>{c.value}</p>
-                  {"hint" in c && c.hint && <p className="text-xs text-muted-foreground mt-1">{c.hint}</p>}
+                  
                 </div>
                 <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
                   <c.icon className="size-5" />
