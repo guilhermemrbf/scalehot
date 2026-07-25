@@ -103,8 +103,7 @@ function PainelEquipe() {
   const cards = [
     { label: "Faturamento Líquido", value: brl(k.faturamentoLiquido), icon: Wallet, color: "text-chart-2" },
     { label: "Lucro", value: brl(k.lucro), icon: Trophy, color: k.lucro >= 0 ? "text-success" : "text-destructive" },
-    { label: "Total de Taxas", value: brl(k.totalTaxas), icon: Percent, hint: pct(k.taxaMediaPct) + " do bruto", color: "text-warning" },
-    { label: "Impostos", value: brl(k.totalImposto), icon: Landmark, color: "text-chart-5" },
+    { label: "Total de Taxas", value: brl(k.totalTaxas), icon: Percent, color: "text-warning" },
     { label: "Vendas Aprovadas", value: String(k.qtdVendas), icon: CheckCircle2, color: "text-success" },
     { label: "Vendas Reembolsadas", value: String(k.totalReembolsos), icon: RotateCcw, color: "text-destructive" },
   ];
