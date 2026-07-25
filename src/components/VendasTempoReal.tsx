@@ -127,13 +127,34 @@ export function VendasTempoReal() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="font-display font-bold tracking-tight">{brl(Number(tx.amount))}</p>
-                    {tx.liquid_amount != null && (
-                      <p className="text-xs text-muted-foreground">Líq: {brl(Number(tx.liquid_amount))}</p>
-                    )}
-                    <span className={`inline-block text-[10px] uppercase tracking-wider font-bold mt-0.5 px-1.5 py-0.5 rounded ${color}`}>
-                      {label}
-                    </span>
+                    {(() => {
+                      const bruto = Number(tx.amount) || 0;
+                      const liq = tx.liquid_amount != null ? Number(tx.liquid_amount) : null;
+                      const taxa = liq != null ? Math.max(0, bruto - liq) : null;
+                      return (
+                        <div className="space-y-0.5">
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Bruto</span>
+                            <span className="font-display font-bold tracking-tight tabular-nums">{brl(bruto)}</span>
+                          </div>
+                          {liq != null && (
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-[10px] uppercase tracking-wider text-success/80">Líquido</span>
+                              <span className="text-sm font-semibold tabular-nums text-success">{brl(liq)}</span>
+                            </div>
+                          )}
+                          {taxa != null && (
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-[10px] uppercase tracking-wider text-destructive/80">Taxa</span>
+                              <span className="text-sm font-semibold tabular-nums text-destructive">− {brl(taxa)}</span>
+                            </div>
+                          )}
+                          <span className={`inline-block text-[10px] uppercase tracking-wider font-bold mt-1 px-1.5 py-0.5 rounded ${color}`}>
+                            {label}
+                          </span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </motion.div>
               );
