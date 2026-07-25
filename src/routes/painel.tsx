@@ -135,7 +135,7 @@ function PainelEquipe() {
                 <div>
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
                   <p className={`font-display text-2xl font-bold tracking-tight mt-1 ${c.label === "Lucro" ? c.color : ""}`}>{c.value}</p>
-                  {"hint" in c && c.hint && <p className="text-xs text-muted-foreground mt-1">{c.hint}</p>}
+                  
                 </div>
                 <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
                   <c.icon className="size-5" />
