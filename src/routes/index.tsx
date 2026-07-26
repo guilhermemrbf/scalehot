@@ -236,8 +236,9 @@ function Dashboard() {
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: "", color: "text-destructive" },
     { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
     { label: "Impostos", value: brl(totalImposto), icon: Landmark, hint: "", color: "text-chart-5" },
-    { label: "Repasses Aprovados", value: brl(totalRepasses), icon: HandCoins, hint: `${aprovadas.length} venda(s) aprovada(s)`, color: "text-destructive" },
     { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total no período", color: "text-destructive" },
+    { label: "Repasses Aprovados", value: brl(totalRepasses), icon: HandCoins, hint: `${aprovadas.length} venda(s) aprovada(s) · descontado do lucro`, color: "text-destructive" },
+
   ];
 
 
