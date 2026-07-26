@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, pct, startOfMonthISO, todayISO } from "@/lib/format";
-import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy, RotateCcw, Activity } from "lucide-react";
+import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy, RotateCcw, Activity, HandCoins } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Legend } from "recharts";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -162,9 +162,17 @@ function Dashboard() {
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
   const totalReembolsos = refunds.length + reembolsosLegacy;
 
-  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios;
+  // Vendas aprovadas para o painel da equipe → viram repasse (gasto) do período
+  const aprovadas = cashins.filter((t: any) => t.employee_visible);
+  const totalRepasses = aprovadas.reduce(
+    (s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0),
+    0
+  );
+
+  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios - totalRepasses;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
+
 
   // Daily chart - vendas webhook (UTC-3) + registros legados
   const dailyMap = new Map<string, number>();
@@ -228,8 +236,10 @@ function Dashboard() {
     { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: "", color: "text-destructive" },
     { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
     { label: "Impostos", value: brl(totalImposto), icon: Landmark, hint: "", color: "text-chart-5" },
+    { label: "Repasses Aprovados", value: brl(totalRepasses), icon: HandCoins, hint: `${aprovadas.length} venda(s) aprovada(s)`, color: "text-destructive" },
     { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total no período", color: "text-destructive" },
   ];
+
 
   return (
     <AppLayout>
