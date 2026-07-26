@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { brl, pct, startOfMonthISO, todayISO } from "@/lib/format";
-import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy, RotateCcw, Activity, HandCoins } from "lucide-react";
+import { TrendingUp, Wallet, Percent, Landmark, CheckCircle2, BarChart3, Target, Save, Settings2, Megaphone, Trophy, RotateCcw, Activity } from "lucide-react";
 import { ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, BarChart, Bar, Legend } from "recharts";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -159,19 +159,21 @@ function Dashboard() {
   });
   const totalImposto = mesesComVendas.size * impostoMensal;
 
-  const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
+  const gastosManuais = gastos.reduce((s, g) => s + Number(g.valor), 0);
   const totalReembolsos = refunds.length + reembolsosLegacy;
 
-  // Vendas aprovadas para o painel da equipe → viram repasse (gasto) do período
+  // Vendas aprovadas para o painel da equipe → repasse aos divulgadores, contabilizado em anúncios
   const aprovadas = cashins.filter((t: any) => t.employee_visible);
   const totalRepasses = aprovadas.reduce(
     (s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0),
     0
   );
+  const totalAnuncios = gastosManuais + totalRepasses;
 
-  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios - totalRepasses;
+  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
+
 
 
   // Daily chart - vendas webhook (UTC-3) + registros legados
@@ -233,11 +235,11 @@ function Dashboard() {
     { label: "Faturamento Líquido", value: brl(totalLiquidoGateway), icon: Wallet, hint: "", color: "text-chart-2" },
     { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "", color: lucroTotal >= 0 ? "text-success" : "text-destructive" },
     { label: "ROI", value: roi.toFixed(2) + "x", icon: Activity, hint: "Lucro / anúncios", color: roi >= 1 ? "text-success" : "text-destructive" },
-    { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: "", color: "text-destructive" },
+    { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: totalRepasses > 0 ? `inclui ${brl(totalRepasses)} de repasses aprovados` : "", color: "text-destructive" },
     { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
     { label: "Impostos", value: brl(totalImposto), icon: Landmark, hint: "", color: "text-chart-5" },
     { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total no período", color: "text-destructive" },
-    { label: "Repasses Aprovados", value: brl(totalRepasses), icon: HandCoins, hint: `${aprovadas.length} venda(s) aprovada(s) · descontado do lucro`, color: "text-destructive" },
+
 
   ];
 
