@@ -162,9 +162,17 @@ function Dashboard() {
   const totalAnuncios = gastos.reduce((s, g) => s + Number(g.valor), 0);
   const totalReembolsos = refunds.length + reembolsosLegacy;
 
-  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios;
+  // Vendas aprovadas para o painel da equipe → viram repasse (gasto) do período
+  const aprovadas = cashins.filter((t: any) => t.employee_visible);
+  const totalRepasses = aprovadas.reduce(
+    (s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0),
+    0
+  );
+
+  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios - totalRepasses;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
+
 
   // Daily chart - vendas webhook (UTC-3) + registros legados
   const dailyMap = new Map<string, number>();
