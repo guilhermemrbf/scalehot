@@ -102,6 +102,15 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   const lucro = Math.max(0, faturamentoLiquido);
   const roi = 0; // gastos com anúncios não expostos no painel
 
+  const saques = (wds ?? []) as unknown as Array<{ amount: number; status: string }>;
+  const saquesPagos = saques
+    .filter((w) => w.status === "approved")
+    .reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saquesPendentes = saques
+    .filter((w) => w.status === "pending")
+    .reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saldoDisponivel = Math.max(0, lucro - saquesPagos - saquesPendentes);
+
   return {
     locked: false as const,
     kpis: {
@@ -113,7 +122,11 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
       totalReembolsos: refunds.length,
       qtdVendas: qtd,
       taxaMediaPct: bruto > 0 ? (totalTaxas / bruto) * 100 : 0,
+      saldoDisponivel,
+      saquesPagos,
+      saquesPendentes,
     },
+
     recentes: list.slice(0, 20),
   };
 });
