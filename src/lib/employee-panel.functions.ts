@@ -48,7 +48,7 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const [{ data: txs, error: e1 }, { data: cfg, error: e2 }] = await Promise.all([
+  const [{ data: txs, error: e1 }, { data: cfg, error: e2 }, { data: wds, error: e3 }] = await Promise.all([
     supabaseAdmin
       .from("transactions" as any)
       .select("id, type, amount, liquid_amount, client_name, gateway, created_at")
@@ -61,9 +61,16 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
       .select("imposto_fixo, taxa_bot_fixa")
       .eq("user_id", ownerId)
       .maybeSingle(),
+    supabaseAdmin
+      .from("withdrawal_requests" as any)
+      .select("amount, status")
+      .eq("user_id", ownerId)
+      .in("status", ["pending", "approved"]),
   ]);
   if (e1) throw new Error(e1.message);
   if (e2) throw new Error(e2.message);
+  if (e3) throw new Error(e3.message);
+
 
   const list = (txs ?? []) as unknown as Array<{
     id: string; type: string; amount: number; liquid_amount: number | null;
@@ -95,6 +102,15 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   const lucro = Math.max(0, faturamentoLiquido);
   const roi = 0; // gastos com anúncios não expostos no painel
 
+  const saques = (wds ?? []) as unknown as Array<{ amount: number; status: string }>;
+  const saquesPagos = saques
+    .filter((w) => w.status === "approved")
+    .reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saquesPendentes = saques
+    .filter((w) => w.status === "pending")
+    .reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saldoDisponivel = Math.max(0, lucro - saquesPagos - saquesPendentes);
+
   return {
     locked: false as const,
     kpis: {
@@ -106,7 +122,11 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
       totalReembolsos: refunds.length,
       qtdVendas: qtd,
       taxaMediaPct: bruto > 0 ? (totalTaxas / bruto) * 100 : 0,
+      saldoDisponivel,
+      saquesPagos,
+      saquesPendentes,
     },
+
     recentes: list.slice(0, 20),
   };
 });
