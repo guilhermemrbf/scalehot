@@ -63,6 +63,13 @@ function PainelEquipeAdmin() {
 
   const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/painel` : "/painel";
 
+  const listWds = useServerFn(listWithdrawalRequests);
+  const { data: withdrawals = [] } = useQuery({
+    queryKey: ["admin-withdrawals"],
+    queryFn: () => listWds(),
+    refetchInterval: 15_000,
+  });
+
   const filtered = txs.filter((t) => filter === "all" ? true : filter === "visible" ? t.employee_visible : !t.employee_visible);
   const cashins = txs.filter((t) => t.type !== "refund");
   const approved = cashins.filter((t) => t.employee_visible);
@@ -71,12 +78,34 @@ function PainelEquipeAdmin() {
   const sumPending = pending.reduce((s, t) => s + Number(t.amount || 0), 0);
   const visibleCount = approved.length;
 
+  // Saldo do cliente = líquido das vendas aprovadas − saques pagos e pendentes
+  const liquidoAprovado = approved.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
+  const saquesPagos = withdrawals.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saquesPendentes = withdrawals.filter((w) => w.status === "pending").reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saldoCliente = Math.max(0, liquidoAprovado - saquesPagos - saquesPendentes);
+
   return (
     <AppLayout>
       <PageHeader
         title="Painel da Equipe"
         subtitle="Aprove cada venda individualmente antes que ela apareça no painel dos funcionários"
       />
+
+      <Card className="p-6 bg-gradient-card mb-6 border-success/30">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Saldo disponível do cliente</p>
+            <p className="font-display text-4xl font-bold tracking-tight mt-1 text-success">{brl(saldoCliente)}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              Líquido aprovado {brl(liquidoAprovado)} · Saques pagos {brl(saquesPagos)}
+              {saquesPendentes > 0 && <> · Pendentes {brl(saquesPendentes)}</>}
+            </p>
+          </div>
+          <div className="size-12 rounded-xl bg-success/10 grid place-items-center text-success shrink-0">
+            <Wallet className="size-6" />
+          </div>
+        </div>
+      </Card>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <Card className="p-4">
@@ -108,6 +137,7 @@ function PainelEquipeAdmin() {
           <p className="text-xs text-muted-foreground">de {txs.length} totais</p>
         </Card>
       </div>
+
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <Card className="p-6 bg-gradient-card">
