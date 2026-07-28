@@ -48,7 +48,7 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-  const [{ data: txs, error: e1 }, { data: cfg, error: e2 }] = await Promise.all([
+  const [{ data: txs, error: e1 }, { data: cfg, error: e2 }, { data: wds, error: e3 }] = await Promise.all([
     supabaseAdmin
       .from("transactions" as any)
       .select("id, type, amount, liquid_amount, client_name, gateway, created_at")
@@ -61,9 +61,16 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
       .select("imposto_fixo, taxa_bot_fixa")
       .eq("user_id", ownerId)
       .maybeSingle(),
+    supabaseAdmin
+      .from("withdrawal_requests" as any)
+      .select("amount, status")
+      .eq("user_id", ownerId)
+      .in("status", ["pending", "approved"]),
   ]);
   if (e1) throw new Error(e1.message);
   if (e2) throw new Error(e2.message);
+  if (e3) throw new Error(e3.message);
+
 
   const list = (txs ?? []) as unknown as Array<{
     id: string; type: string; amount: number; liquid_amount: number | null;
