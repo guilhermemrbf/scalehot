@@ -109,7 +109,8 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   const saquesPendentes = saques
     .filter((w) => w.status === "pending")
     .reduce((s, w) => s + Number(w.amount || 0), 0);
-  const saldoDisponivel = Math.max(0, lucro - saquesPagos - saquesPendentes);
+  // Só saques já pagos (aprovados) reduzem o saldo; pendentes ficam apenas informativos.
+  const saldoDisponivel = Math.max(0, lucro - saquesPagos);
 
   return {
     locked: false as const,

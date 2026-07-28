@@ -82,7 +82,7 @@ function PainelEquipeAdmin() {
   const liquidoAprovado = approved.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
   const saquesPagos = withdrawals.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount || 0), 0);
   const saquesPendentes = withdrawals.filter((w) => w.status === "pending").reduce((s, w) => s + Number(w.amount || 0), 0);
-  const saldoCliente = Math.max(0, liquidoAprovado - saquesPagos - saquesPendentes);
+  const saldoCliente = Math.max(0, liquidoAprovado - saquesPagos);
 
   return (
     <AppLayout>
