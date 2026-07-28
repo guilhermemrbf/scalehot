@@ -128,6 +128,22 @@ function PainelEquipe() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+        <Card className="p-6 bg-gradient-card mb-6 border-success/30">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Saldo disponível para saque</p>
+              <p className="font-display text-4xl font-bold tracking-tight mt-1 text-success">{brl(k.saldoDisponivel)}</p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Lucro {brl(k.lucro)} · Saques pagos {brl(k.saquesPagos)}
+                {k.saquesPendentes > 0 && <> · Pendentes {brl(k.saquesPendentes)}</>}
+              </p>
+            </div>
+            <div className="size-12 rounded-xl bg-success/10 grid place-items-center text-success shrink-0">
+              <Wallet className="size-6" />
+            </div>
+          </div>
+        </Card>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {cards.map((c) => (
             <Card key={c.label} className="p-5 bg-gradient-card">
@@ -144,6 +160,7 @@ function PainelEquipe() {
             </Card>
           ))}
         </div>
+
 
         <WithdrawalSection />
 
