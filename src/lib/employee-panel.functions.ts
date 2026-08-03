@@ -51,9 +51,8 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   const [{ data: txs, error: e1 }, { data: cfg, error: e2 }, { data: wds, error: e3 }] = await Promise.all([
     supabaseAdmin
       .from("transactions" as any)
-      .select("id, type, amount, liquid_amount, client_name, gateway, created_at")
+      .select("id, type, amount, liquid_amount, client_name, gateway, created_at, employee_visible")
       .eq("user_id", ownerId)
-      .eq("employee_visible", true)
       .order("created_at", { ascending: false })
       .limit(500),
     supabaseAdmin
@@ -72,15 +71,17 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   if (e3) throw new Error(e3.message);
 
 
-  const list = (txs ?? []) as unknown as Array<{
+  const all = (txs ?? []) as unknown as Array<{
     id: string; type: string; amount: number; liquid_amount: number | null;
-    client_name: string | null; gateway: string; created_at: string;
+    client_name: string | null; gateway: string; created_at: string; employee_visible: boolean;
   }>;
+  const list = all.filter((t) => t.employee_visible);
   const imposto = Number((cfg as any)?.imposto_fixo ?? 0);
   const taxaBotPorVenda = Number((cfg as any)?.taxa_bot_fixa ?? 0);
 
   const cashins = list.filter((t) => t.type === "cashin");
   const refunds = list.filter((t) => t.type === "refund");
+  const pendentes = all.filter((t) => !t.employee_visible && t.type === "cashin");
 
   const bruto = cashins.reduce((s, t) => s + Number(t.amount || 0), 0);
   const liquidoGateway = cashins.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
@@ -88,6 +89,8 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
   const qtd = cashins.length;
   const taxaBot = qtd * taxaBotPorVenda;
   const totalTaxas = taxaGateway + taxaBot;
+  const totalPendente = pendentes.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
+
 
   const meses = new Set<string>();
   cashins.forEach((t) => {
