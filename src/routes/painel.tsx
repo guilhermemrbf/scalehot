@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { brl } from "@/lib/format";
-import { Wallet, Trophy, Percent, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle, Smartphone, Share, PlusSquare, MoreVertical, Download } from "lucide-react";
+import { Wallet, Trophy, Percent, RotateCcw, CheckCircle2, LogOut, Lock, Activity, Send, Clock, XCircle, Smartphone, Share, PlusSquare, MoreVertical, Download, Home, ArrowLeftRight, ListFilter } from "lucide-react";
 import {
   getEmployeePanelData,
   unlockEmployeePanel,
@@ -27,11 +27,14 @@ export const Route = createFileRoute("/painel")({
   component: PainelEquipe,
 });
 
+type Tab = "home" | "saque";
+
 function PainelEquipe() {
   const qc = useQueryClient();
   const load = useServerFn(getEmployeePanelData);
   const unlock = useServerFn(unlockEmployeePanel);
   const lock = useServerFn(lockEmployeePanel);
+  const [tab, setTab] = useState<Tab>("home");
 
   const { data, isLoading } = useQuery({
     queryKey: ["employee-panel"],
@@ -100,6 +103,7 @@ function PainelEquipe() {
   }
 
   const k = data.kpis;
+  const transacoes = (data as any).transacoes ?? [];
   const cards = [
     { label: "Faturamento Líquido", value: brl(k.faturamentoLiquido), icon: Wallet, color: "text-chart-2" },
     { label: "Lucro", value: brl(k.lucro), icon: Trophy, color: k.lucro >= 0 ? "text-success" : "text-destructive" },
@@ -109,7 +113,7 @@ function PainelEquipe() {
   ];
 
   return (
-    <div className="min-h-screen bg-background bg-gradient-hero">
+    <div className="min-h-screen bg-background bg-gradient-hero pb-24">
       <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -117,8 +121,12 @@ function PainelEquipe() {
               <img src="/icon-192.png" alt="ScaleUp" className="w-full h-full object-cover" />
             </div>
             <div>
-              <h1 className="font-display font-bold tracking-tight">Painel da Equipe</h1>
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Visualização somente</p>
+              <h1 className="font-display font-bold tracking-tight">
+                {tab === "home" ? "Painel da Equipe" : "Saque e Transações"}
+              </h1>
+              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                {tab === "home" ? "Visualização somente" : "Sua carteira"}
+              </p>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={() => doLock.mutate()}>
@@ -128,87 +136,229 @@ function PainelEquipe() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-        <Card className="p-6 bg-gradient-card mb-6 border-success/30">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Saldo disponível para saque</p>
-              <p className="font-display text-4xl font-bold tracking-tight mt-1 text-success">{brl(k.saldoDisponivel)}</p>
-              <p className="text-xs text-muted-foreground mt-2">
-                Lucro {brl(k.lucro)} · Saques pagos {brl(k.saquesPagos)}
-                {k.saquesPendentes > 0 && <> · Pendentes {brl(k.saquesPendentes)}</>}
-              </p>
-            </div>
-            <div className="size-12 rounded-xl bg-success/10 grid place-items-center text-success shrink-0">
-              <Wallet className="size-6" />
-            </div>
-          </div>
-        </Card>
+        {tab === "home" ? (
+          <>
+            <BalanceCard k={k} onGoWithdraw={() => setTab("saque")} />
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {cards.map((c) => (
-            <Card key={c.label} className="p-5 bg-gradient-card">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
-                  <p className={`font-display text-2xl font-bold tracking-tight mt-1 ${c.label === "Lucro" ? c.color : ""}`}>{c.value}</p>
-                  
-                </div>
-                <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
-                  <c.icon className="size-5" />
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-
-        <WithdrawalSection />
-
-        <InstallAppCard />
-
-
-        <Card className="p-5 mt-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Activity className="size-5 text-primary" />
-            <h2 className="font-display text-xl font-bold tracking-tight">Últimas Vendas</h2>
-          </div>
-          {data.recentes.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">Nenhuma venda liberada ainda.</p>
-          ) : (
-            <div className="space-y-2">
-              {data.recentes.map((tx) => {
-                const isRefund = tx.type === "refund";
-                const color = isRefund
-                  ? "text-destructive bg-destructive/10 border-destructive/30"
-                  : "text-success bg-success/10 border-success/30";
-                const Icon = isRefund ? RotateCcw : CheckCircle2;
-                const name = tx.client_name || "Cliente";
-                const dt = new Date(tx.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-                return (
-                  <div key={tx.id} className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`size-9 rounded-lg grid place-items-center border shrink-0 ${color}`}>
-                        <Icon className="size-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-medium truncate">{name}</p>
-                        <p className="text-xs text-muted-foreground">{dt} · {tx.gateway}</p>
-                      </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+              {cards.map((c) => (
+                <Card key={c.label} className="p-5 bg-gradient-card">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
+                      <p className={`font-display text-2xl font-bold tracking-tight mt-1 ${c.label === "Lucro" ? c.color : ""}`}>{c.value}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-display font-bold tracking-tight">{brl(Number(tx.amount))}</p>
-                      {tx.liquid_amount != null && (
-                        <p className="text-xs text-muted-foreground">Líq: {brl(Number(tx.liquid_amount))}</p>
-                      )}
+                    <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
+                      <c.icon className="size-5" />
                     </div>
                   </div>
-                );
-              })}
+                </Card>
+              ))}
             </div>
-          )}
-        </Card>
+
+            <InstallAppCard />
+
+            <Card className="p-5 mt-6">
+              <div className="flex items-center gap-2 mb-4">
+                <Activity className="size-5 text-primary" />
+                <h2 className="font-display text-xl font-bold tracking-tight">Últimas Vendas</h2>
+              </div>
+              {data.recentes.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">Nenhuma venda liberada ainda.</p>
+              ) : (
+                <div className="space-y-2">
+                  {data.recentes.map((tx) => (
+                    <TxRow
+                      key={tx.id}
+                      tx={{ ...(tx as any), approved: true }}
+                    />
+                  ))}
+                </div>
+              )}
+            </Card>
+          </>
+        ) : (
+          <>
+            <BalanceCard k={k} />
+
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+              <MiniStat label="Total de vendas" value={brl(k.faturamentoLiquido)} sub={`${k.qtdVendas} aprovadas`} icon={CheckCircle2} color="text-success" />
+              <MiniStat label="Aguardando aprovação" value={brl(k.totalPendente ?? 0)} sub={`${k.qtdPendentes ?? 0} pendentes`} icon={Clock} color="text-warning" />
+              <MiniStat label="Saques pagos" value={brl(k.saquesPagos)} sub="já transferidos" icon={ArrowLeftRight} color="text-chart-2" />
+              <MiniStat label="Saques pendentes" value={brl(k.saquesPendentes)} sub="em análise" icon={Send} color="text-warning" />
+            </div>
+
+            <WithdrawalSection />
+
+            <TransactionsSection transacoes={transacoes} />
+          </>
+        )}
       </main>
+
+      <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-background/90 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto grid grid-cols-2">
+          {([
+            { id: "home" as Tab, label: "Início", icon: Home },
+            { id: "saque" as Tab, label: "Saque e Transações", icon: ArrowLeftRight },
+          ]).map((t) => {
+            const active = tab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                className={`flex flex-col items-center gap-1 py-3 text-[11px] font-medium transition-colors ${active ? "text-primary" : "text-muted-foreground"}`}
+              >
+                <t.icon className="size-5" />
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
+      </nav>
     </div>
+  );
+}
+
+function BalanceCard({ k, onGoWithdraw }: { k: any; onGoWithdraw?: () => void }) {
+  return (
+    <Card className="p-6 bg-gradient-card mb-6 border-success/30">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Saldo disponível para saque</p>
+          <p className="font-display text-4xl font-bold tracking-tight mt-1 text-success">{brl(k.saldoDisponivel)}</p>
+          <p className="text-xs text-muted-foreground mt-2">
+            Lucro {brl(k.lucro)} · Saques pagos {brl(k.saquesPagos)}
+            {k.saquesPendentes > 0 && <> · Pendentes {brl(k.saquesPendentes)}</>}
+          </p>
+          {onGoWithdraw && (
+            <Button size="sm" className="mt-4 bg-gradient-primary text-primary-foreground shadow-glow" onClick={onGoWithdraw}>
+              <Send className="size-4 mr-2" /> Solicitar saque
+            </Button>
+          )}
+        </div>
+        <div className="size-12 rounded-xl bg-success/10 grid place-items-center text-success shrink-0">
+          <Wallet className="size-6" />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+function MiniStat({ label, value, sub, icon: Icon, color }: { label: string; value: string; sub: string; icon: any; color: string }) {
+  return (
+    <Card className="p-4 bg-gradient-card">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium truncate">{label}</p>
+          <p className="font-display text-lg font-bold tracking-tight mt-1">{value}</p>
+          <p className="text-[11px] text-muted-foreground">{sub}</p>
+        </div>
+        <div className={`size-8 rounded-lg bg-muted grid place-items-center shrink-0 ${color}`}>
+          <Icon className="size-4" />
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+type Tx = {
+  id: string;
+  type: string;
+  amount: number;
+  liquid_amount: number | null;
+  client_name: string | null;
+  gateway: string;
+  created_at: string;
+  approved: boolean;
+};
+
+function TxRow({ tx }: { tx: Tx }) {
+  const isRefund = tx.type === "refund";
+  const color = isRefund
+    ? "text-destructive bg-destructive/10 border-destructive/30"
+    : tx.approved
+      ? "text-success bg-success/10 border-success/30"
+      : "text-warning bg-warning/10 border-warning/30";
+  const Icon = isRefund ? RotateCcw : tx.approved ? CheckCircle2 : Clock;
+  const name = tx.client_name || "Cliente";
+  const dt = new Date(tx.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return (
+    <div className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className={`size-9 rounded-lg grid place-items-center border shrink-0 ${color}`}>
+          <Icon className="size-4" />
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <p className="font-medium truncate">{name}</p>
+            {isRefund ? (
+              <span className="text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-destructive/10 text-destructive">Reembolsada</span>
+            ) : tx.approved ? (
+              <span className="text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-success/10 text-success">Aprovada</span>
+            ) : (
+              <span className="text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-warning/10 text-warning">Pendente</span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground">{dt} · {tx.gateway}</p>
+        </div>
+      </div>
+      <div className="text-right shrink-0">
+        <p className="font-display font-bold tracking-tight">{brl(Number(tx.amount))}</p>
+        {tx.liquid_amount != null && (
+          <p className="text-xs text-muted-foreground">Líq: {brl(Number(tx.liquid_amount))}</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TransactionsSection({ transacoes }: { transacoes: Tx[] }) {
+  const [filter, setFilter] = useState<"all" | "approved" | "pending" | "refund">("all");
+  const filtered = transacoes.filter((t) => {
+    if (filter === "all") return true;
+    if (filter === "refund") return t.type === "refund";
+    if (filter === "approved") return t.type !== "refund" && t.approved;
+    return t.type !== "refund" && !t.approved;
+  });
+
+  const chips = [
+    { id: "all" as const, label: `Todas (${transacoes.length})` },
+    { id: "approved" as const, label: `Aprovadas (${transacoes.filter((t) => t.type !== "refund" && t.approved).length})` },
+    { id: "pending" as const, label: `Pendentes (${transacoes.filter((t) => t.type !== "refund" && !t.approved).length})` },
+    { id: "refund" as const, label: `Reembolsadas (${transacoes.filter((t) => t.type === "refund").length})` },
+  ];
+
+  return (
+    <Card className="p-5 mt-6">
+      <div className="flex items-center gap-2 mb-4">
+        <ListFilter className="size-5 text-primary" />
+        <h2 className="font-display text-xl font-bold tracking-tight">Transações</h2>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        {chips.map((c) => (
+          <Button
+            key={c.id}
+            type="button"
+            size="sm"
+            variant={filter === c.id ? "default" : "outline"}
+            onClick={() => setFilter(c.id)}
+            className={filter === c.id ? "bg-gradient-primary text-primary-foreground" : ""}
+          >
+            {c.label}
+          </Button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-center py-8">Nenhuma transação nesta categoria.</p>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map((tx) => <TxRow key={tx.id} tx={tx} />)}
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -368,9 +518,7 @@ function WithdrawalSection() {
 function InstallAppCard() {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
   const isIOS = /iPad|iPhone|iPod/.test(ua);
-  const isAndroid = /Android/.test(ua);
   const [defaultTab, setDefaultTab] = useState<"ios" | "android">(isIOS ? "ios" : "android");
-  void isAndroid;
 
   return (
     <Card className="p-6 bg-gradient-card mt-6">
