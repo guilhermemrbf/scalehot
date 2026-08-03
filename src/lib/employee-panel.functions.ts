@@ -129,10 +129,24 @@ export const getEmployeePanelData = createServerFn({ method: "GET" }).handler(as
       saldoDisponivel,
       saquesPagos,
       saquesPendentes,
+      qtdPendentes: pendentes.length,
+      totalPendente,
+      totalTransacoes: all.length,
     },
 
     recentes: list.slice(0, 20),
+    transacoes: all.slice(0, 100).map((t) => ({
+      id: t.id,
+      type: t.type,
+      amount: Number(t.amount || 0),
+      liquid_amount: t.liquid_amount == null ? null : Number(t.liquid_amount),
+      client_name: t.client_name,
+      gateway: t.gateway,
+      created_at: t.created_at,
+      approved: !!t.employee_visible,
+    })),
   };
+
 });
 
 // ============ ADMIN (dono, autenticado) ============
