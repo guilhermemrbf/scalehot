@@ -103,7 +103,6 @@ function PainelEquipe() {
   }
 
   const k = data.kpis;
-  const transacoes = (data as any).transacoes ?? [];
   const cards = [
     { label: "Faturamento Líquido", value: brl(k.faturamentoLiquido), icon: Wallet, color: "text-chart-2" },
     { label: "Lucro", value: brl(k.lucro), icon: Trophy, color: k.lucro >= 0 ? "text-success" : "text-destructive" },
@@ -216,7 +215,7 @@ function PainelEquipe() {
   );
 }
 
-function BalanceCard({ k, onGoWithdraw }: { k: any; onGoWithdraw?: () => void }) {
+function BalanceCard({ k }: { k: any }) {
   return (
     <Card className="p-6 bg-gradient-card mb-6 border-success/30">
       <div className="flex items-start justify-between gap-4">
@@ -227,11 +226,6 @@ function BalanceCard({ k, onGoWithdraw }: { k: any; onGoWithdraw?: () => void })
             Lucro {brl(k.lucro)} · Saques pagos {brl(k.saquesPagos)}
             {k.saquesPendentes > 0 && <> · Pendentes {brl(k.saquesPendentes)}</>}
           </p>
-          {onGoWithdraw && (
-            <Button size="sm" className="mt-4 bg-gradient-primary text-primary-foreground shadow-glow" onClick={onGoWithdraw}>
-              <Send className="size-4 mr-2" /> Solicitar saque
-            </Button>
-          )}
         </div>
         <div className="size-12 rounded-xl bg-success/10 grid place-items-center text-success shrink-0">
           <Wallet className="size-6" />
@@ -306,55 +300,6 @@ function TxRow({ tx }: { tx: Tx }) {
         )}
       </div>
     </div>
-  );
-}
-
-function TransactionsSection({ transacoes }: { transacoes: Tx[] }) {
-  const [filter, setFilter] = useState<"all" | "approved" | "pending" | "refund">("all");
-  const filtered = transacoes.filter((t) => {
-    if (filter === "all") return true;
-    if (filter === "refund") return t.type === "refund";
-    if (filter === "approved") return t.type !== "refund" && t.approved;
-    return t.type !== "refund" && !t.approved;
-  });
-
-  const chips = [
-    { id: "all" as const, label: `Todas (${transacoes.length})` },
-    { id: "approved" as const, label: `Aprovadas (${transacoes.filter((t) => t.type !== "refund" && t.approved).length})` },
-    { id: "pending" as const, label: `Pendentes (${transacoes.filter((t) => t.type !== "refund" && !t.approved).length})` },
-    { id: "refund" as const, label: `Reembolsadas (${transacoes.filter((t) => t.type === "refund").length})` },
-  ];
-
-  return (
-    <Card className="p-5 mt-6">
-      <div className="flex items-center gap-2 mb-4">
-        <ListFilter className="size-5 text-primary" />
-        <h2 className="font-display text-xl font-bold tracking-tight">Transações</h2>
-      </div>
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        {chips.map((c) => (
-          <Button
-            key={c.id}
-            type="button"
-            size="sm"
-            variant={filter === c.id ? "default" : "outline"}
-            onClick={() => setFilter(c.id)}
-            className={filter === c.id ? "bg-gradient-primary text-primary-foreground" : ""}
-          >
-            {c.label}
-          </Button>
-        ))}
-      </div>
-
-      {filtered.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-8">Nenhuma transação nesta categoria.</p>
-      ) : (
-        <div className="space-y-2">
-          {filtered.map((tx) => <TxRow key={tx.id} tx={tx} />)}
-        </div>
-      )}
-    </Card>
   );
 }
 
