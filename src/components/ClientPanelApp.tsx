@@ -1,4 +1,3 @@
-import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -17,19 +16,9 @@ import {
 } from "@/lib/employee-panel.functions";
 import { requestWithdrawal, listMyWithdrawals } from "@/lib/withdrawals.functions";
 
-export const Route = createFileRoute("/painel")({
-  head: () => ({
-    meta: [
-      { title: "Painel da Equipe — ScaleUp" },
-      { name: "robots", content: "noindex, nofollow" },
-    ],
-  }),
-  component: PainelEquipe,
-});
-
 type Tab = "home" | "saque";
 
-function PainelEquipe() {
+export function ClientPanelApp({ slug }: { slug?: string }) {
   const qc = useQueryClient();
   const load = useServerFn(getEmployeePanelData);
   const unlock = useServerFn(unlockEmployeePanel);
@@ -37,13 +26,13 @@ function PainelEquipe() {
   const [tab, setTab] = useState<Tab>("home");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["employee-panel"],
-    queryFn: () => load(),
+    queryKey: ["employee-panel", slug ?? null],
+    queryFn: () => load({ data: { slug: slug ?? null } }),
   });
 
   const [password, setPassword] = useState("");
   const doUnlock = useMutation({
-    mutationFn: async () => unlock({ data: { password } }),
+    mutationFn: async () => unlock({ data: { password, slug: slug ?? null } }),
     onSuccess: (r) => {
       if (r.ok) {
         setPassword("");

@@ -106,7 +106,7 @@ function AuthGate({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { pathname } = useLocation();
 
-  const isPublicRoute = pathname === "/login" || pathname === "/painel";
+  const isPublicRoute = pathname === "/login" || pathname === "/painel" || pathname.startsWith("/painel/");
 
   useEffect(() => {
     if (loading) return;

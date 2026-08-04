@@ -11,57 +11,66 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { brl } from "@/lib/format";
-import { Copy, Save, Users, Link as LinkIcon, Eye, EyeOff, CheckCircle2, Clock, DollarSign, XCircle, Send, Wallet } from "lucide-react";
+import { Copy, Users, Link as LinkIcon, Eye, EyeOff, CheckCircle2, Clock, DollarSign, XCircle, Send, Wallet, Plus, Trash2, Save } from "lucide-react";
 import {
-  getEmployeePanelPassword,
-  setEmployeePanelPassword,
+  listEmployeeClients,
+  createEmployeeClient,
+  updateEmployeeClient,
+  deleteEmployeeClient,
   listAdminTransactions,
   setTransactionVisibility,
   bulkSetVisibility,
+  type EmployeeClient,
 } from "@/lib/employee-panel.functions";
 import { listWithdrawalRequests, decideWithdrawal } from "@/lib/withdrawals.functions";
 
 export const Route = createFileRoute("/painel-equipe")({
-  head: () => ({ meta: [{ title: "Painel da Equipe — ScaleUp" }] }),
+  head: () => ({
+    meta: [
+      { title: "Painel da Equipe — ScaleUp" },
+      { name: "description", content: "Gerencie painéis de clientes, aprove vendas e saques." },
+      { property: "og:title", content: "Painel da Equipe — ScaleUp" },
+      { property: "og:description", content: "Gerencie painéis de clientes, aprove vendas e saques." },
+    ],
+  }),
   component: PainelEquipeAdmin,
 });
 
 function PainelEquipeAdmin() {
   const qc = useQueryClient();
-  const loadPwd = useServerFn(getEmployeePanelPassword);
-  const savePwd = useServerFn(setEmployeePanelPassword);
+  const listClients = useServerFn(listEmployeeClients);
   const listTx = useServerFn(listAdminTransactions);
   const setVis = useServerFn(setTransactionVisibility);
   const bulk = useServerFn(bulkSetVisibility);
 
-  const { data: pwd } = useQuery({ queryKey: ["employee-panel-pwd"], queryFn: () => loadPwd() });
+  const { data: clients = [] } = useQuery({ queryKey: ["employee-clients"], queryFn: () => listClients() });
   const { data: txs = [] } = useQuery({ queryKey: ["employee-panel-admin-tx"], queryFn: () => listTx() });
 
-  const [password, setPassword] = useState("");
-  const [show, setShow] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("hidden");
 
-  useEffect(() => { if (pwd?.password) setPassword(pwd.password); }, [pwd?.password]);
+  useEffect(() => {
+    if (!selectedClientId && clients.length > 0) setSelectedClientId(clients[0].id);
+  }, [clients, selectedClientId]);
 
-  const savePwdMut = useMutation({
-    mutationFn: async () => savePwd({ data: { password } }),
-    onSuccess: () => { toast.success("Senha salva."); qc.invalidateQueries({ queryKey: ["employee-panel-pwd"] }); },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  const selectedClient = clients.find((c) => c.id === selectedClientId) ?? null;
 
   const toggle = useMutation({
-    mutationFn: async (v: { id: string; visible: boolean }) => setVis({ data: v }),
+    mutationFn: async (v: { id: string; visible: boolean }) =>
+      setVis({ data: { ...v, clientId: v.visible ? selectedClientId : null } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["employee-panel-admin-tx"] }),
     onError: (e: Error) => toast.error(e.message),
   });
 
   const bulkMut = useMutation({
-    mutationFn: async (visible: boolean) => bulk({ data: { visible } }),
+    mutationFn: async (visible: boolean) => bulk({ data: { visible, clientId: selectedClientId } }),
     onSuccess: () => { toast.success("Vendas atualizadas."); qc.invalidateQueries({ queryKey: ["employee-panel-admin-tx"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/painel` : "/painel";
+  const publicUrl = selectedClient
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/painel/${selectedClient.slug}`
+    : "";
 
   const listWds = useServerFn(listWithdrawalRequests);
   const { data: withdrawals = [] } = useQuery({
@@ -70,26 +79,56 @@ function PainelEquipeAdmin() {
     refetchInterval: 15_000,
   });
 
-  const filtered = txs.filter((t) => filter === "all" ? true : filter === "visible" ? t.employee_visible : !t.employee_visible);
-  const cashins = txs.filter((t) => t.type !== "refund");
+  // Vendas do cliente selecionado: aprovadas dele + todas as pendentes (ainda sem cliente)
+  const scoped = txs.filter(
+    (t) => !t.employee_visible || !selectedClientId || t.employee_client_id === selectedClientId
+  );
+  const filtered = scoped.filter((t) => filter === "all" ? true : filter === "visible" ? t.employee_visible : !t.employee_visible);
+  const cashins = scoped.filter((t) => t.type !== "refund");
   const approved = cashins.filter((t) => t.employee_visible);
   const pending = cashins.filter((t) => !t.employee_visible);
   const sumApproved = approved.reduce((s, t) => s + Number(t.amount || 0), 0);
   const sumPending = pending.reduce((s, t) => s + Number(t.amount || 0), 0);
   const visibleCount = approved.length;
 
-  // Saldo do cliente = líquido das vendas aprovadas − saques pagos e pendentes
+  const clientWds = selectedClientId
+    ? withdrawals.filter((w) => w.employee_client_id === selectedClientId)
+    : withdrawals;
+
+  // Saldo do cliente = líquido das vendas aprovadas − saques pagos
   const liquidoAprovado = approved.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
-  const saquesPagos = withdrawals.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount || 0), 0);
-  const saquesPendentes = withdrawals.filter((w) => w.status === "pending").reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saquesPagos = clientWds.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saquesPendentes = clientWds.filter((w) => w.status === "pending").reduce((s, w) => s + Number(w.amount || 0), 0);
   const saldoCliente = Math.max(0, liquidoAprovado - saquesPagos);
 
   return (
     <AppLayout>
       <PageHeader
         title="Painel da Equipe"
-        subtitle="Aprove cada venda individualmente antes que ela apareça no painel dos funcionários"
+        subtitle="Crie um painel por cliente e aprove cada venda para o cliente correto"
       />
+
+      {clients.length > 0 && (
+        <Card className="p-4 mb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium mr-1">Cliente</span>
+            {clients.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedClientId(c.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                  selectedClientId === c.id
+                    ? "bg-gradient-primary text-primary-foreground shadow-glow"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {c.name}{!c.active && " (inativo)"}
+              </button>
+            ))}
+          </div>
+        </Card>
+      )}
+
 
       <Card className="p-6 bg-gradient-card mb-6 border-success/30">
         <div className="flex items-start justify-between gap-4">
@@ -140,65 +179,34 @@ function PainelEquipeAdmin() {
 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Card className="p-6 bg-gradient-card">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="size-10 rounded-xl bg-primary/15 grid place-items-center"><Users className="size-5 text-primary" /></div>
-            <div>
-              <h3 className="font-display font-semibold">Senha compartilhada</h3>
-              <p className="text-xs text-muted-foreground">Envie essa senha para os funcionários acessarem o link.</p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Senha</Label>
-              <div className="relative">
-                <Input
-                  type={show ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Defina uma senha (mín. 4 caracteres)"
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShow((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-                >
-                  {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-            </div>
-            <Button
-              onClick={() => savePwdMut.mutate()}
-              disabled={savePwdMut.isPending || password.length < 4}
-              className="bg-gradient-primary text-primary-foreground shadow-glow"
-            >
-              <Save className="size-4 mr-2" /> Salvar senha
-            </Button>
-          </div>
-        </Card>
+        <ClientsManager clients={clients} />
 
         <Card className="p-6 bg-gradient-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="size-10 rounded-xl bg-accent grid place-items-center"><LinkIcon className="size-5 text-accent-foreground" /></div>
             <div>
               <h3 className="font-display font-semibold">Link do painel</h3>
-              <p className="text-xs text-muted-foreground">Somente com a senha o acesso é liberado.</p>
+              <p className="text-xs text-muted-foreground">
+                Link exclusivo de <strong className="text-foreground">{selectedClient?.name ?? "—"}</strong>. Só abre com a senha dele.
+              </p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Input readOnly value={publicUrl} />
+            <Input readOnly value={publicUrl} placeholder="Crie um cliente para gerar o link" />
             <Button
               variant="outline"
+              disabled={!publicUrl}
               onClick={() => { navigator.clipboard.writeText(publicUrl); toast.success("Link copiado."); }}
             >
               <Copy className="size-4" />
             </Button>
           </div>
           <div className="mt-4 text-xs text-muted-foreground">
-            Vendas liberadas atualmente: <strong className="text-foreground">{visibleCount}</strong> de {txs.length}
+            Senha atual: <strong className="text-foreground font-mono">{selectedClient?.password ?? "—"}</strong>
+            {" · "}Vendas liberadas: <strong className="text-foreground">{visibleCount}</strong>
           </div>
         </Card>
+
       </div>
 
       <Card className="p-5">
@@ -206,7 +214,7 @@ function PainelEquipeAdmin() {
           <div>
             <h3 className="font-display font-semibold">Aprovação de vendas</h3>
             <p className="text-xs text-muted-foreground">
-              Cada venda recebida via webhook fica <strong>pendente</strong> até você aprovar. Só vendas aprovadas aparecem no painel dos funcionários/clientes.
+              Ao aprovar, a venda vai para o painel de <strong>{selectedClient?.name ?? "—"}</strong>. Vendas pendentes não aparecem em nenhum painel.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -456,6 +464,122 @@ function WithdrawalAdminSection() {
           ))}
         </div>
       )}
+    </Card>
+  );
+}
+
+function ClientsManager({ clients }: { clients: EmployeeClient[] }) {
+  const qc = useQueryClient();
+  const create = useServerFn(createEmployeeClient);
+  const update = useServerFn(updateEmployeeClient);
+  const remove = useServerFn(deleteEmployeeClient);
+
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
+  const [edits, setEdits] = useState<Record<string, string>>({});
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["employee-clients"] });
+
+  const createMut = useMutation({
+    mutationFn: async () => create({ data: { name, password } }),
+    onSuccess: () => { toast.success("Cliente criado."); setName(""); setPassword(""); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const updateMut = useMutation({
+    mutationFn: async (v: { id: string; password?: string; active?: boolean }) => update({ data: v }),
+    onSuccess: () => { toast.success("Cliente atualizado."); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removeMut = useMutation({
+    mutationFn: async (id: string) => remove({ data: { id } }),
+    onSuccess: () => { toast.success("Cliente removido."); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="p-6 bg-gradient-card">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="size-10 rounded-xl bg-primary/15 grid place-items-center"><Users className="size-5 text-primary" /></div>
+        <div>
+          <h3 className="font-display font-semibold">Clientes / painéis</h3>
+          <p className="text-xs text-muted-foreground">Cada cliente tem link e senha próprios.</p>
+        </div>
+      </div>
+
+      <div className="space-y-3 mb-5">
+        {clients.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum cliente ainda. Crie o primeiro abaixo.</p>
+        )}
+        {clients.map((c) => (
+          <div key={c.id} className="p-3 rounded-lg border bg-card/60">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-medium truncate">{c.name}</p>
+                <p className="text-xs text-muted-foreground font-mono truncate">/painel/{c.slug}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Switch
+                  checked={c.active}
+                  onCheckedChange={(v) => updateMut.mutate({ id: c.id, active: v })}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { if (confirm(`Remover o painel de ${c.name}?`)) removeMut.mutate(c.id); }}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Input
+                value={edits[c.id] ?? c.password}
+                onChange={(e) => setEdits((s) => ({ ...s, [c.id]: e.target.value }))}
+                className="h-9"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={(edits[c.id] ?? c.password).length < 4}
+                onClick={() => updateMut.mutate({ id: c.id, password: edits[c.id] ?? c.password })}
+              >
+                <Save className="size-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-2 pt-4 border-t border-border/60">
+        <Label>Novo cliente</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome do cliente" />
+        <div className="relative">
+          <Input
+            type={show ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Senha do painel (mín. 4 caracteres)"
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShow((s) => !s)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+          >
+            {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        </div>
+        <Button
+          onClick={() => createMut.mutate()}
+          disabled={createMut.isPending || name.trim().length < 1 || password.length < 4}
+          className="bg-gradient-primary text-primary-foreground shadow-glow w-full"
+        >
+          <Plus className="size-4 mr-2" /> Criar painel
+        </Button>
+      </div>
     </Card>
   );
 }
