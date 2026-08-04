@@ -11,57 +11,66 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { brl } from "@/lib/format";
-import { Copy, Save, Users, Link as LinkIcon, Eye, EyeOff, CheckCircle2, Clock, DollarSign, XCircle, Send, Wallet } from "lucide-react";
+import { Copy, Users, Link as LinkIcon, Eye, EyeOff, CheckCircle2, Clock, DollarSign, XCircle, Send, Wallet, Plus, Trash2, Save } from "lucide-react";
 import {
-  getEmployeePanelPassword,
-  setEmployeePanelPassword,
+  listEmployeeClients,
+  createEmployeeClient,
+  updateEmployeeClient,
+  deleteEmployeeClient,
   listAdminTransactions,
   setTransactionVisibility,
   bulkSetVisibility,
+  type EmployeeClient,
 } from "@/lib/employee-panel.functions";
 import { listWithdrawalRequests, decideWithdrawal } from "@/lib/withdrawals.functions";
 
 export const Route = createFileRoute("/painel-equipe")({
-  head: () => ({ meta: [{ title: "Painel da Equipe — ScaleUp" }] }),
+  head: () => ({
+    meta: [
+      { title: "Painel da Equipe — ScaleUp" },
+      { name: "description", content: "Gerencie painéis de clientes, aprove vendas e saques." },
+      { property: "og:title", content: "Painel da Equipe — ScaleUp" },
+      { property: "og:description", content: "Gerencie painéis de clientes, aprove vendas e saques." },
+    ],
+  }),
   component: PainelEquipeAdmin,
 });
 
 function PainelEquipeAdmin() {
   const qc = useQueryClient();
-  const loadPwd = useServerFn(getEmployeePanelPassword);
-  const savePwd = useServerFn(setEmployeePanelPassword);
+  const listClients = useServerFn(listEmployeeClients);
   const listTx = useServerFn(listAdminTransactions);
   const setVis = useServerFn(setTransactionVisibility);
   const bulk = useServerFn(bulkSetVisibility);
 
-  const { data: pwd } = useQuery({ queryKey: ["employee-panel-pwd"], queryFn: () => loadPwd() });
+  const { data: clients = [] } = useQuery({ queryKey: ["employee-clients"], queryFn: () => listClients() });
   const { data: txs = [] } = useQuery({ queryKey: ["employee-panel-admin-tx"], queryFn: () => listTx() });
 
-  const [password, setPassword] = useState("");
-  const [show, setShow] = useState(false);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("hidden");
 
-  useEffect(() => { if (pwd?.password) setPassword(pwd.password); }, [pwd?.password]);
+  useEffect(() => {
+    if (!selectedClientId && clients.length > 0) setSelectedClientId(clients[0].id);
+  }, [clients, selectedClientId]);
 
-  const savePwdMut = useMutation({
-    mutationFn: async () => savePwd({ data: { password } }),
-    onSuccess: () => { toast.success("Senha salva."); qc.invalidateQueries({ queryKey: ["employee-panel-pwd"] }); },
-    onError: (e: Error) => toast.error(e.message),
-  });
+  const selectedClient = clients.find((c) => c.id === selectedClientId) ?? null;
 
   const toggle = useMutation({
-    mutationFn: async (v: { id: string; visible: boolean }) => setVis({ data: v }),
+    mutationFn: async (v: { id: string; visible: boolean }) =>
+      setVis({ data: { ...v, clientId: v.visible ? selectedClientId : null } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["employee-panel-admin-tx"] }),
     onError: (e: Error) => toast.error(e.message),
   });
 
   const bulkMut = useMutation({
-    mutationFn: async (visible: boolean) => bulk({ data: { visible } }),
+    mutationFn: async (visible: boolean) => bulk({ data: { visible, clientId: selectedClientId } }),
     onSuccess: () => { toast.success("Vendas atualizadas."); qc.invalidateQueries({ queryKey: ["employee-panel-admin-tx"] }); },
     onError: (e: Error) => toast.error(e.message),
   });
 
-  const publicUrl = typeof window !== "undefined" ? `${window.location.origin}/painel` : "/painel";
+  const publicUrl = selectedClient
+    ? `${typeof window !== "undefined" ? window.location.origin : ""}/painel/${selectedClient.slug}`
+    : "";
 
   const listWds = useServerFn(listWithdrawalRequests);
   const { data: withdrawals = [] } = useQuery({
@@ -70,26 +79,56 @@ function PainelEquipeAdmin() {
     refetchInterval: 15_000,
   });
 
-  const filtered = txs.filter((t) => filter === "all" ? true : filter === "visible" ? t.employee_visible : !t.employee_visible);
-  const cashins = txs.filter((t) => t.type !== "refund");
+  // Vendas do cliente selecionado: aprovadas dele + todas as pendentes (ainda sem cliente)
+  const scoped = txs.filter(
+    (t) => !t.employee_visible || !selectedClientId || t.employee_client_id === selectedClientId
+  );
+  const filtered = scoped.filter((t) => filter === "all" ? true : filter === "visible" ? t.employee_visible : !t.employee_visible);
+  const cashins = scoped.filter((t) => t.type !== "refund");
   const approved = cashins.filter((t) => t.employee_visible);
   const pending = cashins.filter((t) => !t.employee_visible);
   const sumApproved = approved.reduce((s, t) => s + Number(t.amount || 0), 0);
   const sumPending = pending.reduce((s, t) => s + Number(t.amount || 0), 0);
   const visibleCount = approved.length;
 
-  // Saldo do cliente = líquido das vendas aprovadas − saques pagos e pendentes
+  const clientWds = selectedClientId
+    ? withdrawals.filter((w) => w.employee_client_id === selectedClientId)
+    : withdrawals;
+
+  // Saldo do cliente = líquido das vendas aprovadas − saques pagos
   const liquidoAprovado = approved.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
-  const saquesPagos = withdrawals.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount || 0), 0);
-  const saquesPendentes = withdrawals.filter((w) => w.status === "pending").reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saquesPagos = clientWds.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount || 0), 0);
+  const saquesPendentes = clientWds.filter((w) => w.status === "pending").reduce((s, w) => s + Number(w.amount || 0), 0);
   const saldoCliente = Math.max(0, liquidoAprovado - saquesPagos);
 
   return (
     <AppLayout>
       <PageHeader
         title="Painel da Equipe"
-        subtitle="Aprove cada venda individualmente antes que ela apareça no painel dos funcionários"
+        subtitle="Crie um painel por cliente e aprove cada venda para o cliente correto"
       />
+
+      {clients.length > 0 && (
+        <Card className="p-4 mb-6">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium mr-1">Cliente</span>
+            {clients.map((c) => (
+              <button
+                key={c.id}
+                onClick={() => setSelectedClientId(c.id)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                  selectedClientId === c.id
+                    ? "bg-gradient-primary text-primary-foreground shadow-glow"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {c.name}{!c.active && " (inativo)"}
+              </button>
+            ))}
+          </div>
+        </Card>
+      )}
+
 
       <Card className="p-6 bg-gradient-card mb-6 border-success/30">
         <div className="flex items-start justify-between gap-4">
