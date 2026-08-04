@@ -179,65 +179,34 @@ function PainelEquipeAdmin() {
 
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <Card className="p-6 bg-gradient-card">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="size-10 rounded-xl bg-primary/15 grid place-items-center"><Users className="size-5 text-primary" /></div>
-            <div>
-              <h3 className="font-display font-semibold">Senha compartilhada</h3>
-              <p className="text-xs text-muted-foreground">Envie essa senha para os funcionários acessarem o link.</p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label>Senha</Label>
-              <div className="relative">
-                <Input
-                  type={show ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Defina uma senha (mín. 4 caracteres)"
-                  className="pr-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShow((s) => !s)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-                >
-                  {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-                </button>
-              </div>
-            </div>
-            <Button
-              onClick={() => savePwdMut.mutate()}
-              disabled={savePwdMut.isPending || password.length < 4}
-              className="bg-gradient-primary text-primary-foreground shadow-glow"
-            >
-              <Save className="size-4 mr-2" /> Salvar senha
-            </Button>
-          </div>
-        </Card>
+        <ClientsManager clients={clients} />
 
         <Card className="p-6 bg-gradient-card">
           <div className="flex items-center gap-3 mb-5">
             <div className="size-10 rounded-xl bg-accent grid place-items-center"><LinkIcon className="size-5 text-accent-foreground" /></div>
             <div>
               <h3 className="font-display font-semibold">Link do painel</h3>
-              <p className="text-xs text-muted-foreground">Somente com a senha o acesso é liberado.</p>
+              <p className="text-xs text-muted-foreground">
+                Link exclusivo de <strong className="text-foreground">{selectedClient?.name ?? "—"}</strong>. Só abre com a senha dele.
+              </p>
             </div>
           </div>
           <div className="flex gap-2">
-            <Input readOnly value={publicUrl} />
+            <Input readOnly value={publicUrl} placeholder="Crie um cliente para gerar o link" />
             <Button
               variant="outline"
+              disabled={!publicUrl}
               onClick={() => { navigator.clipboard.writeText(publicUrl); toast.success("Link copiado."); }}
             >
               <Copy className="size-4" />
             </Button>
           </div>
           <div className="mt-4 text-xs text-muted-foreground">
-            Vendas liberadas atualmente: <strong className="text-foreground">{visibleCount}</strong> de {txs.length}
+            Senha atual: <strong className="text-foreground font-mono">{selectedClient?.password ?? "—"}</strong>
+            {" · "}Vendas liberadas: <strong className="text-foreground">{visibleCount}</strong>
           </div>
         </Card>
+
       </div>
 
       <Card className="p-5">
