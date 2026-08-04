@@ -467,3 +467,119 @@ function WithdrawalAdminSection() {
     </Card>
   );
 }
+
+function ClientsManager({ clients }: { clients: EmployeeClient[] }) {
+  const qc = useQueryClient();
+  const create = useServerFn(createEmployeeClient);
+  const update = useServerFn(updateEmployeeClient);
+  const remove = useServerFn(deleteEmployeeClient);
+
+  const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
+  const [edits, setEdits] = useState<Record<string, string>>({});
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["employee-clients"] });
+
+  const createMut = useMutation({
+    mutationFn: async () => create({ data: { name, password } }),
+    onSuccess: () => { toast.success("Cliente criado."); setName(""); setPassword(""); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const updateMut = useMutation({
+    mutationFn: async (v: { id: string; password?: string; active?: boolean }) => update({ data: v }),
+    onSuccess: () => { toast.success("Cliente atualizado."); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const removeMut = useMutation({
+    mutationFn: async (id: string) => remove({ data: { id } }),
+    onSuccess: () => { toast.success("Cliente removido."); invalidate(); },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Card className="p-6 bg-gradient-card">
+      <div className="flex items-center gap-3 mb-5">
+        <div className="size-10 rounded-xl bg-primary/15 grid place-items-center"><Users className="size-5 text-primary" /></div>
+        <div>
+          <h3 className="font-display font-semibold">Clientes / painéis</h3>
+          <p className="text-xs text-muted-foreground">Cada cliente tem link e senha próprios.</p>
+        </div>
+      </div>
+
+      <div className="space-y-3 mb-5">
+        {clients.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum cliente ainda. Crie o primeiro abaixo.</p>
+        )}
+        {clients.map((c) => (
+          <div key={c.id} className="p-3 rounded-lg border bg-card/60">
+            <div className="flex items-center justify-between gap-2">
+              <div className="min-w-0">
+                <p className="font-medium truncate">{c.name}</p>
+                <p className="text-xs text-muted-foreground font-mono truncate">/painel/{c.slug}</p>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Switch
+                  checked={c.active}
+                  onCheckedChange={(v) => updateMut.mutate({ id: c.id, active: v })}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => { if (confirm(`Remover o painel de ${c.name}?`)) removeMut.mutate(c.id); }}
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-2">
+              <Input
+                value={edits[c.id] ?? c.password}
+                onChange={(e) => setEdits((s) => ({ ...s, [c.id]: e.target.value }))}
+                className="h-9"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={(edits[c.id] ?? c.password).length < 4}
+                onClick={() => updateMut.mutate({ id: c.id, password: edits[c.id] ?? c.password })}
+              >
+                <Save className="size-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-2 pt-4 border-t border-border/60">
+        <Label>Novo cliente</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nome do cliente" />
+        <div className="relative">
+          <Input
+            type={show ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Senha do painel (mín. 4 caracteres)"
+            className="pr-10"
+          />
+          <button
+            type="button"
+            onClick={() => setShow((s) => !s)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+          >
+            {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+          </button>
+        </div>
+        <Button
+          onClick={() => createMut.mutate()}
+          disabled={createMut.isPending || name.trim().length < 1 || password.length < 4}
+          className="bg-gradient-primary text-primary-foreground shadow-glow w-full"
+        >
+          <Plus className="size-4 mr-2" /> Criar painel
+        </Button>
+      </div>
+    </Card>
+  );
+}
