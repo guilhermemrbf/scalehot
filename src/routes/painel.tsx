@@ -138,8 +138,6 @@ function PainelEquipe() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
         {tab === "home" ? (
           <>
-            <BalanceCard k={k} onGoWithdraw={() => setTab("saque")} />
-
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
               {cards.map((c) => (
                 <Card key={c.label} className="p-5 bg-gradient-card">
@@ -181,18 +179,16 @@ function PainelEquipe() {
           <>
             <BalanceCard k={k} />
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
               <MiniStat label="Total de vendas" value={brl(k.faturamentoLiquido)} sub={`${k.qtdVendas} aprovadas`} icon={CheckCircle2} color="text-success" />
-              <MiniStat label="Aguardando aprovação" value={brl(k.totalPendente ?? 0)} sub={`${k.qtdPendentes ?? 0} pendentes`} icon={Clock} color="text-warning" />
               <MiniStat label="Saques pagos" value={brl(k.saquesPagos)} sub="já transferidos" icon={ArrowLeftRight} color="text-chart-2" />
               <MiniStat label="Saques pendentes" value={brl(k.saquesPendentes)} sub="em análise" icon={Send} color="text-warning" />
             </div>
 
             <WithdrawalSection />
-
-            <TransactionsSection transacoes={transacoes} />
           </>
         )}
+
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 z-20 border-t border-border bg-background/90 backdrop-blur-xl">
