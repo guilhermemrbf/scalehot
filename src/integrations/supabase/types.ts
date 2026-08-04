@@ -38,6 +38,39 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_clients: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          password: string
+          slug: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          password: string
+          slug: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          password?: string
+          slug?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       employee_panels: {
         Row: {
           password: string
@@ -406,6 +439,7 @@ export type Database = {
           client_email: string | null
           client_name: string | null
           created_at: string
+          employee_client_id: string | null
           employee_visible: boolean
           gateway: string
           id: string
@@ -421,6 +455,7 @@ export type Database = {
           client_email?: string | null
           client_name?: string | null
           created_at?: string
+          employee_client_id?: string | null
           employee_visible?: boolean
           gateway: string
           id?: string
@@ -436,6 +471,7 @@ export type Database = {
           client_email?: string | null
           client_name?: string | null
           created_at?: string
+          employee_client_id?: string | null
           employee_visible?: boolean
           gateway?: string
           id?: string
@@ -446,7 +482,15 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_employee_client_id_fkey"
+            columns: ["employee_client_id"]
+            isOneToOne: false
+            referencedRelation: "employee_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_integrations: {
         Row: {
@@ -483,6 +527,7 @@ export type Database = {
           amount: number
           created_at: string
           decided_at: string | null
+          employee_client_id: string | null
           id: string
           note: string | null
           owner_note: string | null
@@ -496,6 +541,7 @@ export type Database = {
           amount: number
           created_at?: string
           decided_at?: string | null
+          employee_client_id?: string | null
           id?: string
           note?: string | null
           owner_note?: string | null
@@ -509,6 +555,7 @@ export type Database = {
           amount?: number
           created_at?: string
           decided_at?: string | null
+          employee_client_id?: string | null
           id?: string
           note?: string | null
           owner_note?: string | null
@@ -518,7 +565,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "withdrawal_requests_employee_client_id_fkey"
+            columns: ["employee_client_id"]
+            isOneToOne: false
+            referencedRelation: "employee_clients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
