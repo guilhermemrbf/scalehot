@@ -214,7 +214,7 @@ function PainelEquipeAdmin() {
           <div>
             <h3 className="font-display font-semibold">Aprovação de vendas</h3>
             <p className="text-xs text-muted-foreground">
-              Cada venda recebida via webhook fica <strong>pendente</strong> até você aprovar. Só vendas aprovadas aparecem no painel dos funcionários/clientes.
+              Ao aprovar, a venda vai para o painel de <strong>{selectedClient?.name ?? "—"}</strong>. Vendas pendentes não aparecem em nenhum painel.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
