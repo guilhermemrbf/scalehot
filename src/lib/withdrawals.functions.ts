@@ -3,7 +3,7 @@ import { useSession } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
 
-type PanelSession = { ownerId?: string };
+type PanelSession = { ownerId?: string; clientId?: string; clientName?: string };
 
 function getSessionConfig() {
   const password = process.env.EMPLOYEE_PANEL_SESSION_SECRET;
@@ -36,6 +36,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await useSession<PanelSession>(getSessionConfig());
     const ownerId = session.data.ownerId;
+    const clientId = session.data.clientId ?? null;
     if (!ownerId) return { ok: false as const, reason: "locked" };
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -43,6 +44,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       .from("withdrawal_requests" as any)
       .insert({
         user_id: ownerId,
+        employee_client_id: clientId,
         amount: data.amount,
         requester_name: data.requesterName,
         pix_key: data.pixKey,
@@ -57,7 +59,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
       const { sendPushToUser } = await import("./push.server");
       await sendPushToUser(ownerId, {
         title: "💸 Novo pedido de saque",
-        body: `${data.requesterName} solicitou ${brl(data.amount)}`,
+        body: `${session.data.clientName ? session.data.clientName + " · " : ""}${data.requesterName} solicitou ${brl(data.amount)}`,
         tag: `withdrawal-${(row as any)?.id ?? Date.now()}`,
       });
     } catch (e) {
@@ -71,15 +73,18 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
 export const listMyWithdrawals = createServerFn({ method: "GET" }).handler(async () => {
   const session = await useSession<PanelSession>(getSessionConfig());
   const ownerId = session.data.ownerId;
+  const clientId = session.data.clientId ?? null;
   if (!ownerId) return { locked: true as const };
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data, error } = await supabaseAdmin
+  let q = supabaseAdmin
     .from("withdrawal_requests" as any)
     .select("id, amount, requester_name, pix_key, note, status, owner_note, decided_at, created_at")
     .eq("user_id", ownerId)
     .order("created_at", { ascending: false })
     .limit(50);
+  if (clientId) q = q.eq("employee_client_id", clientId);
+  const { data, error } = await q;
   if (error) throw new Error(error.message);
   return {
     locked: false as const,
@@ -104,7 +109,7 @@ export const listWithdrawalRequests = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("withdrawal_requests" as any)
-      .select("id, amount, requester_name, pix_key, note, status, owner_note, decided_at, created_at")
+      .select("id, amount, requester_name, pix_key, note, status, owner_note, decided_at, created_at, employee_client_id")
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
@@ -118,6 +123,7 @@ export const listWithdrawalRequests = createServerFn({ method: "GET" })
       owner_note: string | null;
       decided_at: string | null;
       created_at: string;
+      employee_client_id: string | null;
     }>;
   });
 
