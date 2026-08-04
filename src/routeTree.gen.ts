@@ -22,6 +22,7 @@ import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PainelIndexRouteImport } from './routes/painel.index'
+import { Route as PainelSlugRouteImport } from './routes/painel.$slug'
 import { Route as ApiPublicWebhookReceiverRouteImport } from './routes/api/public/webhook-receiver'
 import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
 import { Route as ApiPublicSendDailySummaryRouteImport } from './routes/api/public/send-daily-summary'
@@ -91,6 +92,11 @@ const PainelIndexRoute = PainelIndexRouteImport.update({
   path: '/painel/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelSlugRoute = PainelSlugRouteImport.update({
+  id: '/painel/$slug',
+  path: '/painel/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicWebhookReceiverRoute =
   ApiPublicWebhookReceiverRouteImport.update({
     id: '/api/public/webhook-receiver',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/painel/$slug': typeof PainelSlugRoute
   '/painel/': typeof PainelIndexRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/painel/$slug': typeof PainelSlugRoute
   '/painel': typeof PainelIndexRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
@@ -159,6 +167,7 @@ export interface FileRoutesById {
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/painel/$slug': typeof PainelSlugRoute
   '/painel/': typeof PainelIndexRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
   '/api/public/syncpay-webhook': typeof ApiPublicSyncpayWebhookRoute
@@ -179,6 +188,7 @@ export interface FileRouteTypes {
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/painel/$slug'
     | '/painel/'
     | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/painel/$slug'
     | '/painel'
     | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/painel/$slug'
     | '/painel/'
     | '/api/public/send-daily-summary'
     | '/api/public/syncpay-webhook'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   PainelEquipeRoute: typeof PainelEquipeRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  PainelSlugRoute: typeof PainelSlugRoute
   PainelIndexRoute: typeof PainelIndexRoute
   ApiPublicSendDailySummaryRoute: typeof ApiPublicSendDailySummaryRoute
   ApiPublicSyncpayWebhookRoute: typeof ApiPublicSyncpayWebhookRoute
@@ -333,6 +346,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel/$slug': {
+      id: '/painel/$slug'
+      path: '/painel/$slug'
+      fullPath: '/painel/$slug'
+      preLoaderRoute: typeof PainelSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/webhook-receiver': {
       id: '/api/public/webhook-receiver'
       path: '/api/public/webhook-receiver'
@@ -370,6 +390,7 @@ const rootRouteChildren: RootRouteChildren = {
   PainelEquipeRoute: PainelEquipeRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
+  PainelSlugRoute: PainelSlugRoute,
   PainelIndexRoute: PainelIndexRoute,
   ApiPublicSendDailySummaryRoute: ApiPublicSendDailySummaryRoute,
   ApiPublicSyncpayWebhookRoute: ApiPublicSyncpayWebhookRoute,
