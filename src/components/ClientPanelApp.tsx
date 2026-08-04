@@ -32,7 +32,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
 
   const [password, setPassword] = useState("");
   const doUnlock = useMutation({
-    mutationFn: async () => unlock({ data: { password } }),
+    mutationFn: async () => unlock({ data: { password, slug: slug ?? null } }),
     onSuccess: (r) => {
       if (r.ok) {
         setPassword("");
