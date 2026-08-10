@@ -46,6 +46,37 @@ function detect(p: AnyObj): Parsed | null {
       source.adquirente_ref
   );
 
+  // ===== SAQUE / CASH-OUT: nunca é venda =====
+  // Payloads de saque (Syncpay e afins) vêm com seller/beneficiary/pix_key/pix_type,
+  // ou com tipo/transaction_type explícito de cash-out, e NÃO possuem "client".
+  const typeHint = String(
+    source.transaction_type ?? source.type ?? p.transaction_type ?? p.type ?? source.operation ?? ""
+  ).toLowerCase();
+  const isCashOutHint = /cash[_\-\s]?out|withdraw|saque|payout|transfer/.test(typeHint);
+  const hasPayoutShape = Boolean(
+    source.seller ||
+      p.seller ||
+      source.beneficiary_name ||
+      source.beneficiary ||
+      source.pix_key ||
+      p.pix_key ||
+      source.pix_type ||
+      p.pix_type
+  );
+  if (isCashOutHint || (hasPayoutShape && !source.client && !p.client)) {
+    return {
+      gateway: "syncpay",
+      type: "cashin",
+      status: upper || "CASHOUT",
+      amount: num(source.amount) ?? num(p.amount) ?? 0,
+      liquid_amount: null,
+      transaction_id: null,
+      client_name: null,
+      client_email: null,
+      accepted: false,
+    };
+  }
+
   // Syncpay refund
   if (looksLikeSyncpay && upper === "MED") {
     return {
