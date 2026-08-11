@@ -363,7 +363,7 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
 
           try {
             const { sendPushToUser } = await import("@/lib/push.server");
-            const valor = parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+            const valor = (parsed.type === "refund" ? "- " : "") + parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
             // Buscar preferências (profiles.notification_preferences)
             const { data: subRow } = await supabaseAdmin
