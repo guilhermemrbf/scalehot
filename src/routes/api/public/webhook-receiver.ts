@@ -358,7 +358,8 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
           if (incErr) console.error("[webhook-receiver] increment_sale_usage error:", incErr);
         }
 
-        if (parsed.type === "cashin") {
+        // Notificações Push para Vendas e Reembolsos
+        if (parsed.type === "cashin" || parsed.type === "refund") {
 
           try {
             const { sendPushToUser } = await import("@/lib/push.server");
