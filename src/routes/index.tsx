@@ -139,7 +139,8 @@ function Dashboard() {
   const brutoLegacy = legacyFats.reduce((s: number, f: any) => s + Number(f.faturamento_bruto || 0), 0);
   const reembolsosLegacy = legacyFats.reduce((s: number, f: any) => s + Number(f.reembolsos_count || 0), 0);
 
-  const totalBruto = brutoWebhooks + brutoLegacy;
+  const brutoRefunds = refunds.reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
+  const totalBruto = brutoWebhooks + brutoLegacy - brutoRefunds;
   const totalLiquidoGateway = liquidoWebhooks + brutoLegacy;
   const taxaGateway = totalBruto - totalLiquidoGateway;
   const qtdVendas = cashins.length;
