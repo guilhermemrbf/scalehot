@@ -170,8 +170,8 @@ function Dashboard() {
     0
   );
   const totalAnuncios = gastosManuais + totalRepasses;
-
-  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios;
+  const totalLiquidoAposReembolsos = totalLiquidoGateway - brutoRefunds;
+  const lucroTotal = totalLiquidoAposReembolsos - taxaBot - totalImposto - totalAnuncios;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
 
