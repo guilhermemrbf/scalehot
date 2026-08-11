@@ -29,17 +29,23 @@ const fmtDateTime = (iso: string | null) => {
 export function VendasTempoReal() {
   const { user } = useAuth();
   const [items, setItems] = useState<Tx[]>([]);
+  const [showAll, setShowAll] = useState(false);
   const [highlight, setHighlight] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     let mounted = true;
     (async () => {
-      const { data } = await supabase
+      let query = supabase
         .from("transactions" as any)
         .select("*")
-        .order("created_at", { ascending: false })
-        .limit(10);
+        .order("created_at", { ascending: false });
+      
+      if (!showAll) {
+        query = query.limit(10);
+      }
+
+      const { data } = await query;
       if (mounted && data) setItems(data as any);
     })();
 
@@ -56,11 +62,16 @@ export function VendasTempoReal() {
         () => {
           // Invalidate and refetch is safer than manual splicing for complex status changes
           (async () => {
-            const { data } = await supabase
+            let query = supabase
               .from("transactions" as any)
               .select("*")
-              .order("created_at", { ascending: false })
-              .limit(10);
+              .order("created_at", { ascending: false });
+            
+            if (!showAll) {
+              query = query.limit(10);
+            }
+
+            const { data } = await query;
             if (mounted && data) setItems(data as any);
           })();
         }
@@ -71,7 +82,7 @@ export function VendasTempoReal() {
       mounted = false;
       supabase.removeChannel(channel);
     };
-  }, [user?.id]);
+  }, [user?.id, showAll]);
 
   return (
     <Card className="p-5 mt-8">
@@ -84,11 +95,16 @@ export function VendasTempoReal() {
           <p className="text-xs text-muted-foreground">Deve mostrar as últimas transmissões que teve e na parte de últimas vendas a gente vai ter a área de mostrar todas que iara mostrar todoas as transições</p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="h-8 text-xs font-bold uppercase tracking-wider">
-            Mostrar Todas
+          <Button 
+            variant={showAll ? "default" : "outline"} 
+            size="sm" 
+            className="h-8 text-xs font-bold uppercase tracking-wider"
+            onClick={() => setShowAll(!showAll)}
+          >
+            {showAll ? "Ocultar" : "Mostrar Todas"}
           </Button>
           <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted px-2 py-1 rounded">
-            Tempo real
+            {showAll ? "Histórico Completo" : "Tempo real"}
           </span>
         </div>
       </div>
