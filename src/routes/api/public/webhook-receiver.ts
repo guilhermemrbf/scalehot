@@ -77,12 +77,12 @@ function detect(p: AnyObj): Parsed | null {
     };
   }
 
-  // Syncpay refund
-  if (looksLikeSyncpay && upper === "MED") {
+  // Syncpay refund / MED
+  if (looksLikeSyncpay && (upper === "MED" || upper === "REFUNDED" || upper === "REFUND" || upper === "CHARGEBACK")) {
     return {
       gateway: "syncpay",
       type: "refund",
-      status: "MED",
+      status: upper,
       amount: num(source.amount) ?? num(p.amount) ?? 0,
       liquid_amount: num(source.deposito_liquido) ?? num(source.liquid_amount) ?? num(source.final_amount),
       transaction_id: source.idtransaction ?? source.id ?? p.idtransaction ?? p.id ?? source.externalreference ?? null,
