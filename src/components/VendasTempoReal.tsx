@@ -74,12 +74,22 @@ export function VendasTempoReal() {
 
   return (
     <Card className="p-5 mt-8">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Activity className="size-5 text-primary" />
-          <h3 className="font-display text-xl font-bold tracking-tight">Últimas Vendas</h3>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Activity className="size-5 text-primary" />
+            <h3 className="font-display text-xl font-bold tracking-tight">Últimas Transmissões</h3>
+          </div>
+          <p className="text-xs text-muted-foreground">Deve mostrar as últimas transmissões que teve e na parte de últimas vendas a gente vai ter a área de mostrar todas que iara mostrar todoas as transições</p>
         </div>
-        <span className="text-xs text-muted-foreground">Tempo real · últimas 10</span>
+        <div className="flex items-center gap-3">
+          <Button variant="outline" size="sm" className="h-8 text-xs font-bold uppercase tracking-wider">
+            Mostrar Todas
+          </Button>
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted px-2 py-1 rounded">
+            Tempo real
+          </span>
+        </div>
       </div>
 
       {items.length === 0 ? (
