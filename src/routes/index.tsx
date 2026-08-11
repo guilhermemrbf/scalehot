@@ -215,6 +215,17 @@ function Dashboard() {
     cur.lucro += liq - taxaBotPorVenda;
     monthMap.set(k, cur);
   });
+  refunds.forEach((t: any) => {
+    if (!t.created_at) return;
+    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+    const k = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}`;
+    const cur = monthMap.get(k) || { bruto: 0, liquido: 0, lucro: 0 };
+    const val = Number(t.amount || 0);
+    cur.bruto -= val;
+    cur.liquido -= val;
+    cur.lucro -= val;
+    monthMap.set(k, cur);
+  });
   legacyFats.forEach((f: any) => {
     if (!f.data) return;
     const k = String(f.data).slice(0, 7);
