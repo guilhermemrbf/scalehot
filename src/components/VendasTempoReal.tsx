@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
 import { Activity, CheckCircle2, RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
