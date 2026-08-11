@@ -185,6 +185,12 @@ function Dashboard() {
     const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
     dailyMap.set(d, (dailyMap.get(d) || 0) + Number(t.amount || 0));
   });
+  refunds.forEach((t: any) => {
+    if (!t.created_at) return;
+    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+    const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
+    dailyMap.set(d, (dailyMap.get(d) || 0) - Number(t.amount || 0));
+  });
   legacyFats.forEach((f: any) => {
     if (!f.data) return;
     const d = String(f.data);
