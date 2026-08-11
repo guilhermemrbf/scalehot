@@ -358,11 +358,12 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
           if (incErr) console.error("[webhook-receiver] increment_sale_usage error:", incErr);
         }
 
-        if (parsed.type === "cashin") {
+        // Notificações Push para Vendas e Reembolsos
+        if (parsed.type === "cashin" || parsed.type === "refund") {
 
           try {
             const { sendPushToUser } = await import("@/lib/push.server");
-            const valor = parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+            const valor = (parsed.type === "refund" ? "- " : "") + parsed.amount.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
             // Buscar preferências (profiles.notification_preferences)
             const { data: subRow } = await supabaseAdmin
@@ -461,12 +462,13 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
 
             // Notificação padrão "Venda Aprovada"
             if (!milestoneSent && prefs.per_sale !== false) {
+              const isRefund = parsed.type === "refund";
               const pushResult = await sendPushToUser(userId, {
-                title: "💰 Venda Aprovada!",
+                title: isRefund ? "🔄 Reembolso Efetuado" : "💰 Venda Aprovada!",
                 body: valor,
                 tag: parsed.transaction_id ?? undefined,
               });
-              console.log("[webhook-receiver] push=per-sale result:", JSON.stringify(pushResult));
+              console.log(`[webhook-receiver] push=${parsed.type} result:`, JSON.stringify(pushResult));
             } else if (!milestoneSent) {
               console.log("[webhook-receiver] push skipped: per_sale disabled");
             }

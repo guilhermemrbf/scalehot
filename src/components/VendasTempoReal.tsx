@@ -92,7 +92,7 @@ export function VendasTempoReal() {
             <Activity className="size-5 text-primary" />
             <h3 className="font-display text-xl font-bold tracking-tight">Últimas Transmissões</h3>
           </div>
-          <p className="text-xs text-muted-foreground">Deve mostrar as últimas transmissões que teve e na parte de últimas vendas a gente vai ter a área de mostrar todas que iara mostrar todoas as transições</p>
+          <p className="text-xs text-muted-foreground">Mostrando transações de vendas e reembolsos em tempo real.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button 

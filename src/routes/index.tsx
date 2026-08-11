@@ -139,7 +139,8 @@ function Dashboard() {
   const brutoLegacy = legacyFats.reduce((s: number, f: any) => s + Number(f.faturamento_bruto || 0), 0);
   const reembolsosLegacy = legacyFats.reduce((s: number, f: any) => s + Number(f.reembolsos_count || 0), 0);
 
-  const totalBruto = brutoWebhooks + brutoLegacy;
+  const brutoRefunds = refunds.reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
+  const totalBruto = brutoWebhooks + brutoLegacy - brutoRefunds;
   const totalLiquidoGateway = liquidoWebhooks + brutoLegacy;
   const taxaGateway = totalBruto - totalLiquidoGateway;
   const qtdVendas = cashins.length;
@@ -169,8 +170,8 @@ function Dashboard() {
     0
   );
   const totalAnuncios = gastosManuais + totalRepasses;
-
-  const lucroTotal = totalLiquidoGateway - taxaBot - totalImposto - totalAnuncios;
+  const totalLiquidoAposReembolsos = totalLiquidoGateway - brutoRefunds;
+  const lucroTotal = totalLiquidoAposReembolsos - taxaBot - totalImposto - totalAnuncios;
   const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
   const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
 
@@ -183,6 +184,12 @@ function Dashboard() {
     const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
     const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
     dailyMap.set(d, (dailyMap.get(d) || 0) + Number(t.amount || 0));
+  });
+  refunds.forEach((t: any) => {
+    if (!t.created_at) return;
+    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+    const d = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}-${String(sp.getUTCDate()).padStart(2, "0")}`;
+    dailyMap.set(d, (dailyMap.get(d) || 0) - Number(t.amount || 0));
   });
   legacyFats.forEach((f: any) => {
     if (!f.data) return;
@@ -206,6 +213,17 @@ function Dashboard() {
     cur.bruto += bruto;
     cur.liquido += liq;
     cur.lucro += liq - taxaBotPorVenda;
+    monthMap.set(k, cur);
+  });
+  refunds.forEach((t: any) => {
+    if (!t.created_at) return;
+    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
+    const k = `${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}`;
+    const cur = monthMap.get(k) || { bruto: 0, liquido: 0, lucro: 0 };
+    const val = Number(t.amount || 0);
+    cur.bruto -= val;
+    cur.liquido -= val;
+    cur.lucro -= val;
     monthMap.set(k, cur);
   });
   legacyFats.forEach((f: any) => {
