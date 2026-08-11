@@ -462,12 +462,13 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
 
             // Notificação padrão "Venda Aprovada"
             if (!milestoneSent && prefs.per_sale !== false) {
+              const isRefund = parsed.type === "refund";
               const pushResult = await sendPushToUser(userId, {
-                title: "💰 Venda Aprovada!",
+                title: isRefund ? "🔄 Reembolso Efetuado" : "💰 Venda Aprovada!",
                 body: valor,
                 tag: parsed.transaction_id ?? undefined,
               });
-              console.log("[webhook-receiver] push=per-sale result:", JSON.stringify(pushResult));
+              console.log(`[webhook-receiver] push=${parsed.type} result:`, JSON.stringify(pushResult));
             } else if (!milestoneSent) {
               console.log("[webhook-receiver] push skipped: per_sale disabled");
             }
