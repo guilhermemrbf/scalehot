@@ -47,16 +47,21 @@ export function VendasTempoReal() {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*", // Changed from INSERT to * to catch updates and deletions if needed, but primarily to ensure we catch everything
           schema: "public",
           table: "transactions",
           filter: `user_id=eq.${user.id}`,
         },
-        (payload) => {
-          const tx = payload.new as Tx;
-          setItems((prev) => [tx, ...prev].slice(0, 10));
-          setHighlight(tx.id);
-          setTimeout(() => setHighlight(null), 1500);
+        () => {
+          // Invalidate and refetch is safer than manual splicing for complex status changes
+          (async () => {
+            const { data } = await supabase
+              .from("transactions" as any)
+              .select("*")
+              .order("created_at", { ascending: false })
+              .limit(10);
+            if (mounted && data) setItems(data as any);
+          })();
         }
       )
       .subscribe();
