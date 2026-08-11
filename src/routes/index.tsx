@@ -159,7 +159,7 @@ function Dashboard() {
   });
   const totalImposto = mesesComVendas.size * impostoMensal;
 
-  const gastosManuais = gastos.reduce((s, g) => s + Number(g.valor), 0);
+  const gastosManuais = gastos.reduce((s: number, g: any) => s + Number(g.valor), 0);
   const totalReembolsos = refunds.length + reembolsosLegacy;
 
   // Vendas aprovadas para o painel da equipe → repasse aos divulgadores, contabilizado em anúncios

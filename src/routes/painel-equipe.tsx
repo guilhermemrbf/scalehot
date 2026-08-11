@@ -84,9 +84,12 @@ function PainelEquipeAdmin() {
     (t) => !t.employee_visible || !selectedClientId || t.employee_client_id === selectedClientId
   );
   const filtered = scoped.filter((t) => filter === "all" ? true : filter === "visible" ? t.employee_visible : !t.employee_visible);
-  const cashins = scoped.filter((t) => t.type !== "refund");
-  const approved = cashins.filter((t) => t.employee_visible);
-  const pending = cashins.filter((t) => !t.employee_visible);
+  
+  // Inclui reembolsos (MED) nas contagens se necessário, mas separa cashins para KPIs de venda
+  const allTxs = scoped;
+  const cashins = scoped.filter((t) => t.type === "cashin");
+  const approved = allTxs.filter((t) => t.employee_visible);
+  const pending = allTxs.filter((t) => !t.employee_visible);
   const sumApproved = approved.reduce((s, t) => s + Number(t.amount || 0), 0);
   const sumPending = pending.reduce((s, t) => s + Number(t.amount || 0), 0);
   const visibleCount = approved.length;
