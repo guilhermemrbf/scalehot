@@ -115,8 +115,7 @@ function AuthGate({ children }: { children: ReactNode }) {
     if (!user && !isPublicRoute) {
       navigate({ to: "/login", replace: true });
     }
-    // Se estiver logado mas tentar acessar o painel de cliente, redireciona pro dashboard principal
-    // (A menos que queiramos permitir que o admin também veja o painel de cliente)
+
   }, [user, loading, isPublicRoute, navigate]);
 
   useEffect(() => {
