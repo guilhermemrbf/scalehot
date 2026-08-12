@@ -65,7 +65,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
               <Lock className="size-6 text-primary" />
             </div>
             <h1 className="font-display text-2xl font-bold tracking-tight">Painel da Equipe</h1>
-            <p className="text-sm text-muted-foreground mt-1">Digite a senha compartilhada para acessar.</p>
+            <p className="text-sm text-muted-foreground mt-1">Como faço para que ele tenha acesso apenas ao painel dele? Posso enviar o link normal e já funcionará tudo normalmente ou preciso seguir alguma regra?</p>
           </div>
           <form
             onSubmit={(e) => { e.preventDefault(); if (password) doUnlock.mutate(); }}
