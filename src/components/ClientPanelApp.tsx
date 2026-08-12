@@ -142,7 +142,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
               ))}
             </div>
 
-            <InstallAppCard />
+            <InstallAppCard slug={slug} />
 
             <Card className="p-5 mt-6">
               <div className="flex items-center gap-2 mb-4">
@@ -445,7 +445,7 @@ function WithdrawalSection() {
   );
 }
 
-function InstallAppCard() {
+function InstallAppCard({ slug }: { slug?: string }) {
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
   const isIOS = /iPad|iPhone|iPod/.test(ua);
   const [defaultTab, setDefaultTab] = useState<"ios" | "android">(isIOS ? "ios" : "android");

@@ -106,11 +106,17 @@ function AuthGate({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { pathname } = useLocation();
 
-  const isPublicRoute = pathname === "/login" || pathname === "/painel" || pathname.startsWith("/painel/");
+  const isPanelRoute = pathname === "/painel" || pathname === "/painel/" || pathname.startsWith("/painel/");
+  const isPublicRoute = pathname === "/login" || isPanelRoute;
 
   useEffect(() => {
     if (loading) return;
-    if (!user && !isPublicRoute) navigate({ to: "/login", replace: true });
+    // Se estiver em uma rota administrativa e não estiver logado, vai pro login
+    if (!user && !isPublicRoute) {
+      navigate({ to: "/login", replace: true });
+    }
+    // Se estiver logado mas tentar acessar o painel de cliente, redireciona pro dashboard principal
+    // (A menos que queiramos permitir que o admin também veja o painel de cliente)
   }, [user, loading, isPublicRoute, navigate]);
 
   useEffect(() => {
