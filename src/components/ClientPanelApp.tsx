@@ -65,7 +65,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
               <Lock className="size-6 text-primary" />
             </div>
             <h1 className="font-display text-2xl font-bold tracking-tight">Painel da Equipe</h1>
-            <p className="text-sm text-muted-foreground mt-1">Como faço para que ele tenha acesso apenas ao painel dele? Posso enviar o link normal e já funcionará tudo normalmente ou preciso seguir alguma regra?</p>
+            <p className="text-sm text-muted-foreground mt-1">Cada painel que for criado para outros clientes, no caso, se eu criar outros pra-- painéis pra outros clientes, vai funcionar da mesma forma também? Só enviar o link e já vai funcionar? Ou preciso fazer outro procedimento?</p>
           </div>
           <form
             onSubmit={(e) => { e.preventDefault(); if (password) doUnlock.mutate(); }}
