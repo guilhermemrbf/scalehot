@@ -2,10 +2,11 @@
   "name": "ScaleUp",
   "short_name": "ScaleUp",
   "description": "Infraestrutura para crescimento digital",
-  "start_url": "/",
+  "start_url": "/painel",
   "display": "standalone",
   "background_color": "#0f0f1a",
   "theme_color": "#7c3aed",
+  "scope": "/painel",
   "orientation": "portrait",
   "icons": [
     { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
