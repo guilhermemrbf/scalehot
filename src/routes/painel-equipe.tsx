@@ -23,6 +23,7 @@ import {
   type EmployeeClient,
 } from "@/lib/employee-panel.functions";
 import { listWithdrawalRequests, decideWithdrawal } from "@/lib/withdrawals.functions";
+import { getClientPanelMetrics } from "@/lib/finance.functions";
 
 export const Route = createFileRoute("/painel-equipe")({
   head: () => ({
