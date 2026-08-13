@@ -581,7 +581,52 @@ export type Database = {
     }
     Functions: {
       can_process_sale: { Args: { _user_id: string }; Returns: boolean }
+      get_available_balance: {
+        Args: { _client_id?: string; _user_id: string }
+        Returns: number
+      }
+      get_client_panel_metrics: {
+        Args: { _client_id?: string; _owner_id: string }
+        Returns: {
+          faturamento_liquido: number
+          lucro: number
+          qtd_pendentes: number
+          qtd_vendas: number
+          saldo_disponivel: number
+          saques_pagos: number
+          saques_pendentes: number
+          taxa_media_pct: number
+          total_imposto: number
+          total_pendente: number
+          total_reembolsos: number
+          total_taxas: number
+        }[]
+      }
+      get_dashboard_metrics: {
+        Args: { _periodo?: string; _user_id: string }
+        Returns: {
+          lucro_total: number
+          qtd_reembolsos: number
+          qtd_vendas: number
+          roi: number
+          taxa_bot: number
+          taxa_gateway: number
+          taxa_media_pct: number
+          total_anuncios: number
+          total_bruto: number
+          total_imposto: number
+          total_liquido: number
+          total_reembolsos: number
+          total_taxas: number
+        }[]
+      }
       increment_sale_usage: { Args: { _user_id: string }; Returns: undefined }
+      period_start_utc: {
+        Args: { _periodo: string; _ref?: string }
+        Returns: string
+      }
+      to_brt_date: { Args: { _ts: string }; Returns: string }
+      to_brt_month: { Args: { _ts: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
