@@ -29,6 +29,7 @@ function Dashboard() {
   const [periodo, setPeriodo] = useState<"hoje" | "mes" | "total">("mes");
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
+  const loadMetrics = useServerFn(getDashboardMetrics);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -44,6 +45,12 @@ function Dashboard() {
   const { data: config } = useQuery({
     queryKey: ["configuracoes"],
     queryFn: async () => (await supabase.from("configuracoes").select("*").limit(1).single()).data,
+  });
+
+  const { data: metrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ["dashboard_metrics", periodo],
+    queryFn: () => loadMetrics({ data: { periodo } }),
+    enabled: !!user,
   });
 
   const impostoMensal = Number((config as any)?.imposto_fixo ?? 0);
