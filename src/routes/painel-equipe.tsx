@@ -345,7 +345,10 @@ function WithdrawalAdminSection() {
   const { data: items = [] } = useQuery({
     queryKey: ["admin-withdrawals"],
     queryFn: () => list(),
-    refetchInterval: 15_000,
+    // Economia: só atualiza a cada 2 min e apenas com a aba em foco.
+    refetchInterval: 120_000,
+    refetchIntervalInBackground: false,
+    staleTime: 60_000,
   });
 
   const [filter, setFilter] = useState<"pending" | "approved" | "rejected" | "all">("pending");
