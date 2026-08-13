@@ -69,7 +69,7 @@ export const getAvailableBalance = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: balance, error } = await context.supabase.rpc("get_available_balance", {
       _user_id: context.userId,
-      _client_id: data.clientId ?? null,
+      _client_id: data.clientId ?? undefined,
     });
     if (error) throw new Error(error.message);
     return Number(balance ?? 0);
