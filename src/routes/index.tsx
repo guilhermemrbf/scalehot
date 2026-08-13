@@ -266,7 +266,7 @@ function Dashboard() {
     <AppLayout>
       <PageHeader 
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
-        subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
+        subtitle="mover toda a lógica financeira saldo, lucro, taxas, impostos, saques e etc"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
