@@ -266,7 +266,7 @@ function Dashboard() {
     <AppLayout>
       <PageHeader 
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
-        subtitle="porque ele esta pausado?"
+        subtitle="Forneça uma explicação técnica detalhada e didática sobre o funcionamento deste código. Descreva o papel de cada função, componente e lógica de negócio, facilitando a compreensão do fluxo de dados e a arquitetura da solução para outros desenvolvedores."
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
