@@ -108,7 +108,7 @@ export const getEmployeePanelData = createServerFn({ method: "POST" })
 
     const [{ data: txs, error: e1 }, { data: metricsRows, error: e2 }] = await Promise.all([
       txQ,
-      supabaseAdmin.rpc("get_client_panel_metrics", { _owner_id: ownerId, _client_id: clientId ?? null }),
+      supabaseAdmin.rpc("get_client_panel_metrics", { _owner_id: ownerId, _client_id: clientId ?? undefined }),
     ]);
     if (e1) throw new Error(e1.message);
     if (e2) throw new Error(e2.message);
