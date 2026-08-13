@@ -23,6 +23,7 @@ import {
   type EmployeeClient,
 } from "@/lib/employee-panel.functions";
 import { listWithdrawalRequests, decideWithdrawal } from "@/lib/withdrawals.functions";
+import { getClientPanelMetrics } from "@/lib/finance.functions";
 
 export const Route = createFileRoute("/painel-equipe")({
   head: () => ({
@@ -79,6 +80,13 @@ function PainelEquipeAdmin() {
     refetchInterval: 15_000,
   });
 
+  const loadMetrics = useServerFn(getClientPanelMetrics);
+  const { data: metrics } = useQuery({
+    queryKey: ["client-panel-metrics", selectedClientId],
+    queryFn: () => loadMetrics({ data: { clientId: selectedClientId } }),
+    enabled: !!selectedClientId,
+  });
+
   // Vendas do cliente selecionado: aprovadas dele + todas as pendentes (ainda sem cliente)
   const scoped = txs.filter(
     (t) => !t.employee_visible || !selectedClientId || t.employee_client_id === selectedClientId
@@ -94,15 +102,11 @@ function PainelEquipeAdmin() {
   const sumPending = pending.reduce((s, t) => s + Number(t.amount || 0), 0);
   const visibleCount = approved.length;
 
-  const clientWds = selectedClientId
-    ? withdrawals.filter((w) => w.employee_client_id === selectedClientId)
-    : withdrawals;
-
-  // Saldo do cliente = líquido das vendas aprovadas − saques pagos
-  const liquidoAprovado = approved.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
-  const saquesPagos = clientWds.filter((w) => w.status === "approved").reduce((s, w) => s + Number(w.amount || 0), 0);
-  const saquesPendentes = clientWds.filter((w) => w.status === "pending").reduce((s, w) => s + Number(w.amount || 0), 0);
-  const saldoCliente = Math.max(0, liquidoAprovado - saquesPagos);
+  // Valores financeiros centralizados no Supabase
+  const liquidoAprovado = metrics?.faturamento_liquido ?? 0;
+  const saquesPagos = metrics?.saques_pagos ?? 0;
+  const saquesPendentes = metrics?.saques_pendentes ?? 0;
+  const saldoCliente = metrics?.saldo_disponivel ?? 0;
 
   return (
     <AppLayout>

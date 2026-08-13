@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { AppLayout } from "@/components/AppLayout";
@@ -15,6 +16,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/auth";
 import { VendasTempoReal } from "@/components/VendasTempoReal";
+import { getDashboardMetrics } from "@/lib/finance.functions";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [{ title: "Dashboard — ScaleUp" }] }),
@@ -27,6 +29,7 @@ function Dashboard() {
   const [periodo, setPeriodo] = useState<"hoje" | "mes" | "total">("mes");
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
+  const loadMetrics = useServerFn(getDashboardMetrics);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -42,6 +45,12 @@ function Dashboard() {
   const { data: config } = useQuery({
     queryKey: ["configuracoes"],
     queryFn: async () => (await supabase.from("configuracoes").select("*").limit(1).single()).data,
+  });
+
+  const { data: metrics, isLoading: metricsLoading } = useQuery({
+    queryKey: ["dashboard_metrics", periodo],
+    queryFn: () => loadMetrics({ data: { periodo } }),
+    enabled: !!user,
   });
 
   const impostoMensal = Number((config as any)?.imposto_fixo ?? 0);
@@ -140,40 +149,39 @@ function Dashboard() {
   const reembolsosLegacy = legacyFats.reduce((s: number, f: any) => s + Number(f.reembolsos_count || 0), 0);
 
   const brutoRefunds = refunds.reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
-  const totalBruto = brutoWebhooks + brutoLegacy - brutoRefunds;
-  const totalLiquidoGateway = liquidoWebhooks + brutoLegacy;
-  const taxaGateway = totalBruto - totalLiquidoGateway;
-  const qtdVendas = cashins.length;
-  const taxaBot = qtdVendas * taxaBotPorVenda;
-  const totalTaxas = taxaGateway + taxaBot;
 
-  // Meses únicos com qualquer movimento → imposto fixo aplicado uma vez por mês
-  const mesesComVendas = new Set<string>();
-  cashins.forEach((t: any) => {
-    if (!t.created_at) return;
-    const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
-    mesesComVendas.add(`${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}`);
-  });
-  legacyFats.forEach((f: any) => {
-    if (!f.data) return;
-    mesesComVendas.add(String(f.data).slice(0, 7));
-  });
-  const totalImposto = mesesComVendas.size * impostoMensal;
+  // Métricas principais agora calculadas no banco via RPC
+  const m = metrics ?? {
+    total_bruto: 0,
+    total_liquido: 0,
+    taxa_gateway: 0,
+    taxa_bot: 0,
+    total_taxas: 0,
+    total_imposto: 0,
+    total_anuncios: 0,
+    total_reembolsos: 0,
+    qtd_vendas: 0,
+    qtd_reembolsos: 0,
+    lucro_total: 0,
+    roi: 0,
+    taxa_media_pct: 0,
+  };
 
-  const gastosManuais = gastos.reduce((s: number, g: any) => s + Number(g.valor), 0);
-  const totalReembolsos = refunds.length + reembolsosLegacy;
-
-  // Vendas aprovadas para o painel da equipe → repasse aos divulgadores, contabilizado em anúncios
-  const aprovadas = cashins.filter((t: any) => t.employee_visible);
-  const totalRepasses = aprovadas.reduce(
-    (s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0),
-    0
-  );
-  const totalAnuncios = gastosManuais + totalRepasses;
-  const totalLiquidoAposReembolsos = totalLiquidoGateway - brutoRefunds;
-  const lucroTotal = totalLiquidoAposReembolsos - taxaBot - totalImposto - totalAnuncios;
-  const taxaMedia = totalBruto > 0 ? (totalTaxas / totalBruto) * 100 : 0;
-  const roi = totalAnuncios > 0 ? (lucroTotal / totalAnuncios) : 0;
+  const totalBruto = Number(m.total_bruto);
+  const totalLiquidoGateway = Number(m.total_liquido);
+  const taxaGateway = Number(m.taxa_gateway);
+  const taxaBot = Number(m.taxa_bot);
+  const totalTaxas = Number(m.total_taxas);
+  const totalImposto = Number(m.total_imposto);
+  const totalAnuncios = Number(m.total_anuncios);
+  const totalReembolsos = Number(m.total_reembolsos);
+  const totalRepasses = cashins
+    .filter((t: any) => t.employee_visible)
+    .reduce((s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
+  const qtdVendas = Number(m.qtd_vendas);
+  const lucroTotal = Number(m.lucro_total);
+  const roi = Number(m.roi);
+  const taxaMedia = Number(m.taxa_media_pct);
 
 
 
@@ -266,7 +274,7 @@ function Dashboard() {
     <AppLayout>
       <PageHeader 
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
-        subtitle="Centralizar os cálculos financeiros (taxas, impostos, lucro real e ROI) em funções SQL no Supabase para reduzir a lógica no frontend. e todo o frontend"
+        subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">

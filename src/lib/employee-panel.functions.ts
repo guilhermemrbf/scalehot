@@ -106,68 +106,46 @@ export const getEmployeePanelData = createServerFn({ method: "POST" })
       .limit(500);
     if (clientId) txQ = txQ.eq("employee_client_id", clientId);
 
-    let wdQ = supabaseAdmin
-      .from("withdrawal_requests" as any)
-      .select("amount, status")
-      .eq("user_id", ownerId)
-      .in("status", ["pending", "approved"]);
-    if (clientId) wdQ = wdQ.eq("employee_client_id", clientId);
-
-    const [{ data: txs, error: e1 }, { data: cfg, error: e2 }, { data: wds, error: e3 }] = await Promise.all([
+    const [{ data: txs, error: e1 }, { data: metricsRows, error: e2 }] = await Promise.all([
       txQ,
-      supabaseAdmin
-        .from("configuracoes" as any)
-        .select("imposto_fixo, taxa_bot_fixa")
-        .eq("user_id", ownerId)
-        .maybeSingle(),
-      wdQ,
+      supabaseAdmin.rpc("get_client_panel_metrics", { _owner_id: ownerId, _client_id: clientId ?? undefined }),
     ]);
     if (e1) throw new Error(e1.message);
     if (e2) throw new Error(e2.message);
-    if (e3) throw new Error(e3.message);
 
     const all = (txs ?? []) as unknown as Array<{
       id: string; type: string; amount: number; liquid_amount: number | null;
       client_name: string | null; gateway: string; created_at: string; employee_visible: boolean;
     }>;
     const list = all.filter((t) => t.employee_visible);
-    const imposto = Number((cfg as any)?.imposto_fixo ?? 0);
-    const taxaBotPorVenda = Number((cfg as any)?.taxa_bot_fixa ?? 0);
+    const m = (metricsRows as any[])?.[0] ?? {
+      faturamento_liquido: 0,
+      lucro: 0,
+      total_taxas: 0,
+      total_imposto: 0,
+      total_reembolsos: 0,
+      qtd_vendas: 0,
+      qtd_pendentes: 0,
+      total_pendente: 0,
+      saques_pagos: 0,
+      saques_pendentes: 0,
+      saldo_disponivel: 0,
+      taxa_media_pct: 0,
+    };
 
-    const cashins = list.filter((t) => t.type === "cashin");
-    const refunds = list.filter((t) => t.type === "refund");
-    const pendentes = all.filter((t) => !t.employee_visible && t.type === "cashin");
-
-    const bruto = cashins.reduce((s, t) => s + Number(t.amount || 0), 0);
-    const liquidoGateway = cashins.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
-    const taxaGateway = bruto - liquidoGateway;
-    const qtd = cashins.length;
-    const taxaBot = qtd * taxaBotPorVenda;
-    const totalTaxas = taxaGateway + taxaBot;
-    const totalPendente = pendentes.reduce((s, t) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
-
-    const meses = new Set<string>();
-    cashins.forEach((t) => {
-      if (!t.created_at) return;
-      const sp = new Date(new Date(t.created_at).getTime() - 3 * 60 * 60 * 1000);
-      meses.add(`${sp.getUTCFullYear()}-${String(sp.getUTCMonth() + 1).padStart(2, "0")}`);
-    });
-    const totalImposto = meses.size * imposto;
-
-    const faturamentoLiquido = liquidoGateway;
-    // No painel do cliente, lucro nunca é negativo — reflete apenas o valor recebido líquido do gateway.
-    const lucro = Math.max(0, faturamentoLiquido);
+    const faturamentoLiquido = Number(m.faturamento_liquido);
+    const lucro = Number(m.lucro);
+    const totalTaxas = Number(m.total_taxas);
+    const totalImposto = Number(m.total_imposto);
+    const totalReembolsos = Number(m.total_reembolsos);
+    const qtd = Number(m.qtd_vendas);
+    const qtdPendentes = Number(m.qtd_pendentes);
+    const totalPendente = Number(m.total_pendente);
+    const saquesPagos = Number(m.saques_pagos);
+    const saquesPendentes = Number(m.saques_pendentes);
+    const saldoDisponivel = Number(m.saldo_disponivel);
+    const taxaMediaPct = Number(m.taxa_media_pct);
     const roi = 0; // gastos com anúncios não expostos no painel
-
-    const saques = (wds ?? []) as unknown as Array<{ amount: number; status: string }>;
-    const saquesPagos = saques
-      .filter((w) => w.status === "approved")
-      .reduce((s, w) => s + Number(w.amount || 0), 0);
-    const saquesPendentes = saques
-      .filter((w) => w.status === "pending")
-      .reduce((s, w) => s + Number(w.amount || 0), 0);
-    // Só saques já pagos (aprovados) reduzem o saldo; pendentes ficam apenas informativos.
-    const saldoDisponivel = Math.max(0, lucro - saquesPagos);
 
     return {
       locked: false as const,
@@ -178,13 +156,13 @@ export const getEmployeePanelData = createServerFn({ method: "POST" })
         roi,
         totalTaxas,
         totalImposto,
-        totalReembolsos: refunds.length,
+        totalReembolsos,
         qtdVendas: qtd,
-        taxaMediaPct: bruto > 0 ? (totalTaxas / bruto) * 100 : 0,
+        taxaMediaPct,
         saldoDisponivel,
         saquesPagos,
         saquesPendentes,
-        qtdPendentes: pendentes.length,
+        qtdPendentes,
         totalPendente,
         totalTransacoes: all.length,
       },
