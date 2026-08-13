@@ -40,7 +40,7 @@ export const getClientPanelMetrics = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase.rpc("get_client_panel_metrics", {
       _owner_id: context.userId,
-      _client_id: data.clientId ?? null,
+      _client_id: data.clientId ?? undefined,
     });
     if (error) throw new Error(error.message);
     const row = (rows as any[])?.[0];
