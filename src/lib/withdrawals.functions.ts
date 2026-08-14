@@ -26,7 +26,7 @@ export const requestWithdrawal = createServerFn({ method: "POST" })
   .inputValidator((d: { amount: number; requesterName: string; pixKey: string; note?: string }) =>
     z
       .object({
-        amount: z.number().positive().max(10_000_000),
+        amount: z.number().min(50, "O valor mínimo para saque é R$ 50,00").max(10_000_000),
         requesterName: z.string().trim().min(1).max(120),
         pixKey: z.string().trim().min(3).max(200),
         note: z.string().trim().max(500).optional(),

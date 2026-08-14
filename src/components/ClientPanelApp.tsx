@@ -197,7 +197,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
             <HeroCard
               label="Saldo disponível para saque"
               value={brl(k.saldoDisponivel)}
-              caption="valor liberado após taxas e saques"
+              caption="valor liberado após taxas e saques · saque mín. R$ 50,00"
               icon={Wallet}
               tone="success"
             />
