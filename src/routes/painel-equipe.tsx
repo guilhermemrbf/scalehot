@@ -490,7 +490,9 @@ function ClientsManager({ clients }: { clients: EmployeeClient[] }) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [show, setShow] = useState(false);
+  const [nameEdits, setNameEdits] = useState<Record<string, string>>({});
   const [edits, setEdits] = useState<Record<string, string>>({});
+  const [reveal, setReveal] = useState<Record<string, boolean>>({});
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ["employee-clients"] });
 
@@ -501,8 +503,8 @@ function ClientsManager({ clients }: { clients: EmployeeClient[] }) {
   });
 
   const updateMut = useMutation({
-    mutationFn: async (v: { id: string; password?: string; active?: boolean }) => update({ data: v }),
-    onSuccess: () => { toast.success("Cliente atualizado."); invalidate(); },
+    mutationFn: async (v: { id: string; name?: string; password?: string; active?: boolean }) => update({ data: v }),
+    onSuccess: () => { toast.success("Painel atualizado."); invalidate(); },
     onError: (e: Error) => toast.error(e.message),
   });
 
@@ -517,8 +519,8 @@ function ClientsManager({ clients }: { clients: EmployeeClient[] }) {
       <div className="flex items-center gap-3 mb-5">
         <div className="size-10 rounded-xl bg-primary/15 grid place-items-center"><Users className="size-5 text-primary" /></div>
         <div>
-          <h3 className="font-display font-semibold">Clientes / painéis</h3>
-          <p className="text-xs text-muted-foreground">Cada cliente tem link e senha próprios.</p>
+          <h3 className="font-display font-semibold">Painéis criados</h3>
+          <p className="text-xs text-muted-foreground">Edite nome e senha de cada painel. {clients.length} painel(is).</p>
         </div>
       </div>
 
@@ -526,45 +528,75 @@ function ClientsManager({ clients }: { clients: EmployeeClient[] }) {
         {clients.length === 0 && (
           <p className="text-sm text-muted-foreground">Nenhum cliente ainda. Crie o primeiro abaixo.</p>
         )}
-        {clients.map((c) => (
-          <div key={c.id} className="p-3 rounded-lg border bg-card/60">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <p className="font-medium truncate">{c.name}</p>
-                <p className="text-xs text-muted-foreground font-mono truncate">/painel/{c.slug}</p>
+        {clients.map((c) => {
+          const nameVal = nameEdits[c.id] ?? c.name;
+          const passVal = edits[c.id] ?? c.password;
+          const dirty = nameVal.trim() !== c.name || passVal !== c.password;
+          const valid = nameVal.trim().length >= 1 && passVal.length >= 4;
+          const link = `${typeof window !== "undefined" ? window.location.origin : ""}/painel/${c.slug}`;
+          return (
+            <div key={c.id} className="p-4 rounded-xl border bg-card/60 space-y-3">
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs text-muted-foreground font-mono truncate pt-1">/painel/{c.slug}</p>
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button variant="outline" size="sm" onClick={() => { navigator.clipboard.writeText(link); toast.success("Link copiado."); }}>
+                    <Copy className="size-4" />
+                  </Button>
+                  <Switch checked={c.active} onCheckedChange={(v) => updateMut.mutate({ id: c.id, active: v })} />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => { if (confirm(`Remover o painel de ${c.name}?`)) removeMut.mutate(c.id); }}
+                  >
+                    <Trash2 className="size-4" />
+                  </Button>
+                </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Switch
-                  checked={c.active}
-                  onCheckedChange={(v) => updateMut.mutate({ id: c.id, active: v })}
-                />
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Nome</Label>
+                  <Input
+                    value={nameVal}
+                    onChange={(e) => setNameEdits((s) => ({ ...s, [c.id]: e.target.value }))}
+                    className="h-9"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Senha</Label>
+                  <div className="relative">
+                    <Input
+                      type={reveal[c.id] ? "text" : "password"}
+                      value={passVal}
+                      onChange={(e) => setEdits((s) => ({ ...s, [c.id]: e.target.value }))}
+                      className="h-9 pr-10"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setReveal((s) => ({ ...s, [c.id]: !s[c.id] }))}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                    >
+                      {reveal[c.id] ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
                 <Button
-                  variant="outline"
                   size="sm"
-                  onClick={() => { if (confirm(`Remover o painel de ${c.name}?`)) removeMut.mutate(c.id); }}
+                  variant="outline"
+                  disabled={!dirty || !valid || updateMut.isPending}
+                  onClick={() => updateMut.mutate({ id: c.id, name: nameVal.trim(), password: passVal })}
                 >
-                  <Trash2 className="size-4" />
+                  <Save className="size-4 mr-2" /> Salvar
                 </Button>
               </div>
             </div>
-            <div className="flex gap-2 mt-2">
-              <Input
-                value={edits[c.id] ?? c.password}
-                onChange={(e) => setEdits((s) => ({ ...s, [c.id]: e.target.value }))}
-                className="h-9"
-              />
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={(edits[c.id] ?? c.password).length < 4}
-                onClick={() => updateMut.mutate({ id: c.id, password: edits[c.id] ?? c.password })}
-              >
-                <Save className="size-4" />
-              </Button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
+
 
       <div className="space-y-2 pt-4 border-t border-border/60">
         <Label>Novo cliente</Label>
