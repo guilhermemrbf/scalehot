@@ -12,7 +12,7 @@ function getSessionConfig() {
     password,
     name: "scaleup-employee-panel",
     maxAge: 60 * 60 * 24 * 7,
-    cookie: { httpOnly: true, secure: true, sameSite: "none" as const, path: "/" },
+    cookie: { httpOnly: true, secure: true, sameSite: "none" as const, path: "/", domain: process.env.VITE_DEV_SERVER_DOMAIN || undefined },
   };
 }
 
