@@ -36,7 +36,11 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
     onSuccess: (r) => {
       if (r.ok) {
         setPassword("");
-        qc.invalidateQueries({ queryKey: ["employee-panel"] });
+        if (r.slug) {
+          window.location.href = `/painel/${r.slug}`;
+        } else {
+          qc.invalidateQueries({ queryKey: ["employee-panel"] });
+        }
       } else {
         toast.error("Senha incorreta.");
       }
