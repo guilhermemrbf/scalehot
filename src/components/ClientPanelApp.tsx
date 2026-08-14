@@ -64,7 +64,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
             <div className="size-14 rounded-2xl bg-primary/15 grid place-items-center mb-3">
               <Lock className="size-6 text-primary" />
             </div>
-            <h1 className="font-display text-2xl font-bold tracking-tight">Painel da Equipe</h1>
+            <h1 className="font-display text-2xl font-bold tracking-tight">Gateway de Vendas</h1>
             <p className="text-sm text-muted-foreground mt-1">vamos transformar todo o painel do cliente transformando ele em um Gateway basicamente onde eu vou ter o controle de tudo pelo meu painel aprovando as vendas Como já era antes então toda a vida que eu colocar como aprovada por exemplo pelo cliente 01 e toda a venda que eu colocar aprovada para o cliente 02 já vai aparecer no saldo de cada painel</p>
           </div>
           <form
