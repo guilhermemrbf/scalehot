@@ -143,7 +143,16 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         {tab === "home" ? (
           <>
+            <div className="mb-5">
+              <p className="font-display text-2xl font-bold tracking-tight">
+                {greetingPrefix()}
+                {data.clientName ? `, ${data.clientName}` : ""}!
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">Aqui está o resumo da sua conta.</p>
+            </div>
+
             <HeroCard
+
               label="Faturamento do mês"
               value={brl(k.faturamentoLiquido)}
               caption={`${k.qtdVendas} vendas aprovadas · líquido após taxas`}
