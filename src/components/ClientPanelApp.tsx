@@ -202,6 +202,46 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
               tone="success"
             />
 
+            {k.saldoDisponivel >= 50 && (
+              <Card className="p-6 bg-gradient-card mt-4 border-primary/20">
+                <div className="flex flex-col items-center text-center gap-4">
+                  <div className="size-12 rounded-full bg-primary/10 grid place-items-center text-primary">
+                    <Send className="size-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-display font-bold">Solicitar Saque</h3>
+                    <p className="text-sm text-muted-foreground">Você atingiu o valor mínimo para retirada.</p>
+                  </div>
+                  <Button 
+                    className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
+                    onClick={() => {
+                      // O usuário solicitou que apenas apareça no painel dele para aprovar
+                      toast.promise(
+                        (async () => {
+                          const req = await import("@/lib/withdrawals.functions");
+                          return req.requestWithdrawal({ 
+                            data: { 
+                              amount: k.saldoDisponivel,
+                              requesterName: data.clientName || "Cliente",
+                              pixKey: "Consultar com o cliente",
+                              note: "Solicitação via botão de saque"
+                            } 
+                          });
+                        })(),
+                        {
+                          loading: 'Enviando pedido...',
+                          success: 'Pedido enviado com sucesso!',
+                          error: 'Erro ao enviar pedido.',
+                        }
+                      );
+                    }}
+                  >
+                    Confirmar Saque de {brl(k.saldoDisponivel)}
+                  </Button>
+                </div>
+              </Card>
+            )}
+
             <div className="grid grid-cols-2 gap-3 mt-4">
               <MiniStat
                 label="Vendas pendentes"
