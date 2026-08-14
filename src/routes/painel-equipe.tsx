@@ -114,8 +114,8 @@ function PainelEquipeAdmin() {
   return (
     <AppLayout>
       <PageHeader
-        title="Painel da Equipe"
-        subtitle="Crie um painel por cliente e aprove cada venda para o cliente correto"
+        title="Gestão do Gateway"
+        subtitle="Controle e aprove as vendas para cada cliente do seu gateway"
       />
 
       {clients.length > 0 && (
