@@ -5,9 +5,9 @@ export async function sendPushToUser(
   userId: string,
   payload: { title: string; body: string; subtitle?: string; url?: string; tag?: string; subscriptionId?: string; icon?: string }
 ) {
-  const apiKey = process.env.ONESIGNAL_REST_API_KEY;
-  if (!apiKey) {
-    console.error("[push] ONESIGNAL_REST_API_KEY not configured");
+  const apiKey = process.env.ONESIGNAL_REST_API_KEY || "os_v2_app_xxxxxxxxxxxxxxxxxxxxxxxx";
+  if (!apiKey || apiKey.includes("xxxx")) {
+    console.error("[push] ONESIGNAL_REST_API_KEY not configured or using placeholder");
     return { ok: false, reason: "not-configured" };
   }
   try {
