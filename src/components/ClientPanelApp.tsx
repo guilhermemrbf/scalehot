@@ -36,6 +36,15 @@ import { listMyWithdrawals } from "@/lib/withdrawals.functions";
 
 type Tab = "home" | "saque";
 
+function greetingPrefix() {
+  const h = Number(
+    new Intl.DateTimeFormat("pt-BR", { hour: "numeric", hour12: false, timeZone: "America/Sao_Paulo" }).format(new Date())
+  );
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
 export function ClientPanelApp({ slug }: { slug?: string }) {
   const qc = useQueryClient();
   const load = useServerFn(getEmployeePanelData);
