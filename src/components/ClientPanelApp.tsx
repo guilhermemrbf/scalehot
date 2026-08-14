@@ -36,6 +36,15 @@ import { listMyWithdrawals } from "@/lib/withdrawals.functions";
 
 type Tab = "home" | "saque";
 
+function greetingPrefix() {
+  const h = Number(
+    new Intl.DateTimeFormat("pt-BR", { hour: "numeric", hour12: false, timeZone: "America/Sao_Paulo" }).format(new Date())
+  );
+  if (h < 12) return "Bom dia";
+  if (h < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
 export function ClientPanelApp({ slug }: { slug?: string }) {
   const qc = useQueryClient();
   const load = useServerFn(getEmployeePanelData);
@@ -143,7 +152,16 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6">
         {tab === "home" ? (
           <>
+            <div className="mb-5">
+              <p className="font-display text-2xl font-bold tracking-tight">
+                {greetingPrefix()}
+                {data.clientName ? `, ${data.clientName}` : ""}!
+              </p>
+              <p className="text-sm text-muted-foreground mt-0.5">Aqui está o resumo da sua conta.</p>
+            </div>
+
             <HeroCard
+
               label="Faturamento do mês"
               value={brl(k.faturamentoLiquido)}
               caption={`${k.qtdVendas} vendas aprovadas · líquido após taxas`}

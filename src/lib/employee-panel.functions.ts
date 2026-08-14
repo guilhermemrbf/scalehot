@@ -98,6 +98,16 @@ export const getEmployeePanelData = createServerFn({ method: "POST" })
       if (!wanted || wanted !== clientId) return { locked: true as const };
     }
 
+    let liveClientName: string | null = null;
+    if (clientId) {
+      const { data: cn } = await supabaseAdmin
+        .from("employee_clients" as any)
+        .select("name")
+        .eq("id", clientId)
+        .maybeSingle();
+      liveClientName = (cn as unknown as { name: string } | null)?.name ?? null;
+    }
+
     let txQ = supabaseAdmin
       .from("transactions" as any)
       .select("id, type, amount, liquid_amount, client_name, gateway, created_at, employee_visible, employee_client_id")
@@ -149,7 +159,7 @@ export const getEmployeePanelData = createServerFn({ method: "POST" })
 
     return {
       locked: false as const,
-      clientName: session.data.clientName ?? null,
+      clientName: liveClientName ?? session.data.clientName ?? null,
       kpis: {
         faturamentoLiquido,
         lucro,
