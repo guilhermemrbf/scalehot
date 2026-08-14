@@ -28,10 +28,10 @@ import { getClientPanelMetrics } from "@/lib/finance.functions";
 export const Route = createFileRoute("/painel-equipe")({
   head: () => ({
     meta: [
-      { title: "Painel da Equipe — ScaleUp" },
-      { name: "description", content: "Gerencie painéis de clientes, aprove vendas e saques." },
-      { property: "og:title", content: "Painel da Equipe — ScaleUp" },
-      { property: "og:description", content: "Gerencie painéis de clientes, aprove vendas e saques." },
+      { title: "Gestão do Gateway — ScaleUp" },
+      { name: "description", content: "Gerencie seu gateway, aprove vendas e saques." },
+      { property: "og:title", content: "Gestão do Gateway — ScaleUp" },
+      { property: "og:description", content: "Gerencie seu gateway, aprove vendas e saques." },
     ],
   }),
   component: PainelEquipeAdmin,
