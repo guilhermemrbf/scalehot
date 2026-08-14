@@ -13,7 +13,7 @@ const nav = [
   { to: "/relatorios", label: "Relatórios", icon: FileBarChart },
   { to: "/historico", label: "Histórico", icon: History },
   { to: "/notificacoes", label: "Notificações", icon: Bell },
-  { to: "/painel-equipe", label: "Painel da Equipe", icon: Users },
+  { to: "/painel-equipe", label: "Gestão do Gateway", icon: Users },
   { to: "/configuracoes", label: "Configurações", icon: Settings },
 ];
 
