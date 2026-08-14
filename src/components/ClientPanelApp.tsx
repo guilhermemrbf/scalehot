@@ -69,7 +69,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
               <Lock className="size-6 text-primary" />
             </div>
             <h1 className="font-display text-2xl font-bold tracking-tight">Gateway de Vendas</h1>
-            <p className="text-sm text-muted-foreground mt-1">vamos transformar todo o painel do cliente transformando ele em um Gateway basicamente onde eu vou ter o controle de tudo pelo meu painel aprovando as vendas Como já era antes então toda a vida que eu colocar como aprovada por exemplo pelo cliente 01 e toda a venda que eu colocar aprovada para o cliente 02 já vai aparecer no saldo de cada painel</p>
+            <p className="text-sm text-muted-foreground mt-1">Vamos fazer uma mudança visual total no painel do cliente na Gateway de vendas basicamente vai mostrar faturamento do mês que vai ser o faturamento líquido vai mostrar o total de taxas as vendas aprovadas e as vendas reembolsadas na área de transações Aí sim vai mostrar o saldo disponível para saque o total de venda pendente e os saques pagos logo abaixo vai ficar o status de todos os saques pagos os pedidos de saque vai aparecer somente para mim o cliente não vai conseguir ter acesso os saques que forem aprovados vai mostrar como pago e os que forem rejeitados vão ficar como transição inválida de resto a gente apenas vai fazer uma mudança visual completa dentro do painel do cliente para ficar mais parecida com uma Gateway de pagamentos</p>
           </div>
           <form
             onSubmit={(e) => { e.preventDefault(); if (password) doUnlock.mutate(); }}
