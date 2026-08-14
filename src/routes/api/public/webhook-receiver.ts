@@ -120,7 +120,7 @@ function detect(p: AnyObj): Parsed | null {
       transaction_id: txId != null ? String(txId) : null,
       client_name: source.client_name ?? source.client?.name ?? p.client_name ?? null,
       client_email: source.client_email ?? source.client?.email ?? p.client_email ?? null,
-      accepted: upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED",
+      accepted: upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED" || upper === "RECEIVED" || upper === "APPROVED",
     };
   }
 

@@ -602,24 +602,41 @@ export type Database = {
           total_taxas: number
         }[]
       }
-      get_dashboard_metrics: {
-        Args: { _periodo?: string; _user_id: string }
-        Returns: {
-          lucro_total: number
-          qtd_reembolsos: number
-          qtd_vendas: number
-          roi: number
-          taxa_bot: number
-          taxa_gateway: number
-          taxa_media_pct: number
-          total_anuncios: number
-          total_bruto: number
-          total_imposto: number
-          total_liquido: number
-          total_reembolsos: number
-          total_taxas: number
-        }[]
-      }
+      get_dashboard_metrics:
+        | {
+            Args: { _periodo?: string; _user_id: string }
+            Returns: {
+              lucro_total: number
+              qtd_reembolsos: number
+              qtd_vendas: number
+              roi: number
+              taxa_bot: number
+              taxa_gateway: number
+              taxa_media_pct: number
+              total_anuncios: number
+              total_bruto: number
+              total_imposto: number
+              total_liquido: number
+              total_reembolsos: number
+              total_taxas: number
+            }[]
+          }
+        | {
+            Args: { _end_date?: string; _start_date?: string; _user_id: string }
+            Returns: {
+              faturamento_bruto: number
+              faturamento_liquido: number
+              lucro: number
+              qtd_pendentes: number
+              qtd_reembolsos: number
+              qtd_vendas: number
+              roi: number
+              saldo_disponivel: number
+              total_imposto: number
+              total_pendente: number
+              total_taxas: number
+            }[]
+          }
       increment_sale_usage: { Args: { _user_id: string }; Returns: undefined }
       period_start_utc: {
         Args: { _periodo: string; _ref?: string }
