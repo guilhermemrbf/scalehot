@@ -110,7 +110,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
             </div>
             <div>
               <h1 className="font-display font-bold tracking-tight">
-                {tab === "home" ? "Painel da Equipe" : "Saque e Transações"}
+                {tab === "home" ? "Gateway de Vendas" : "Saque e Transações"}
               </h1>
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
                 {tab === "home" ? "Visualização somente" : "Sua carteira"}
