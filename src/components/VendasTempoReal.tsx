@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { brl } from "@/lib/format";
-import { Activity, CheckCircle2, RotateCcw } from "lucide-react";
+import { Activity, CheckCircle2, RotateCcw, Wallet } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/auth";
 
@@ -54,13 +54,12 @@ export function VendasTempoReal() {
       .on(
         "postgres_changes",
         {
-          event: "*", // Changed from INSERT to * to catch updates and deletions if needed, but primarily to ensure we catch everything
+          event: "*",
           schema: "public",
           table: "transactions",
           filter: `user_id=eq.${user.id}`,
         },
         () => {
-          // Invalidate and refetch is safer than manual splicing for complex status changes
           (async () => {
             let query = supabase
               .from("transactions" as any)
@@ -85,7 +84,7 @@ export function VendasTempoReal() {
   }, [user?.id, showAll]);
 
   return (
-    <Card className="p-5 mt-8">
+    <Card className="p-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--color-primary),0.8)]" />
@@ -95,105 +94,67 @@ export function VendasTempoReal() {
           <Wallet className="size-5" />
         </div>
       </div>
-      <div className="flex flex-col items-center justify-center py-12 relative">
+      
+      <div className="flex flex-col items-center justify-center py-12 relative border-b border-white/5 mb-6">
         <div className="size-48 rounded-full border-[12px] border-muted/30 flex items-center justify-center relative">
           <div className="absolute inset-0 rounded-full border-[12px] border-primary border-t-transparent border-r-transparent -rotate-45" />
           <span className="text-4xl font-display font-bold">0.0<span className="text-xl text-primary">%</span></span>
         </div>
       </div>
-        <div className="flex items-center gap-3">
-          <Button 
-            variant={showAll ? "default" : "outline"} 
+
+      <div className="flex items-center justify-between mb-4">
+        <h4 className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Últimas Atividades</h4>
+        <div className="flex items-center gap-2">
+           <Button 
+            variant="ghost" 
             size="sm" 
-            className="h-8 text-xs font-bold uppercase tracking-wider"
+            className="h-7 text-[9px] font-bold uppercase tracking-wider"
             onClick={() => setShowAll(!showAll)}
           >
-            {showAll ? "Ocultar" : "Mostrar Todas"}
+            {showAll ? "Ocultar" : "Ver Todas"}
           </Button>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted px-2 py-1 rounded">
-            {showAll ? "Histórico Completo" : "Tempo real"}
-          </span>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="h-32 grid place-items-center text-sm text-muted-foreground text-center px-4">
-          Aguardando webhooks dos seus gateways… Conecte um gateway na aba Integrações.
+        <div className="h-24 grid place-items-center text-[10px] uppercase tracking-wider text-muted-foreground text-center px-4">
+          Sem atividades recentes.
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
           <AnimatePresence initial={false}>
             {items.map((tx) => {
               const isRefund = tx.type === "refund";
               const color = isRefund
-                ? "text-destructive bg-destructive/10 border-destructive/30"
-                : "text-success bg-success/10 border-success/30";
+                ? "text-destructive"
+                : "text-success";
               const Icon = isRefund ? RotateCcw : CheckCircle2;
-              const label = isRefund ? "Reembolso" : "Pago";
               const name = tx.client_name || "Cliente";
               return (
                 <motion.div
                   key={tx.id}
                   layout
-                  initial={{ opacity: 0, y: -10, scale: 0.98 }}
-                  animate={{
-                    opacity: 1,
-                    y: 0,
-                    scale: 1,
-                    boxShadow:
-                      highlight === tx.id
-                        ? "0 0 0 2px var(--color-primary)"
-                        : "0 0 0 0 transparent",
-                  }}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card"
+                  className="flex items-center justify-between gap-3 p-3 rounded-xl border border-white/5 bg-white/[0.02]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className={`size-9 rounded-lg grid place-items-center border shrink-0 ${color}`}>
+                    <div className={`size-8 rounded-lg grid place-items-center bg-muted/30 border border-white/5 shrink-0 ${color}`}>
                       <Icon className="size-4" />
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className="font-medium truncate">{name}</p>
-                        <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
-                          {tx.gateway}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs font-bold truncate uppercase tracking-tight">{name}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-widest">
                         {fmtDateTime(tx.created_at)}
                       </p>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    {(() => {
-                      const bruto = Number(tx.amount) || 0;
-                      const liq = tx.liquid_amount != null ? Number(tx.liquid_amount) : null;
-                      const taxa = liq != null ? Math.max(0, bruto - liq) : null;
-                      return (
-                        <div className="space-y-0.5">
-                          <div className="flex items-center justify-end gap-2">
-                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Bruto</span>
-                            <span className="font-display font-bold tracking-tight tabular-nums">{brl(bruto)}</span>
-                          </div>
-                          {liq != null && (
-                            <div className="flex items-center justify-end gap-2">
-                              <span className="text-[10px] uppercase tracking-wider text-success/80">Líquido</span>
-                              <span className="text-sm font-semibold tabular-nums text-success">{brl(liq)}</span>
-                            </div>
-                          )}
-                          {taxa != null && (
-                            <div className="flex items-center justify-end gap-2">
-                              <span className="text-[10px] uppercase tracking-wider text-destructive/80">Taxa</span>
-                              <span className="text-sm font-semibold tabular-nums text-destructive">− {brl(taxa)}</span>
-                            </div>
-                          )}
-                          <span className={`inline-block text-[10px] uppercase tracking-wider font-bold mt-1 px-1.5 py-0.5 rounded ${color}`}>
-                            {label}
-                          </span>
-                        </div>
-                      );
-                    })()}
+                    <p className="text-xs font-bold tracking-tight">{brl(tx.amount)}</p>
+                    <p className={`text-[9px] font-bold uppercase tracking-widest ${color}`}>
+                      {isRefund ? "Reembolso" : "Aprovado"}
+                    </p>
                   </div>
                 </motion.div>
               );

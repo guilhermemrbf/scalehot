@@ -351,8 +351,7 @@ function Dashboard() {
         <div className="space-y-4">
           <VendasTempoReal />
         </div>
-
-      <VendasTempoReal />
+      </div>
 
       <MetasSection qc={qc} fats={fats as any[]} brutoWebhook={(() => {
         const ini = startOfMonthISO();
