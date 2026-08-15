@@ -86,14 +86,21 @@ export function VendasTempoReal() {
 
   return (
     <Card className="p-5 mt-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Activity className="size-5 text-primary" />
-            <h3 className="font-display text-xl font-bold tracking-tight">Últimas Transmissões</h3>
-          </div>
-          <p className="text-xs text-muted-foreground">Mostrando transações de vendas e reembolsos em tempo real.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
+        <div className="flex items-center gap-3">
+          <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--color-primary),0.8)]" />
+          <h3 className="font-display text-xl font-bold tracking-tight uppercase">Conversão</h3>
         </div>
+        <div className="size-10 rounded-xl bg-muted/50 border border-white/5 grid place-items-center text-muted-foreground">
+          <Wallet className="size-5" />
+        </div>
+      </div>
+      <div className="flex flex-col items-center justify-center py-12 relative">
+        <div className="size-48 rounded-full border-[12px] border-muted/30 flex items-center justify-center relative">
+          <div className="absolute inset-0 rounded-full border-[12px] border-primary border-t-transparent border-r-transparent -rotate-45" />
+          <span className="text-4xl font-display font-bold">0.0<span className="text-xl text-primary">%</span></span>
+        </div>
+      </div>
         <div className="flex items-center gap-3">
           <Button 
             variant={showAll ? "default" : "outline"} 

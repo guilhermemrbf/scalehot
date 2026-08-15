@@ -279,30 +279,52 @@ function Dashboard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
-          <motion.div key={c.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-            <Card className="p-5 bg-gradient-card border-white/5 hover:border-primary/20 hover:shadow-glow transition-all duration-300">
+          <motion.div 
+            key={c.label} 
+            initial={{ opacity: 0, y: 12 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ delay: i * 0.04 }}
+            className={c.isMain ? "lg:col-span-1" : ""}
+          >
+            <Card className="p-5 bg-gradient-card border-white/5 hover:border-primary/20 hover:shadow-glow transition-all duration-300 h-full">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
-                  <p className={`font-display text-2xl font-bold tracking-tight ${(c.label === "ROI" || c.label === "Lucro") ? c.color : ""}`}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`size-8 rounded-lg bg-primary/10 grid place-items-center ${c.color}`}>
+                      <c.icon className="size-4" />
+                    </div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">{c.label}</p>
+                  </div>
+                  <p className={`font-display text-3xl font-bold tracking-tight ${c.isMain ? "text-primary-foreground drop-shadow-[0_0_15px_rgba(var(--color-primary),0.5)]" : ""}`}>
                     {c.value}
                   </p>
-                  {c.hint && <p className="text-xs text-muted-foreground">{c.hint}</p>}
+                  {c.hint && <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-semibold">{c.hint}</p>}
                 </div>
-                <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
-                  <c.icon className="size-5" />
-                </div>
+                {c.isMain && (
+                  <Button size="sm" className="bg-white text-black hover:bg-white/90 rounded-full font-bold px-6 text-xs uppercase tracking-widest shadow-lg">
+                    Sacar
+                  </Button>
+                )}
               </div>
             </Card>
           </motion.div>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold">Evolução Diária do Faturamento</h3>
-            <span className="text-xs text-muted-foreground">Últimos 30 lançamentos</span>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <Card className="p-5 lg:col-span-2">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--color-primary),0.8)]" />
+              <h3 className="font-display font-bold text-xl uppercase tracking-tight">Visão Geral de Vendas</h3>
+            </div>
+            <div className="flex bg-muted/50 p-1 rounded-full border border-white/5">
+              {["HOJE", "ONTEM", "7D", "14D", "30D"].map((t) => (
+                <button key={t} className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest transition-all ${t === "HOJE" ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:text-white"}`}>
+                  {t}
+                </button>
+              ))}
+            </div>
           </div>
           <div className="h-52 sm:h-72">
 
@@ -326,29 +348,9 @@ function Dashboard() {
           </div>
         </Card>
 
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold">Comparativo Mensal</h3>
-            <span className="text-xs text-muted-foreground">Bruto vs Líquido vs Lucro</span>
-          </div>
-          <div className="h-52 sm:h-72">
-            {monthly.length === 0 ? <Empty msg="Realize fechamentos para visualizar." /> : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthly} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="mes" stroke="var(--color-muted-foreground)" fontSize={11} />
-                  <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: "var(--color-popover)", border: "1px solid var(--color-border)", borderRadius: 12 }} formatter={(v: number) => brl(v)} />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="bruto" name="Bruto" fill="oklch(0.7 0.17 230)" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="liquido" name="Líquido" fill="oklch(0.74 0.17 158)" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="lucro" name="Lucro" fill="oklch(0.78 0.16 75)" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </Card>
-      </div>
+        <div className="space-y-4">
+          <VendasTempoReal />
+        </div>
 
       <VendasTempoReal />
 
