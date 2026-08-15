@@ -85,74 +85,75 @@ export function VendasTempoReal() {
   }, [user?.id, showAll]);
 
   return (
-    <Card className="p-6 mt-8 bg-card/40 border-white/5 backdrop-blur-md shadow-card">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+    <Card className="p-5 mt-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
         <div className="space-y-1">
-          <div className="flex items-center gap-3">
-            <Activity className="size-6 text-primary animate-pulse" />
-            <h3 className="font-display text-2xl font-bold tracking-tight">Fluxo de Transações</h3>
+          <div className="flex items-center gap-2">
+            <Activity className="size-5 text-primary" />
+            <h3 className="font-display text-xl font-bold tracking-tight">Últimas Transmissões</h3>
           </div>
-          <p className="text-xs text-muted-foreground font-medium">Monitoramento em tempo real da sua operação digital.</p>
+          <p className="text-xs text-muted-foreground">Mostrando transações de vendas e reembolsos em tempo real.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button 
             variant={showAll ? "default" : "outline"} 
             size="sm" 
-            className="h-9 px-4 text-[10px] font-bold uppercase tracking-widest rounded-xl"
+            className="h-8 text-xs font-bold uppercase tracking-wider"
             onClick={() => setShowAll(!showAll)}
           >
-            {showAll ? "Ver Menos" : "Ver Tudo"}
+            {showAll ? "Ocultar" : "Mostrar Todas"}
           </Button>
-          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full">
-            {showAll ? "Arquivo" : "Live"}
+          <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60 bg-muted px-2 py-1 rounded">
+            {showAll ? "Histórico Completo" : "Tempo real"}
           </span>
         </div>
       </div>
 
       {items.length === 0 ? (
-        <div className="h-40 grid place-items-center text-sm text-muted-foreground/60 text-center px-4 border border-dashed border-white/10 rounded-2xl">
-          <div className="space-y-2">
-            <p>Aguardando webhooks dos seus gateways...</p>
-            <p className="text-[10px] uppercase tracking-widest">Conecte um gateway na aba Integrações</p>
-          </div>
+        <div className="h-32 grid place-items-center text-sm text-muted-foreground text-center px-4">
+          Aguardando webhooks dos seus gateways… Conecte um gateway na aba Integrações.
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <AnimatePresence initial={false}>
-            {items.map((tx, idx) => {
+            {items.map((tx) => {
               const isRefund = tx.type === "refund";
               const color = isRefund
-                ? "text-destructive bg-destructive/10 border-destructive/20"
-                : "text-success bg-success/10 border-success/20";
+                ? "text-destructive bg-destructive/10 border-destructive/30"
+                : "text-success bg-success/10 border-success/30";
               const Icon = isRefund ? RotateCcw : CheckCircle2;
-              const label = isRefund ? "Estorno" : "Aprovado";
-              const name = tx.client_name || "Pagamento";
-              
+              const label = isRefund ? "Reembolso" : "Pago";
+              const name = tx.client_name || "Cliente";
               return (
                 <motion.div
                   key={tx.id}
                   layout
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, y: -10, scale: 0.98 }}
                   animate={{
                     opacity: 1,
-                    x: 0,
-                    transition: { delay: idx * 0.05 }
+                    y: 0,
+                    scale: 1,
+                    boxShadow:
+                      highlight === tx.id
+                        ? "0 0 0 2px var(--color-primary)"
+                        : "0 0 0 0 transparent",
                   }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex items-center justify-between gap-4 p-4 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/[0.08] transition-all duration-300 group"
+                  transition={{ duration: 0.35, ease: "easeOut" }}
+                  className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-card"
                 >
-                  <div className="flex items-center gap-4 min-w-0">
-                    <div className={`size-12 rounded-xl grid place-items-center border shrink-0 transition-transform duration-500 group-hover:rotate-6 ${color}`}>
-                      <Icon className="size-5" />
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`size-9 rounded-lg grid place-items-center border shrink-0 ${color}`}>
+                      <Icon className="size-4" />
                     </div>
-                    <div className="min-w-0 space-y-0.5">
+                    <div className="min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className="font-bold truncate text-sm sm:text-base">{name}</p>
-                        <span className="text-[9px] uppercase tracking-widest font-black px-2 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/20 shrink-0">
+                        <p className="font-medium truncate">{name}</p>
+                        <span className="text-[9px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded bg-muted text-muted-foreground shrink-0">
                           {tx.gateway}
                         </span>
                       </div>
-                      <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+                      <p className="text-xs text-muted-foreground">
                         {fmtDateTime(tx.created_at)}
                       </p>
                     </div>
@@ -163,20 +164,26 @@ export function VendasTempoReal() {
                       const liq = tx.liquid_amount != null ? Number(tx.liquid_amount) : null;
                       const taxa = liq != null ? Math.max(0, bruto - liq) : null;
                       return (
-                        <div className="flex flex-col items-end gap-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[9px] uppercase tracking-widest text-muted-foreground font-bold">BRUTO</span>
-                            <span className="font-display font-bold tracking-tight tabular-nums text-foreground">{brl(bruto)}</span>
+                        <div className="space-y-0.5">
+                          <div className="flex items-center justify-end gap-2">
+                            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Bruto</span>
+                            <span className="font-display font-bold tracking-tight tabular-nums">{brl(bruto)}</span>
                           </div>
                           {liq != null && (
-                            <div className="flex items-center gap-2">
-                              <span className="text-[9px] uppercase tracking-widest text-success/60 font-bold">LÍQUIDO</span>
-                              <span className="text-sm font-bold tabular-nums text-success">{brl(liq)}</span>
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-[10px] uppercase tracking-wider text-success/80">Líquido</span>
+                              <span className="text-sm font-semibold tabular-nums text-success">{brl(liq)}</span>
                             </div>
                           )}
-                          <div className={`text-[9px] uppercase tracking-widest font-black px-2 py-0.5 rounded-md border ${color}`}>
+                          {taxa != null && (
+                            <div className="flex items-center justify-end gap-2">
+                              <span className="text-[10px] uppercase tracking-wider text-destructive/80">Taxa</span>
+                              <span className="text-sm font-semibold tabular-nums text-destructive">− {brl(taxa)}</span>
+                            </div>
+                          )}
+                          <span className={`inline-block text-[10px] uppercase tracking-wider font-bold mt-1 px-1.5 py-0.5 rounded ${color}`}>
                             {label}
-                          </div>
+                          </span>
                         </div>
                       );
                     })()}
