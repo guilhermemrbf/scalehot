@@ -286,22 +286,23 @@ function Dashboard() {
             transition={{ delay: i * 0.04 }}
             className={c.isMain ? "lg:col-span-1" : ""}
           >
-            <Card className="p-5 bg-gradient-card border-white/5 hover:border-primary/20 hover:shadow-glow transition-all duration-300 h-full">
-              <div className="flex items-start justify-between">
+            <Card className="p-6 bg-gradient-card border-white/5 hover:border-primary/40 hover:shadow-glow transition-all duration-500 group relative overflow-hidden h-full">
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="flex items-start justify-between relative z-10">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className={`size-8 rounded-lg bg-primary/10 grid place-items-center ${c.color}`}>
-                      <c.icon className="size-4" />
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`size-10 rounded-xl bg-primary/10 grid place-items-center ${c.color} border border-primary/20 shadow-inner`}>
+                      <c.icon className="size-5" />
                     </div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">{c.label}</p>
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">{c.label}</p>
                   </div>
-                  <p className={`font-display text-3xl font-bold tracking-tight ${c.isMain ? "text-primary-foreground drop-shadow-[0_0_15px_rgba(var(--color-primary),0.5)]" : ""}`}>
+                  <p className={`font-display text-4xl font-bold tracking-tight ${c.isMain ? "text-primary drop-shadow-[0_0_20px_rgba(var(--color-primary),0.6)]" : "text-foreground"}`}>
                     {c.value}
                   </p>
-                  {c.hint && <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-semibold">{c.hint}</p>}
+                  {c.hint && <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mt-2">{c.hint}</p>}
                 </div>
                 {c.isMain && (
-                  <Button size="sm" className="bg-white text-black hover:bg-white/90 rounded-full font-bold px-6 text-xs uppercase tracking-widest shadow-lg">
+                  <Button size="sm" className="bg-white text-black hover:bg-white/90 rounded-full font-bold px-8 py-5 text-xs uppercase tracking-widest shadow-2xl transition-transform hover:scale-105 active:scale-95">
                     Sacar
                   </Button>
                 )}
