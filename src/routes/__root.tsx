@@ -61,7 +61,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "ScaleUp — Infraestrutura para crescimento digital" },
       { name: "description", content: "Toda venda conta. Toda decisão importa." },
       { name: "application-name", content: "ScaleUp" },
-      { name: "theme-color", content: "#a855f7" },
+      { name: "theme-color", content: "#000000" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "ScaleUp" },
