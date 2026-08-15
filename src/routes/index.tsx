@@ -313,15 +313,16 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="p-5 lg:col-span-2">
+        <Card className="p-8 lg:col-span-2 bg-gradient-card border-white/5 shadow-card overflow-hidden relative group">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[120px] -mr-48 -mt-48 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--color-primary),0.8)]" />
               <h3 className="font-display font-bold text-xl uppercase tracking-tight">Visão Geral de Vendas</h3>
             </div>
-            <div className="flex bg-muted/50 p-1 rounded-full border border-white/5">
+            <div className="flex bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
               {["HOJE", "ONTEM", "7D", "14D", "30D"].map((t) => (
-                <button key={t} className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest transition-all ${t === "HOJE" ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:text-white"}`}>
+                <button key={t} className={`px-5 py-2 rounded-full text-[9px] font-bold tracking-[0.2em] transition-all duration-300 ${t === "HOJE" ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-primary),0.5)]" : "text-muted-foreground hover:text-white"}`}>
                   {t}
                 </button>
               ))}
@@ -366,13 +367,14 @@ function Dashboard() {
           .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
       })()} />
 
-      <Card className="p-6 mt-6 bg-gradient-card">
-        <div className="flex flex-col items-center gap-4">
+      <Card className="p-8 mt-8 bg-gradient-card border-white/5 shadow-card relative overflow-hidden group">
+        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        <div className="relative z-10 flex flex-col items-center gap-6">
           <div className="text-center">
             <h3 className="font-display text-lg font-bold tracking-tight">Período de Visualização</h3>
             <p className="text-xs text-muted-foreground mt-1">Escolha o intervalo aplicado aos indicadores acima</p>
           </div>
-          <div className="flex bg-muted p-1.5 rounded-xl w-full max-w-md gap-1">
+          <div className="flex bg-white/5 p-1.5 rounded-2xl w-full max-w-md gap-1.5 border border-white/5 backdrop-blur-md">
             {([
               { key: "hoje", label: "Hoje" },
               { key: "mes", label: "Mês" },

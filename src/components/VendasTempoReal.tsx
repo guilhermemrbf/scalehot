@@ -84,7 +84,7 @@ export function VendasTempoReal() {
   }, [user?.id, showAll]);
 
   return (
-    <Card className="p-5">
+    <Card className="p-6 bg-gradient-card border-white/5 hover:border-white/10 transition-all duration-500 shadow-card">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--color-primary),0.8)]" />
