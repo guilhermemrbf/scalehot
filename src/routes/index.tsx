@@ -272,31 +272,42 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <PageHeader 
-        title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
-        subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <PageHeader 
+          title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
+          subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
+        />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        {cards.map((c, i) => (
-          <motion.div key={c.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-            <Card className="p-5 bg-gradient-card hover:shadow-glow transition-shadow">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
-                  <p className={`font-display text-2xl font-bold tracking-tight ${(c.label === "ROI" || c.label === "Lucro") ? c.color : ""}`}>
-                    {c.value}
-                  </p>
-                  {c.hint && <p className="text-xs text-muted-foreground">{c.hint}</p>}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {cards.map((c, i) => (
+            <motion.div 
+              key={c.label} 
+              initial={{ opacity: 0, y: 20 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ delay: i * 0.1, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <Card className="p-6 bg-gradient-card border border-white/5 backdrop-blur-xl shadow-card hover:shadow-glow transition-all duration-300 group">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-2">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">{c.label}</p>
+                    <p className={`font-display text-3xl font-bold tracking-tight ${(c.label === "ROI" || c.label === "Lucro") ? c.color : ""}`}>
+                      {c.value}
+                    </p>
+                    {c.hint && <p className="text-xs text-muted-foreground/60">{c.hint}</p>}
+                  </div>
+                  <div className={`size-12 rounded-2xl bg-white/5 border border-white/10 grid place-items-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 ${c.color}`}>
+                    <c.icon className="size-6" />
+                  </div>
                 </div>
-                <div className={`size-10 rounded-xl bg-muted grid place-items-center ${c.color}`}>
-                  <c.icon className="size-5" />
-                </div>
-              </div>
-            </Card>
-          </motion.div>
-        ))}
-      </div>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <Card className="p-5">
