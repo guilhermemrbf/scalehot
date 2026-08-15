@@ -383,10 +383,10 @@ function Dashboard() {
               <button
                 key={opt.key}
                 onClick={() => setPeriodo(opt.key)}
-                className={`flex-1 px-4 py-3 rounded-lg text-sm sm:text-base uppercase tracking-wider font-bold transition-all ${
+                className={`flex-1 px-4 py-3.5 rounded-xl text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 ${
                   periodo === opt.key
-                    ? "bg-background text-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white text-black shadow-2xl scale-[1.02]"
+                    : "text-muted-foreground hover:text-white hover:bg-white/5"
                 }`}
               >
                 {opt.label}
