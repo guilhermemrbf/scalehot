@@ -309,56 +309,75 @@ function Dashboard() {
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold">Evolução Diária do Faturamento</h3>
-            <span className="text-xs text-muted-foreground">Últimos 30 lançamentos</span>
-          </div>
-          <div className="h-52 sm:h-72">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.4, duration: 0.5 }}
+        >
+          <Card className="p-6 bg-card/40 border-white/5 backdrop-blur-md shadow-card">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-display font-bold text-lg tracking-tight">Evolução Diária</h3>
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Últimos 30 lançamentos</span>
+            </div>
+            <div className="h-64 sm:h-80">
+              {dailyData.length === 0 ? <Empty msg="Sem registros ainda." /> : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={dailyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gBruto" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor="oklch(0.65 0.25 290)" stopOpacity={0.4} />
+                        <stop offset="100%" stopColor="oklch(0.65 0.25 290)" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="data" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip 
+                      contentStyle={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, backdropBlur: "12px" }} 
+                      itemStyle={{ color: "#fff", fontSize: 12 }}
+                      formatter={(v: number) => brl(v)} 
+                    />
+                    <Area type="monotone" dataKey="bruto" stroke="oklch(0.65 0.25 290)" strokeWidth={3} fill="url(#gBruto)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </Card>
+        </motion.div>
 
-            {dailyData.length === 0 ? <Empty msg="Sem registros ainda." /> : (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={dailyData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="gBruto" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="oklch(0.74 0.17 158)" stopOpacity={0.5} />
-                      <stop offset="100%" stopColor="oklch(0.74 0.17 158)" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="data" stroke="var(--color-muted-foreground)" fontSize={11} />
-                  <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: "var(--color-popover)", border: "1px solid var(--color-border)", borderRadius: 12 }} formatter={(v: number) => brl(v)} />
-                  <Area type="monotone" dataKey="bruto" stroke="oklch(0.74 0.17 158)" strokeWidth={2} fill="url(#gBruto)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </Card>
-
-        <Card className="p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-display font-semibold">Comparativo Mensal</h3>
-            <span className="text-xs text-muted-foreground">Bruto vs Líquido vs Lucro</span>
-          </div>
-          <div className="h-52 sm:h-72">
-            {monthly.length === 0 ? <Empty msg="Realize fechamentos para visualizar." /> : (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={monthly} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" />
-                  <XAxis dataKey="mes" stroke="var(--color-muted-foreground)" fontSize={11} />
-                  <YAxis stroke="var(--color-muted-foreground)" fontSize={11} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip contentStyle={{ background: "var(--color-popover)", border: "1px solid var(--color-border)", borderRadius: 12 }} formatter={(v: number) => brl(v)} />
-                  <Legend wrapperStyle={{ fontSize: 12 }} />
-                  <Bar dataKey="bruto" name="Bruto" fill="oklch(0.7 0.17 230)" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="liquido" name="Líquido" fill="oklch(0.74 0.17 158)" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="lucro" name="Lucro" fill="oklch(0.78 0.16 75)" radius={[6, 6, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            )}
-          </div>
-        </Card>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+        >
+          <Card className="p-6 bg-card/40 border-white/5 backdrop-blur-md shadow-card">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-display font-bold text-lg tracking-tight">Comparativo Mensal</h3>
+              <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Fechamentos recentes</span>
+            </div>
+            <div className="h-64 sm:h-80">
+              {monthly.length === 0 ? <Empty msg="Realize fechamentos para visualizar." /> : (
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={monthly} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis dataKey="mes" stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis stroke="rgba(255,255,255,0.3)" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
+                    <Tooltip 
+                      contentStyle={{ background: "rgba(0,0,0,0.8)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: 12, backdropBlur: "12px" }} 
+                      itemStyle={{ color: "#fff", fontSize: 12 }}
+                      formatter={(v: number) => brl(v)} 
+                    />
+                    <Legend wrapperStyle={{ fontSize: 10, textTransform: "uppercase", letterSpacing: "0.1em", paddingTop: 20 }} />
+                    <Bar dataKey="bruto" name="Bruto" fill="oklch(0.65 0.25 290)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="liquido" name="Líquido" fill="oklch(0.55 0.2 260)" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="lucro" name="Lucro" fill="oklch(0.75 0.2 158)" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+          </Card>
+        </motion.div>
       </div>
 
       <VendasTempoReal />
