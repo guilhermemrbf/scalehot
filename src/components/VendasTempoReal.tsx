@@ -84,7 +84,7 @@ export function VendasTempoReal() {
   }, [user?.id, showAll]);
 
   return (
-    <Card className="p-5">
+    <Card className="p-6 bg-gradient-card border-white/5 hover:border-white/10 transition-all duration-500 shadow-card">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-2">
         <div className="flex items-center gap-3">
           <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--color-primary),0.8)]" />
@@ -95,10 +95,13 @@ export function VendasTempoReal() {
         </div>
       </div>
       
-      <div className="flex flex-col items-center justify-center py-12 relative border-b border-white/5 mb-6">
-        <div className="size-48 rounded-full border-[12px] border-muted/30 flex items-center justify-center relative">
-          <div className="absolute inset-0 rounded-full border-[12px] border-primary border-t-transparent border-r-transparent -rotate-45" />
-          <span className="text-4xl font-display font-bold">0.0<span className="text-xl text-primary">%</span></span>
+      <div className="flex flex-col items-center justify-center py-16 relative border-b border-white/5 mb-8">
+        <div className="size-56 rounded-full border-[14px] border-white/5 flex items-center justify-center relative shadow-inner">
+          <div className="absolute inset-0 rounded-full border-[14px] border-primary border-t-transparent border-r-transparent -rotate-45 shadow-[0_0_20px_rgba(var(--color-primary),0.4)]" />
+          <div className="flex flex-col items-center">
+            <span className="text-5xl font-display font-bold tracking-tighter text-foreground">0.0<span className="text-2xl text-primary ml-0.5">%</span></span>
+            <span className="text-[9px] uppercase tracking-[0.3em] text-muted-foreground font-bold mt-1">Conversão</span>
+          </div>
         </div>
       </div>
 

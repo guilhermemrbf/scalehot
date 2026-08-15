@@ -286,22 +286,23 @@ function Dashboard() {
             transition={{ delay: i * 0.04 }}
             className={c.isMain ? "lg:col-span-1" : ""}
           >
-            <Card className="p-5 bg-gradient-card border-white/5 hover:border-primary/20 hover:shadow-glow transition-all duration-300 h-full">
-              <div className="flex items-start justify-between">
+            <Card className="p-6 bg-gradient-card border-white/5 hover:border-primary/40 hover:shadow-glow transition-all duration-500 group relative overflow-hidden h-full">
+              <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="flex items-start justify-between relative z-10">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className={`size-8 rounded-lg bg-primary/10 grid place-items-center ${c.color}`}>
-                      <c.icon className="size-4" />
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`size-10 rounded-xl bg-primary/10 grid place-items-center ${c.color} border border-primary/20 shadow-inner`}>
+                      <c.icon className="size-5" />
                     </div>
-                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-bold">{c.label}</p>
+                    <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground font-bold">{c.label}</p>
                   </div>
-                  <p className={`font-display text-3xl font-bold tracking-tight ${c.isMain ? "text-primary-foreground drop-shadow-[0_0_15px_rgba(var(--color-primary),0.5)]" : ""}`}>
+                  <p className={`font-display text-4xl font-bold tracking-tight ${c.isMain ? "text-primary drop-shadow-[0_0_20px_rgba(var(--color-primary),0.6)]" : "text-foreground"}`}>
                     {c.value}
                   </p>
-                  {c.hint && <p className="text-[10px] uppercase tracking-wider text-muted-foreground/80 font-semibold">{c.hint}</p>}
+                  {c.hint && <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-medium mt-2">{c.hint}</p>}
                 </div>
                 {c.isMain && (
-                  <Button size="sm" className="bg-white text-black hover:bg-white/90 rounded-full font-bold px-6 text-xs uppercase tracking-widest shadow-lg">
+                  <Button size="sm" className="bg-white text-black hover:bg-white/90 rounded-full font-bold px-8 py-5 text-xs uppercase tracking-widest shadow-2xl transition-transform hover:scale-105 active:scale-95">
                     Sacar
                   </Button>
                 )}
@@ -312,15 +313,16 @@ function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <Card className="p-5 lg:col-span-2">
+        <Card className="p-8 lg:col-span-2 bg-gradient-card border-white/5 shadow-card overflow-hidden relative group">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 blur-[120px] -mr-48 -mt-48 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <div className="w-1.5 h-6 bg-primary rounded-full shadow-[0_0_10px_rgba(var(--color-primary),0.8)]" />
               <h3 className="font-display font-bold text-xl uppercase tracking-tight">Visão Geral de Vendas</h3>
             </div>
-            <div className="flex bg-muted/50 p-1 rounded-full border border-white/5">
+            <div className="flex bg-white/5 p-1 rounded-full border border-white/5 backdrop-blur-md">
               {["HOJE", "ONTEM", "7D", "14D", "30D"].map((t) => (
-                <button key={t} className={`px-4 py-1.5 rounded-full text-[10px] font-bold tracking-widest transition-all ${t === "HOJE" ? "bg-primary text-white shadow-lg" : "text-muted-foreground hover:text-white"}`}>
+                <button key={t} className={`px-5 py-2 rounded-full text-[9px] font-bold tracking-[0.2em] transition-all duration-300 ${t === "HOJE" ? "bg-primary text-white shadow-[0_0_15px_rgba(var(--color-primary),0.5)]" : "text-muted-foreground hover:text-white"}`}>
                   {t}
                 </button>
               ))}
@@ -365,13 +367,14 @@ function Dashboard() {
           .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
       })()} />
 
-      <Card className="p-6 mt-6 bg-gradient-card">
-        <div className="flex flex-col items-center gap-4">
+      <Card className="p-8 mt-8 bg-gradient-card border-white/5 shadow-card relative overflow-hidden group">
+        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+        <div className="relative z-10 flex flex-col items-center gap-6">
           <div className="text-center">
             <h3 className="font-display text-lg font-bold tracking-tight">Período de Visualização</h3>
             <p className="text-xs text-muted-foreground mt-1">Escolha o intervalo aplicado aos indicadores acima</p>
           </div>
-          <div className="flex bg-muted p-1.5 rounded-xl w-full max-w-md gap-1">
+          <div className="flex bg-white/5 p-1.5 rounded-2xl w-full max-w-md gap-1.5 border border-white/5 backdrop-blur-md">
             {([
               { key: "hoje", label: "Hoje" },
               { key: "mes", label: "Mês" },
@@ -380,10 +383,10 @@ function Dashboard() {
               <button
                 key={opt.key}
                 onClick={() => setPeriodo(opt.key)}
-                className={`flex-1 px-4 py-3 rounded-lg text-sm sm:text-base uppercase tracking-wider font-bold transition-all ${
+                className={`flex-1 px-4 py-3.5 rounded-xl text-xs uppercase tracking-[0.2em] font-bold transition-all duration-300 ${
                   periodo === opt.key
-                    ? "bg-background text-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white text-black shadow-2xl scale-[1.02]"
+                    : "text-muted-foreground hover:text-white hover:bg-white/5"
                 }`}
               >
                 {opt.label}
