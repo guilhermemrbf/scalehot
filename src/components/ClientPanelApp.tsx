@@ -91,7 +91,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
   if (!data || data.locked) {
     return (
       <div className="min-h-screen grid place-items-center bg-gradient-hero px-4">
-        <Card className="w-full max-w-md p-8 bg-gradient-card">
+        <Card className="w-full max-w-md p-8 bg-gradient-card border-white/5 shadow-2xl">
           <div className="flex flex-col items-center text-center mb-6">
             <div className="size-14 rounded-2xl bg-primary/15 grid place-items-center mb-3">
               <Lock className="size-6 text-primary" />
@@ -175,7 +175,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
               <MiniStat label="Vendas reembolsadas" value={String(k.totalReembolsos)} sub="estornos" icon={RotateCcw} color="text-destructive" />
             </div>
 
-            <Card className="p-5 mt-6 bg-gradient-card">
+            <Card className="p-5 mt-6 bg-gradient-card border-white/5 shadow-xl">
               <div className="flex items-center gap-2 mb-4">
                 <Activity className="size-5 text-primary" />
                 <h2 className="font-display text-lg font-bold tracking-tight">Últimas vendas</h2>

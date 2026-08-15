@@ -280,7 +280,7 @@ function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
           <motion.div key={c.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
-            <Card className="p-5 bg-gradient-card hover:shadow-glow transition-shadow">
+            <Card className="p-5 bg-gradient-card border-white/5 hover:border-primary/20 hover:shadow-glow transition-all duration-300">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">{c.label}</p>
