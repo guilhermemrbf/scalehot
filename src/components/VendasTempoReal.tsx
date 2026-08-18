@@ -90,7 +90,7 @@ export function VendasTempoReal() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Activity className="size-5 text-primary" />
-            <h3 className="font-display text-xl font-bold tracking-tight">Últimas Transmissões</h3>
+            <h3 className="font-display text-xl font-bold tracking-tight">Últimas Vendas</h3>
           </div>
           <p className="text-xs text-muted-foreground">Mostrando transações de vendas e reembolsos em tempo real.</p>
         </div>
