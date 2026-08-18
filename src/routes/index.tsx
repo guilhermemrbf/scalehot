@@ -175,9 +175,7 @@ function Dashboard() {
   const totalImposto = Number(m.total_imposto);
   const totalAnuncios = Number(m.total_anuncios);
   const totalReembolsos = Number(m.total_reembolsos);
-  const totalRepasses = cashins
-    .filter((t: any) => t.employee_visible)
-    .reduce((s: number, t: any) => s + Number(t.liquid_amount ?? t.amount ?? 0), 0);
+  const totalRepasses = 0; // Removido custo de repasses do dashboard principal para evitar confusão no lucro
   const qtdVendas = Number(m.qtd_vendas);
   const lucroTotal = Number(m.lucro_total);
   const roi = Number(m.roi);

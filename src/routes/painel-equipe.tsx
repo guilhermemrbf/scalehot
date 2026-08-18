@@ -98,9 +98,9 @@ function PainelEquipeAdmin() {
   
   // Inclui reembolsos (MED) nas contagens se necessário, mas separa cashins para KPIs de venda
   const allTxs = scoped;
-  const cashins = scoped.filter((t) => t.type === "cashin");
-  const approved = allTxs.filter((t) => t.employee_visible);
-  const pending = allTxs.filter((t) => !t.employee_visible);
+  const cashins = txs.filter((t) => t.type === "cashin");
+  const approved = txs.filter((t) => t.employee_visible);
+  const pending = txs.filter((t) => !t.employee_visible && t.status !== 'PENDING');
   const sumApproved = approved.reduce((s, t) => s + Number(t.amount || 0), 0);
   const sumPending = pending.reduce((s, t) => s + Number(t.amount || 0), 0);
   const visibleCount = approved.length;
