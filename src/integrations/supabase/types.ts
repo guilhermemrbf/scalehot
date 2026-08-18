@@ -618,6 +618,7 @@ export type Database = {
               total_imposto: number
               total_liquido: number
               total_reembolsos: number
+              total_repasses_aprovados: number
               total_taxas: number
             }[]
           }

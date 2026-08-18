@@ -23,6 +23,7 @@ export const getDashboardMetrics = createServerFn({ method: "GET" })
       total_taxas: number;
       total_imposto: number;
       total_anuncios: number;
+      total_repasses_aprovados: number;
       total_reembolsos: number;
       qtd_vendas: number;
       qtd_reembolsos: number;
