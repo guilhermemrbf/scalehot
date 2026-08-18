@@ -159,6 +159,7 @@ function Dashboard() {
     total_taxas: 0,
     total_imposto: 0,
     total_anuncios: 0,
+    total_repasses_aprovados: 0,
     total_reembolsos: 0,
     qtd_vendas: 0,
     qtd_reembolsos: 0,
