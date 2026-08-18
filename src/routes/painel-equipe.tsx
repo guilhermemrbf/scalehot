@@ -47,6 +47,7 @@ function PainelEquipeAdmin() {
   const { data: clients = [] } = useQuery({ queryKey: ["employee-clients"], queryFn: () => listClients() });
   const { data: txs = [] } = useQuery({ queryKey: ["employee-panel-admin-tx"], queryFn: () => listTx() });
 
+  const [activeTab, setActiveTab] = useState<"sales" | "withdrawals" | "clients">("sales");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "visible" | "hidden">("hidden");
 
