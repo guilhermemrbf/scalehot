@@ -93,7 +93,7 @@ function detect(p: AnyObj): Parsed | null {
   }
 
   // Syncpay CashIn — pode vir no topo ou dentro de data, com status PAID_OUT/PAID/COMPLETED/completed.
-  if (looksLikeSyncpay && ["PAID_OUT", "PAID", "COMPLETED", "PENDING"].includes(upper)) {
+  if (looksLikeSyncpay && ["PAID_OUT", "PAID", "COMPLETED", "PENDING", "APPROVED", "RECEIVED", "SUCCESS", "CONFIRMED"].includes(upper)) {
     const txId =
       source.idtransaction ??
       source.transaction_id ??
@@ -120,7 +120,7 @@ function detect(p: AnyObj): Parsed | null {
       transaction_id: txId != null ? String(txId) : null,
       client_name: source.client_name ?? source.client?.name ?? p.client_name ?? null,
       client_email: source.client_email ?? source.client?.email ?? p.client_email ?? null,
-      accepted: upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED" || upper === "RECEIVED" || upper === "APPROVED" || upper === "SUCCESS" || upper === "CONFIRMED",
+      accepted: true,
     };
   }
 
