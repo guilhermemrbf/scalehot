@@ -116,8 +116,29 @@ function PainelEquipeAdmin() {
     <AppLayout>
       <PageHeader
         title="Gestão do Gateway"
-        subtitle="Controle e aprove as vendas para cada cliente do seu gateway"
+        subtitle="Gerencie vendas, pedidos de saque e painéis de clientes"
       />
+
+      <div className="flex bg-muted rounded-xl p-1.5 mb-6 max-w-md">
+        {( [
+          { key: "sales", label: "Vendas", icon: DollarSign },
+          { key: "withdrawals", label: "Saques", icon: Send },
+          { key: "clients", label: "Painéis", icon: Users },
+        ] as const).map((t) => (
+          <button
+            key={t.key}
+            onClick={() => setActiveTab(t.key)}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition ${
+              activeTab === t.key
+                ? "bg-background text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            <t.icon className="size-4" />
+            {t.label}
+          </button>
+        ))}
+      </div>
 
       {clients.length > 0 && (
         <Card className="p-4 mb-6">
