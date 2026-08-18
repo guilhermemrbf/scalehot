@@ -393,7 +393,7 @@ function WithdrawalAdminSection() {
   const filtered = filter === "all" ? items : items.filter((i) => i.status === filter);
 
   return (
-    <Card className="p-5 mt-6">
+    <div className="mt-2">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <div className="size-10 rounded-xl bg-primary/15 grid place-items-center">
