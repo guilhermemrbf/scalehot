@@ -29,7 +29,7 @@ type Parsed = {
 function detect(p: AnyObj): Parsed | null {
   const nested = p.data && typeof p.data === "object" && !Array.isArray(p.data) ? (p.data as AnyObj) : null;
   const source = nested ?? p;
-  const status = String(source.status ?? p.status ?? p.order_status ?? p.event ?? p.transaction_status ?? "").trim();
+  const status = String(source.status ?? p.status ?? p.order_status ?? p.event ?? p.transaction_status ?? source.transaction_status ?? "").trim();
   const upper = status.toUpperCase();
 
   const looksLikeSyncpay = Boolean(
