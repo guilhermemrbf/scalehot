@@ -118,9 +118,12 @@ export function VendasTempoReal() {
           <AnimatePresence initial={false}>
             {items.map((tx) => {
               const isRefund = tx.type === "refund";
+              const isPending = tx.status === "PENDING";
               const color = isRefund
                 ? "text-destructive bg-destructive/10 border-destructive/30"
-                : "text-success bg-success/10 border-success/30";
+                : isPending
+                  ? "text-warning bg-warning/10 border-warning/30"
+                  : "text-success bg-success/10 border-success/30";
               const Icon = isRefund ? RotateCcw : CheckCircle2;
               const label = tx.status === "PENDING" ? "Pendente" : (isRefund ? "Reembolso" : "Pago");
               const name = tx.client_name || "Cliente";
