@@ -502,7 +502,7 @@ function WithdrawalAdminSection() {
           ))}
         </div>
       )}
-    </Card>
+    </div>
   );
 }
 
