@@ -124,8 +124,8 @@ export function VendasTempoReal() {
                 : isPending
                   ? "text-warning bg-warning/10 border-warning/30"
                   : "text-success bg-success/10 border-success/30";
-              const Icon = isRefund ? RotateCcw : CheckCircle2;
-              const label = tx.status === "PENDING" ? "Pendente" : (isRefund ? "Reembolso" : "Pago");
+              const Icon = isRefund ? RotateCcw : (isPending ? Activity : CheckCircle2);
+              const label = isPending ? "Pendente" : (isRefund ? "Reembolso" : "Pago");
               const name = tx.client_name || "Cliente";
               return (
                 <motion.div
