@@ -140,221 +140,224 @@ function PainelEquipeAdmin() {
         ))}
       </div>
 
-      {clients.length > 0 && (
-        <Card className="p-4 mb-6">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium mr-1">Cliente</span>
-            {clients.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => setSelectedClientId(c.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
-                  selectedClientId === c.id
-                    ? "bg-gradient-primary text-primary-foreground shadow-glow"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {c.name}{!c.active && " (inativo)"}
-              </button>
-            ))}
+      {activeTab === "sales" && (
+        <>
+          {clients.length > 0 && (
+            <Card className="p-4 mb-6">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs uppercase tracking-wider text-muted-foreground font-medium mr-1">Cliente</span>
+                {clients.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedClientId(c.id)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                      selectedClientId === c.id
+                        ? "bg-gradient-primary text-primary-foreground shadow-glow"
+                        : "bg-muted text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {c.name}{!c.active && " (inativo)"}
+                  </button>
+                ))}
+              </div>
+            </Card>
+          )}
+
+          <Card className="p-6 bg-gradient-card mb-6 border-success/30">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Saldo disponível do cliente</p>
+                <p className="font-display text-4xl font-bold tracking-tight mt-1 text-success">{brl(saldoCliente)}</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Líquido aprovado {brl(liquidoAprovado)} · Saques pagos {brl(saquesPagos)}
+                  {saquesPendentes > 0 && <> · Pendentes {brl(saquesPendentes)}</>}
+                </p>
+              </div>
+              <div className="size-12 rounded-xl bg-success/10 grid place-items-center text-success shrink-0">
+                <Wallet className="size-6" />
+              </div>
+            </div>
+          </Card>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <Card className="p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+                <Clock className="size-4" /> Pendentes
+              </div>
+              <p className="font-display text-2xl font-bold">{pending.length}</p>
+              <p className="text-xs text-muted-foreground">{brl(sumPending)}</p>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-2 text-success text-xs uppercase tracking-wider mb-1">
+                <CheckCircle2 className="size-4" /> Aprovadas
+              </div>
+              <p className="font-display text-2xl font-bold">{approved.length}</p>
+              <p className="text-xs text-muted-foreground">{brl(sumApproved)}</p>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+                <DollarSign className="size-4" /> Total de vendas
+              </div>
+              <p className="font-display text-2xl font-bold">{cashins.length}</p>
+              <p className="text-xs text-muted-foreground">{brl(sumApproved + sumPending)}</p>
+            </Card>
+            <Card className="p-4">
+              <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
+                <Eye className="size-4" /> Exibindo no painel
+              </div>
+              <p className="font-display text-2xl font-bold">{visibleCount}</p>
+              <p className="text-xs text-muted-foreground">de {txs.length} totais</p>
+            </Card>
           </div>
-        </Card>
+
+          <Card className="p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <h3 className="font-display font-semibold">Aprovação de vendas</h3>
+                <p className="text-xs text-muted-foreground">
+                  Ao aprovar, a venda vai para o painel de <strong>{selectedClient?.name ?? "—"}</strong>. Vendas pendentes não aparecem em nenhum painel.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="flex bg-muted rounded-lg p-1">
+                  {([
+                    { key: "hidden", label: `Pendentes (${pending.length})` },
+                    { key: "visible", label: `Aprovadas (${approved.length})` },
+                    { key: "all", label: "Todas" },
+                  ] as const).map((o) => (
+                    <button
+                      key={o.key}
+                      onClick={() => setFilter(o.key)}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium uppercase tracking-wider transition ${
+                        filter === o.key ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+                <Button variant="outline" size="sm" onClick={() => bulkMut.mutate(true)} disabled={bulkMut.isPending}>
+                  <CheckCircle2 className="size-4 mr-1" /> Aprovar todas
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => bulkMut.mutate(false)} disabled={bulkMut.isPending}>
+                  <XCircle className="size-4 mr-1" /> Ocultar todas
+                </Button>
+              </div>
+            </div>
+
+            {filtered.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-10">
+                {filter === "hidden" ? "Nenhuma venda pendente 🎉" : "Nenhuma venda neste filtro."}
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/40">
+                    <tr className="text-xs uppercase tracking-wider text-muted-foreground">
+                      <th className="text-left py-3 px-4 font-medium">Cliente</th>
+                      <th className="text-left py-3 px-4 font-medium">Gateway</th>
+                      <th className="text-left py-3 px-4 font-medium">Tipo</th>
+                      <th className="text-right py-3 px-4 font-medium">Valor</th>
+                      <th className="text-left py-3 px-4 font-medium">Data</th>
+                      <th className="text-center py-3 px-4 font-medium">Status</th>
+                      <th className="text-right py-3 px-4 font-medium">Ação</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filtered.map((t) => (
+                      <tr key={t.id} className="hover:bg-muted/30">
+                        <td className="py-3 px-4">{t.client_name || "—"}</td>
+                        <td className="py-3 px-4 text-muted-foreground">{t.gateway}</td>
+                        <td className="py-3 px-4">
+                          <span className={`text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded ${
+                            t.type === "refund" ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"
+                          }`}>
+                            {t.type === "refund" ? "Reembolso" : t.type === "cashin" ? "Pago" : t.type}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right tabular-nums">{brl(Number(t.amount))}</td>
+                        <td className="py-3 px-4 text-muted-foreground text-xs">
+                          {new Date(t.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}
+                        </td>
+                        <td className="py-3 px-4 text-center">
+                          {t.employee_visible ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-success/10 text-success">
+                              <CheckCircle2 className="size-3" /> Aprovada
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-warning/10 text-warning">
+                              <Clock className="size-3" /> Pendente
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center justify-end gap-2">
+                            {t.employee_visible ? (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => toggle.mutate({ id: t.id, visible: false })}
+                              >
+                                <XCircle className="size-4 mr-1" /> Ocultar
+                              </Button>
+                            ) : (
+                              <Button
+                                size="sm"
+                                className="bg-success text-success-foreground hover:bg-success/90"
+                                onClick={() => toggle.mutate({ id: t.id, visible: true })}
+                              >
+                                <CheckCircle2 className="size-4 mr-1" /> Aprovar
+                              </Button>
+                            )}
+                            <Switch
+                              checked={t.employee_visible}
+                              onCheckedChange={(v) => toggle.mutate({ id: t.id, visible: v })}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </>
       )}
 
+      {activeTab === "withdrawals" && <WithdrawalAdminSection />}
 
-      <Card className="p-6 bg-gradient-card mb-6 border-success/30">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Saldo disponível do cliente</p>
-            <p className="font-display text-4xl font-bold tracking-tight mt-1 text-success">{brl(saldoCliente)}</p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Líquido aprovado {brl(liquidoAprovado)} · Saques pagos {brl(saquesPagos)}
-              {saquesPendentes > 0 && <> · Pendentes {brl(saquesPendentes)}</>}
-            </p>
-          </div>
-          <div className="size-12 rounded-xl bg-success/10 grid place-items-center text-success shrink-0">
-            <Wallet className="size-6" />
-          </div>
-        </div>
-      </Card>
+      {activeTab === "clients" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ClientsManager clients={clients} />
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card className="p-4">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
-            <Clock className="size-4" /> Pendentes
-          </div>
-          <p className="font-display text-2xl font-bold">{pending.length}</p>
-          <p className="text-xs text-muted-foreground">{brl(sumPending)}</p>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-2 text-success text-xs uppercase tracking-wider mb-1">
-            <CheckCircle2 className="size-4" /> Aprovadas
-          </div>
-          <p className="font-display text-2xl font-bold">{approved.length}</p>
-          <p className="text-xs text-muted-foreground">{brl(sumApproved)}</p>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
-            <DollarSign className="size-4" /> Total de vendas
-          </div>
-          <p className="font-display text-2xl font-bold">{cashins.length}</p>
-          <p className="text-xs text-muted-foreground">{brl(sumApproved + sumPending)}</p>
-        </Card>
-        <Card className="p-4">
-          <div className="flex items-center gap-2 text-muted-foreground text-xs uppercase tracking-wider mb-1">
-            <Eye className="size-4" /> Exibindo no painel
-          </div>
-          <p className="font-display text-2xl font-bold">{visibleCount}</p>
-          <p className="text-xs text-muted-foreground">de {txs.length} totais</p>
-        </Card>
-      </div>
-
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <ClientsManager clients={clients} />
-
-        <Card className="p-6 bg-gradient-card">
-          <div className="flex items-center gap-3 mb-5">
-            <div className="size-10 rounded-xl bg-accent grid place-items-center"><LinkIcon className="size-5 text-accent-foreground" /></div>
-            <div>
-              <h3 className="font-display font-semibold">Link do painel</h3>
-              <p className="text-xs text-muted-foreground">
-                Link exclusivo de <strong className="text-foreground">{selectedClient?.name ?? "—"}</strong>. Só abre com a senha dele.
-              </p>
+          <Card className="p-6 bg-gradient-card">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="size-10 rounded-xl bg-accent grid place-items-center"><LinkIcon className="size-5 text-accent-foreground" /></div>
+              <div>
+                <h3 className="font-display font-semibold">Link do painel</h3>
+                <p className="text-xs text-muted-foreground">
+                  Link exclusivo de <strong className="text-foreground">{selectedClient?.name ?? "—"}</strong>. Só abre com a senha dele.
+                </p>
+              </div>
             </div>
-          </div>
-          <div className="flex gap-2">
-            <Input readOnly value={publicUrl} placeholder="Crie um cliente para gerar o link" />
-            <Button
-              variant="outline"
-              disabled={!publicUrl}
-              onClick={() => { navigator.clipboard.writeText(publicUrl); toast.success("Link copiado."); }}
-            >
-              <Copy className="size-4" />
-            </Button>
-          </div>
-          <div className="mt-4 text-xs text-muted-foreground">
-            Senha atual: <strong className="text-foreground font-mono">{selectedClient?.password ?? "—"}</strong>
-            {" · "}Vendas liberadas: <strong className="text-foreground">{visibleCount}</strong>
-          </div>
-        </Card>
-
-      </div>
-
-      <Card className="p-5">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div>
-            <h3 className="font-display font-semibold">Aprovação de vendas</h3>
-            <p className="text-xs text-muted-foreground">
-              Ao aprovar, a venda vai para o painel de <strong>{selectedClient?.name ?? "—"}</strong>. Vendas pendentes não aparecem em nenhum painel.
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex bg-muted rounded-lg p-1">
-              {([
-                { key: "hidden", label: `Pendentes (${pending.length})` },
-                { key: "visible", label: `Aprovadas (${approved.length})` },
-                { key: "all", label: "Todas" },
-              ] as const).map((o) => (
-                <button
-                  key={o.key}
-                  onClick={() => setFilter(o.key)}
-                  className={`px-3 py-1.5 rounded-md text-xs font-medium uppercase tracking-wider transition ${
-                    filter === o.key ? "bg-background shadow-sm" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {o.label}
-                </button>
-              ))}
+            <div className="flex gap-2">
+              <Input readOnly value={publicUrl} placeholder="Crie um cliente para gerar o link" />
+              <Button
+                variant="outline"
+                disabled={!publicUrl}
+                onClick={() => { navigator.clipboard.writeText(publicUrl); toast.success("Link copiado."); }}
+              >
+                <Copy className="size-4" />
+              </Button>
             </div>
-            <Button variant="outline" size="sm" onClick={() => bulkMut.mutate(true)} disabled={bulkMut.isPending}>
-              <CheckCircle2 className="size-4 mr-1" /> Aprovar todas
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => bulkMut.mutate(false)} disabled={bulkMut.isPending}>
-              <XCircle className="size-4 mr-1" /> Ocultar todas
-            </Button>
-          </div>
+            <div className="mt-4 text-xs text-muted-foreground">
+              Senha atual: <strong className="text-foreground font-mono">{selectedClient?.password ?? "—"}</strong>
+              {" · "}Vendas liberadas: <strong className="text-foreground">{visibleCount}</strong>
+            </div>
+          </Card>
         </div>
-
-        {filtered.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-10">
-            {filter === "hidden" ? "Nenhuma venda pendente 🎉" : "Nenhuma venda neste filtro."}
-          </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/40">
-                <tr className="text-xs uppercase tracking-wider text-muted-foreground">
-                  <th className="text-left py-3 px-4 font-medium">Cliente</th>
-                  <th className="text-left py-3 px-4 font-medium">Gateway</th>
-                  <th className="text-left py-3 px-4 font-medium">Tipo</th>
-                  <th className="text-right py-3 px-4 font-medium">Valor</th>
-                  <th className="text-left py-3 px-4 font-medium">Data</th>
-                  <th className="text-center py-3 px-4 font-medium">Status</th>
-                  <th className="text-right py-3 px-4 font-medium">Ação</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filtered.map((t) => (
-                  <tr key={t.id} className="hover:bg-muted/30">
-                    <td className="py-3 px-4">{t.client_name || "—"}</td>
-                    <td className="py-3 px-4 text-muted-foreground">{t.gateway}</td>
-                    <td className="py-3 px-4">
-                      <span className={`text-[10px] uppercase tracking-wider font-bold px-1.5 py-0.5 rounded ${
-                        t.type === "refund" ? "bg-destructive/10 text-destructive" : "bg-success/10 text-success"
-                      }`}>
-                        {t.type === "refund" ? "Reembolso" : t.type === "cashin" ? "Pago" : t.type}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4 text-right tabular-nums">{brl(Number(t.amount))}</td>
-                    <td className="py-3 px-4 text-muted-foreground text-xs">
-                      {new Date(t.created_at).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" })}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                      {t.employee_visible ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-success/10 text-success">
-                          <CheckCircle2 className="size-3" /> Aprovada
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider font-bold px-2 py-1 rounded bg-warning/10 text-warning">
-                          <Clock className="size-3" /> Pendente
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex items-center justify-end gap-2">
-                        {t.employee_visible ? (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggle.mutate({ id: t.id, visible: false })}
-                          >
-                            <XCircle className="size-4 mr-1" /> Ocultar
-                          </Button>
-                        ) : (
-                          <Button
-                            size="sm"
-                            className="bg-success text-success-foreground hover:bg-success/90"
-                            onClick={() => toggle.mutate({ id: t.id, visible: true })}
-                          >
-                            <CheckCircle2 className="size-4 mr-1" /> Aprovar
-                          </Button>
-                        )}
-                        <Switch
-                          checked={t.employee_visible}
-                          onCheckedChange={(v) => toggle.mutate({ id: t.id, visible: v })}
-                        />
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </Card>
-
-      <WithdrawalAdminSection />
+      )}
     </AppLayout>
   );
 }
