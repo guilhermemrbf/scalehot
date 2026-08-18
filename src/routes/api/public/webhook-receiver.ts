@@ -93,7 +93,7 @@ function detect(p: AnyObj): Parsed | null {
   }
 
   // Syncpay CashIn — pode vir no topo ou dentro de data, com status PAID_OUT/PAID/COMPLETED/completed.
-  if (looksLikeSyncpay && ["PAID_OUT", "PAID", "COMPLETED", "PENDING"].includes(upper)) {
+  if (looksLikeSyncpay && ["PAID_OUT", "PAID", "COMPLETED", "PENDING", "APPROVED", "RECEIVED", "SUCCESS", "CONFIRMED"].includes(upper)) {
     const txId =
       source.idtransaction ??
       source.transaction_id ??

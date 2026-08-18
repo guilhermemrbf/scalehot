@@ -122,7 +122,7 @@ export function VendasTempoReal() {
                 ? "text-destructive bg-destructive/10 border-destructive/30"
                 : "text-success bg-success/10 border-success/30";
               const Icon = isRefund ? RotateCcw : CheckCircle2;
-              const label = isRefund ? "Reembolso" : "Pago";
+              const label = tx.status === "PENDING" ? "Pendente" : (isRefund ? "Reembolso" : "Pago");
               const name = tx.client_name || "Cliente";
               return (
                 <motion.div
