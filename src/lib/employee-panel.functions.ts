@@ -110,7 +110,7 @@ export const getEmployeePanelData = createServerFn({ method: "POST" })
 
     let txQ = supabaseAdmin
       .from("transactions" as any)
-      .select("id, type, status, amount, liquid_amount, client_name, gateway, created_at, employee_visible, employee_client_id")
+      .select("id, type, amount, liquid_amount, client_name, gateway, created_at, employee_visible, employee_client_id")
       .eq("user_id", ownerId)
       .order("created_at", { ascending: false })
       .limit(500);
@@ -281,12 +281,12 @@ export const listAdminTransactions = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("transactions" as any)
-      .select("id, type, status, amount, liquid_amount, client_name, gateway, created_at, employee_visible, employee_client_id")
+      .select("id, type, amount, liquid_amount, client_name, gateway, created_at, employee_visible, employee_client_id")
       .order("created_at", { ascending: false })
       .limit(200);
     if (error) throw new Error(error.message);
     return (data ?? []) as unknown as Array<{
-      id: string; type: string; status: string; amount: number; liquid_amount: number | null;
+      id: string; type: string; amount: number; liquid_amount: number | null;
       client_name: string | null; gateway: string; created_at: string;
       employee_visible: boolean; employee_client_id: string | null;
     }>;

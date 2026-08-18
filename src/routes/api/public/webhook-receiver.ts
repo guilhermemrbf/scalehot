@@ -29,7 +29,7 @@ type Parsed = {
 function detect(p: AnyObj): Parsed | null {
   const nested = p.data && typeof p.data === "object" && !Array.isArray(p.data) ? (p.data as AnyObj) : null;
   const source = nested ?? p;
-  const status = String(source.status ?? p.status ?? p.order_status ?? p.event ?? p.transaction_status ?? source.transaction_status ?? "").trim();
+  const status = String(source.status ?? p.status ?? p.order_status ?? p.event ?? "").trim();
   const upper = status.toUpperCase();
 
   const looksLikeSyncpay = Boolean(
@@ -78,7 +78,7 @@ function detect(p: AnyObj): Parsed | null {
   }
 
   // Syncpay refund / MED
-  if (looksLikeSyncpay && (upper === "MED" || upper === "REFUNDED" || upper === "REFUND" || upper === "CHARGEBACK" || upper === "DEVOLVIDO" || upper === "REEMBOLSADO")) {
+  if (looksLikeSyncpay && (upper === "MED" || upper === "REFUNDED" || upper === "REFUND" || upper === "CHARGEBACK")) {
     return {
       gateway: "syncpay",
       type: "refund",
@@ -93,7 +93,7 @@ function detect(p: AnyObj): Parsed | null {
   }
 
   // Syncpay CashIn — pode vir no topo ou dentro de data, com status PAID_OUT/PAID/COMPLETED/completed.
-  if (looksLikeSyncpay && ["PAID_OUT", "PAID", "COMPLETED", "APPROVED", "RECEIVED", "SUCCESS", "CONFIRMED"].includes(upper)) {
+  if (looksLikeSyncpay && ["PAID_OUT", "PAID", "COMPLETED", "PENDING"].includes(upper)) {
     const txId =
       source.idtransaction ??
       source.transaction_id ??
@@ -120,7 +120,7 @@ function detect(p: AnyObj): Parsed | null {
       transaction_id: txId != null ? String(txId) : null,
       client_name: source.client_name ?? source.client?.name ?? p.client_name ?? null,
       client_email: source.client_email ?? source.client?.email ?? p.client_email ?? null,
-      accepted: true,
+      accepted: upper === "PAID_OUT" || upper === "PAID" || upper === "COMPLETED" || upper === "RECEIVED" || upper === "APPROVED" || upper === "SUCCESS" || upper === "CONFIRMED",
     };
   }
 
@@ -305,8 +305,6 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
           liquid_amount: parsed.liquid_amount,
           client_name: parsed.client_name,
           client_email: parsed.client_email,
-          employee_visible: false,
-          employee_client_id: null,
           raw_payload: payload,
         };
 

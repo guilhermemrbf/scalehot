@@ -90,7 +90,7 @@ export function VendasTempoReal() {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Activity className="size-5 text-primary" />
-            <h3 className="font-display text-xl font-bold tracking-tight">Últimas Vendas</h3>
+            <h3 className="font-display text-xl font-bold tracking-tight">Últimas Transmissões</h3>
           </div>
           <p className="text-xs text-muted-foreground">Mostrando transações de vendas e reembolsos em tempo real.</p>
         </div>
@@ -118,9 +118,6 @@ export function VendasTempoReal() {
           <AnimatePresence initial={false}>
             {items.map((tx) => {
               const isRefund = tx.type === "refund";
-              const isPending = tx.status === "PENDING";
-              if (isPending) return null; // Não mostrar pendentes no painel
-
               const color = isRefund
                 ? "text-destructive bg-destructive/10 border-destructive/30"
                 : "text-success bg-success/10 border-success/30";
