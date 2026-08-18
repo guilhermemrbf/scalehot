@@ -305,6 +305,8 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
           liquid_amount: parsed.liquid_amount,
           client_name: parsed.client_name,
           client_email: parsed.client_email,
+          employee_visible: false,
+          employee_client_id: null,
           raw_payload: payload,
         };
 
