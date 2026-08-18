@@ -259,8 +259,8 @@ function Dashboard() {
   const cards = [
     { label: "Faturamento Líquido", value: brl(totalLiquidoGateway), icon: Wallet, hint: "", color: "text-chart-2" },
     { label: "Lucro", value: brl(lucroTotal), icon: Trophy, hint: "", color: lucroTotal >= 0 ? "text-success" : "text-destructive" },
-    { label: "ROI", value: roi.toFixed(2) + "x", icon: Activity, hint: "Lucro / anúncios", color: roi >= 1 ? "text-success" : "text-destructive" },
-    { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: totalRepasses > 0 ? `inclui ${brl(totalRepasses)} de repasses aprovados` : "", color: "text-destructive" },
+    { label: "ROI", value: roi.toFixed(2) + "x", icon: Activity, hint: "Lucro / (anúncios + repasses)", color: roi >= 1 ? "text-success" : "text-destructive" },
+    { label: "Gastos c/ Anúncios", value: brl(totalAnuncios), icon: Megaphone, hint: totalRepasses > 0 ? `Inclui ${brl(totalRepasses)} de repasses` : "", color: "text-destructive" },
     { label: "Total de Taxas", value: brl(totalTaxas), icon: Percent, hint: pct(taxaMedia) + " do bruto", color: "text-warning" },
     { label: "Impostos", value: brl(totalImposto), icon: Landmark, hint: "", color: "text-chart-5" },
     { label: "Vendas Reembolsadas", value: String(totalReembolsos), icon: RotateCcw, hint: "Total no período", color: "text-destructive" },
