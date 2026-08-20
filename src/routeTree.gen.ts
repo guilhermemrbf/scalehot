@@ -10,17 +10,20 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VendasRouteImport } from './routes/vendas'
+import { Route as SaquesRouteImport } from './routes/saques'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as PainelEquipeRouteImport } from './routes/painel-equipe'
 import { Route as NotificacoesRouteImport } from './routes/notificacoes'
 import { Route as MetasRouteImport } from './routes/metas'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LinksPagamentoRouteImport } from './routes/links-pagamento'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as FechamentoRouteImport } from './routes/fechamento'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PainelIndexRouteImport } from './routes/painel.index'
@@ -32,6 +35,11 @@ import { Route as ApiPublicSendDailySummaryRouteImport } from './routes/api/publ
 const VendasRoute = VendasRouteImport.update({
   id: '/vendas',
   path: '/vendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaquesRoute = SaquesRouteImport.update({
+  id: '/saques',
+  path: '/saques',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
@@ -64,6 +72,11 @@ const LoginRoute = LoginRouteImport.update({
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LinksPagamentoRoute = LinksPagamentoRouteImport.update({
+  id: '/links-pagamento',
+  path: '/links-pagamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IntegracoesRoute = IntegracoesRouteImport.update({
   id: '/integracoes',
   path: '/integracoes',
@@ -87,6 +100,11 @@ const DashboardRoute = DashboardRouteImport.update({
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
   id: '/configuracoes',
   path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiKeysRoute = ApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnunciosRoute = AnunciosRouteImport.update({
@@ -130,17 +148,20 @@ const ApiPublicSendDailySummaryRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anuncios': typeof AnunciosRoute
+  '/api-keys': typeof ApiKeysRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
+  '/links-pagamento': typeof LinksPagamentoRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/saques': typeof SaquesRoute
   '/vendas': typeof VendasRoute
   '/painel/$slug': typeof PainelSlugRoute
   '/painel/': typeof PainelIndexRoute
@@ -151,17 +172,20 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anuncios': typeof AnunciosRoute
+  '/api-keys': typeof ApiKeysRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
+  '/links-pagamento': typeof LinksPagamentoRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/saques': typeof SaquesRoute
   '/vendas': typeof VendasRoute
   '/painel/$slug': typeof PainelSlugRoute
   '/painel': typeof PainelIndexRoute
@@ -173,17 +197,20 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/anuncios': typeof AnunciosRoute
+  '/api-keys': typeof ApiKeysRoute
   '/configuracoes': typeof ConfiguracoesRoute
   '/dashboard': typeof DashboardRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
+  '/links-pagamento': typeof LinksPagamentoRoute
   '/login': typeof LoginRoute
   '/metas': typeof MetasRoute
   '/notificacoes': typeof NotificacoesRoute
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/saques': typeof SaquesRoute
   '/vendas': typeof VendasRoute
   '/painel/$slug': typeof PainelSlugRoute
   '/painel/': typeof PainelIndexRoute
@@ -196,17 +223,20 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/anuncios'
+    | '/api-keys'
     | '/configuracoes'
     | '/dashboard'
     | '/fechamento'
     | '/historico'
     | '/integracoes'
+    | '/links-pagamento'
     | '/login'
     | '/metas'
     | '/notificacoes'
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/saques'
     | '/vendas'
     | '/painel/$slug'
     | '/painel/'
@@ -217,17 +247,20 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/anuncios'
+    | '/api-keys'
     | '/configuracoes'
     | '/dashboard'
     | '/fechamento'
     | '/historico'
     | '/integracoes'
+    | '/links-pagamento'
     | '/login'
     | '/metas'
     | '/notificacoes'
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/saques'
     | '/vendas'
     | '/painel/$slug'
     | '/painel'
@@ -238,17 +271,20 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/anuncios'
+    | '/api-keys'
     | '/configuracoes'
     | '/dashboard'
     | '/fechamento'
     | '/historico'
     | '/integracoes'
+    | '/links-pagamento'
     | '/login'
     | '/metas'
     | '/notificacoes'
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/saques'
     | '/vendas'
     | '/painel/$slug'
     | '/painel/'
@@ -260,17 +296,20 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnunciosRoute: typeof AnunciosRoute
+  ApiKeysRoute: typeof ApiKeysRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
   DashboardRoute: typeof DashboardRoute
   FechamentoRoute: typeof FechamentoRoute
   HistoricoRoute: typeof HistoricoRoute
   IntegracoesRoute: typeof IntegracoesRoute
+  LinksPagamentoRoute: typeof LinksPagamentoRoute
   LoginRoute: typeof LoginRoute
   MetasRoute: typeof MetasRoute
   NotificacoesRoute: typeof NotificacoesRoute
   PainelEquipeRoute: typeof PainelEquipeRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  SaquesRoute: typeof SaquesRoute
   VendasRoute: typeof VendasRoute
   PainelSlugRoute: typeof PainelSlugRoute
   PainelIndexRoute: typeof PainelIndexRoute
@@ -286,6 +325,13 @@ declare module '@tanstack/react-router' {
       path: '/vendas'
       fullPath: '/vendas'
       preLoaderRoute: typeof VendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saques': {
+      id: '/saques'
+      path: '/saques'
+      fullPath: '/saques'
+      preLoaderRoute: typeof SaquesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/relatorios': {
@@ -330,6 +376,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/links-pagamento': {
+      id: '/links-pagamento'
+      path: '/links-pagamento'
+      fullPath: '/links-pagamento'
+      preLoaderRoute: typeof LinksPagamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/integracoes': {
       id: '/integracoes'
       path: '/integracoes'
@@ -363,6 +416,13 @@ declare module '@tanstack/react-router' {
       path: '/configuracoes'
       fullPath: '/configuracoes'
       preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-keys': {
+      id: '/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof ApiKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/anuncios': {
@@ -420,17 +480,20 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnunciosRoute: AnunciosRoute,
+  ApiKeysRoute: ApiKeysRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
   DashboardRoute: DashboardRoute,
   FechamentoRoute: FechamentoRoute,
   HistoricoRoute: HistoricoRoute,
   IntegracoesRoute: IntegracoesRoute,
+  LinksPagamentoRoute: LinksPagamentoRoute,
   LoginRoute: LoginRoute,
   MetasRoute: MetasRoute,
   NotificacoesRoute: NotificacoesRoute,
   PainelEquipeRoute: PainelEquipeRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
+  SaquesRoute: SaquesRoute,
   VendasRoute: VendasRoute,
   PainelSlugRoute: PainelSlugRoute,
   PainelIndexRoute: PainelIndexRoute,

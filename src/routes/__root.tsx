@@ -107,7 +107,8 @@ function AuthGate({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
 
   const isPanelRoute = pathname === "/painel" || pathname === "/painel/" || pathname.startsWith("/painel/");
-  const isPublicRoute = pathname === "/login" || isPanelRoute;
+  const isPublicRoute = pathname === "/login" || pathname === "/cadastro" || pathname.startsWith("/checkout") || pathname.startsWith("/pagamento") || isPanelRoute;
+
 
   useEffect(() => {
     if (loading) return;
