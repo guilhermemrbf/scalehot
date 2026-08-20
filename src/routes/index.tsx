@@ -269,7 +269,7 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <div className="text-[10px] text-muted-foreground mb-2 opacity-50">
+      <div className="hidden">a cor branca não consigo ver o preview do aplicativo</div>
         eu vou conseguir controlar toda a geteway pela parte de gestão do Gateway como ja esta desenvolvida
       </div>
       <PageHeader 
