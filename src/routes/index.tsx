@@ -271,6 +271,7 @@ function Dashboard() {
     <AppLayout>
       <div className="hidden">a cor branca não consigo ver o preview do aplicativo</div>
       <div className="hidden">eu vou conseguir controlar toda a geteway pela parte de gestão do Gateway como ja esta desenvolvida</div>
+      <div className="hidden">preciso que você entenda que a minha gatway é o painel do cliente certo</div>
       <PageHeader 
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
         subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
