@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VendasRouteImport } from './routes/vendas'
 import { Route as RelatoriosRouteImport } from './routes/relatorios'
 import { Route as RegistroRouteImport } from './routes/registro'
 import { Route as PainelEquipeRouteImport } from './routes/painel-equipe'
@@ -18,6 +19,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as IntegracoesRouteImport } from './routes/integracoes'
 import { Route as HistoricoRouteImport } from './routes/historico'
 import { Route as FechamentoRouteImport } from './routes/fechamento'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
 import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +29,11 @@ import { Route as ApiPublicWebhookReceiverRouteImport } from './routes/api/publi
 import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
 import { Route as ApiPublicSendDailySummaryRouteImport } from './routes/api/public/send-daily-summary'
 
+const VendasRoute = VendasRouteImport.update({
+  id: '/vendas',
+  path: '/vendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RelatoriosRoute = RelatoriosRouteImport.update({
   id: '/relatorios',
   path: '/relatorios',
@@ -70,6 +77,11 @@ const HistoricoRoute = HistoricoRouteImport.update({
 const FechamentoRoute = FechamentoRouteImport.update({
   id: '/fechamento',
   path: '/fechamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
@@ -119,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/anuncios': typeof AnunciosRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/dashboard': typeof DashboardRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
@@ -128,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/vendas': typeof VendasRoute
   '/painel/$slug': typeof PainelSlugRoute
   '/painel/': typeof PainelIndexRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
@@ -138,6 +152,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/anuncios': typeof AnunciosRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/dashboard': typeof DashboardRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
@@ -147,6 +162,7 @@ export interface FileRoutesByTo {
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/vendas': typeof VendasRoute
   '/painel/$slug': typeof PainelSlugRoute
   '/painel': typeof PainelIndexRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
@@ -158,6 +174,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/anuncios': typeof AnunciosRoute
   '/configuracoes': typeof ConfiguracoesRoute
+  '/dashboard': typeof DashboardRoute
   '/fechamento': typeof FechamentoRoute
   '/historico': typeof HistoricoRoute
   '/integracoes': typeof IntegracoesRoute
@@ -167,6 +184,7 @@ export interface FileRoutesById {
   '/painel-equipe': typeof PainelEquipeRoute
   '/registro': typeof RegistroRoute
   '/relatorios': typeof RelatoriosRoute
+  '/vendas': typeof VendasRoute
   '/painel/$slug': typeof PainelSlugRoute
   '/painel/': typeof PainelIndexRoute
   '/api/public/send-daily-summary': typeof ApiPublicSendDailySummaryRoute
@@ -179,6 +197,7 @@ export interface FileRouteTypes {
     | '/'
     | '/anuncios'
     | '/configuracoes'
+    | '/dashboard'
     | '/fechamento'
     | '/historico'
     | '/integracoes'
@@ -188,6 +207,7 @@ export interface FileRouteTypes {
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/vendas'
     | '/painel/$slug'
     | '/painel/'
     | '/api/public/send-daily-summary'
@@ -198,6 +218,7 @@ export interface FileRouteTypes {
     | '/'
     | '/anuncios'
     | '/configuracoes'
+    | '/dashboard'
     | '/fechamento'
     | '/historico'
     | '/integracoes'
@@ -207,6 +228,7 @@ export interface FileRouteTypes {
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/vendas'
     | '/painel/$slug'
     | '/painel'
     | '/api/public/send-daily-summary'
@@ -217,6 +239,7 @@ export interface FileRouteTypes {
     | '/'
     | '/anuncios'
     | '/configuracoes'
+    | '/dashboard'
     | '/fechamento'
     | '/historico'
     | '/integracoes'
@@ -226,6 +249,7 @@ export interface FileRouteTypes {
     | '/painel-equipe'
     | '/registro'
     | '/relatorios'
+    | '/vendas'
     | '/painel/$slug'
     | '/painel/'
     | '/api/public/send-daily-summary'
@@ -237,6 +261,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnunciosRoute: typeof AnunciosRoute
   ConfiguracoesRoute: typeof ConfiguracoesRoute
+  DashboardRoute: typeof DashboardRoute
   FechamentoRoute: typeof FechamentoRoute
   HistoricoRoute: typeof HistoricoRoute
   IntegracoesRoute: typeof IntegracoesRoute
@@ -246,6 +271,7 @@ export interface RootRouteChildren {
   PainelEquipeRoute: typeof PainelEquipeRoute
   RegistroRoute: typeof RegistroRoute
   RelatoriosRoute: typeof RelatoriosRoute
+  VendasRoute: typeof VendasRoute
   PainelSlugRoute: typeof PainelSlugRoute
   PainelIndexRoute: typeof PainelIndexRoute
   ApiPublicSendDailySummaryRoute: typeof ApiPublicSendDailySummaryRoute
@@ -255,6 +281,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vendas': {
+      id: '/vendas'
+      path: '/vendas'
+      fullPath: '/vendas'
+      preLoaderRoute: typeof VendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/relatorios': {
       id: '/relatorios'
       path: '/relatorios'
@@ -316,6 +349,13 @@ declare module '@tanstack/react-router' {
       path: '/fechamento'
       fullPath: '/fechamento'
       preLoaderRoute: typeof FechamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/configuracoes': {
@@ -381,6 +421,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnunciosRoute: AnunciosRoute,
   ConfiguracoesRoute: ConfiguracoesRoute,
+  DashboardRoute: DashboardRoute,
   FechamentoRoute: FechamentoRoute,
   HistoricoRoute: HistoricoRoute,
   IntegracoesRoute: IntegracoesRoute,
@@ -390,6 +431,7 @@ const rootRouteChildren: RootRouteChildren = {
   PainelEquipeRoute: PainelEquipeRoute,
   RegistroRoute: RegistroRoute,
   RelatoriosRoute: RelatoriosRoute,
+  VendasRoute: VendasRoute,
   PainelSlugRoute: PainelSlugRoute,
   PainelIndexRoute: PainelIndexRoute,
   ApiPublicSendDailySummaryRoute: ApiPublicSendDailySummaryRoute,
