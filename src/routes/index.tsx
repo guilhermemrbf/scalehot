@@ -272,7 +272,80 @@ function Dashboard() {
       <div className="hidden">a cor branca não consigo ver o preview do aplicativo</div>
       <div className="hidden">eu vou conseguir controlar toda a geteway pela parte de gestão do Gateway como ja esta desenvolvida</div>
       <div className="hidden">preciso que você entenda que a minha gatway é o painel do cliente certo</div>
+      <div className="hidden">eu quero simplesmente a visão do gatway  do painel do cliente  faça todo o Front 
+
+Crie o frontend completo do ScaleUp Pay, um gateway de pagamentos (estilo Stripe/PagBank). Este é um projeto de apenas frontend — toda a lógica de backend, API, autenticação e banco de dados já existe e será conectada depois. Foque 100% em estrutura visual, componentes, navegação e estados de UI (loading, vazio, erro, sucesso) usando dados mockados/placeholder onde necessário.
+
+Stack
+React (Lovable)
+Supabase apenas como referência de client (já configurado externamente — não recriar schema, apenas deixar os componentes prontos para receber dados via hooks/props)
+Design responsivo (mobile-first para checkout, desktop-first para painel)
+Identidade visual
+Nome do produto: ScaleUp Pay
+Linha visual: profissional, confiável, "fintech" — tons escuros com um acento de cor vibrante (ex: roxo/azul elétrico), tipografia moderna, muito espaço em branco, cards com sombra sutil
+Ícones de cadeado/segurança em áreas sensíveis (saques, chaves de API) para reforçar confiança
+Estrutura de rotas
+Área pública (sem autenticação)
+/login — login do lojista (email/senha, "esqueci minha senha")
+/cadastro — criação de conta (nome, email, documento, senha)
+/checkout/:linkId — página de checkout pública
+Resumo do produto/cobrança (nome, valor, descrição)
+Seletor de método de pagamento: Pix (gera QR code + copia e cola), Cartão de crédito (formulário com validação de número/validade/CVV/parcelas), Boleto (opcional)
+Formulário de dados do comprador (nome, email, CPF, telefone)
+Botão de pagar com estado de loading
+Selo de segurança/confiança no rodapé
+/pagamento/sucesso — confirmação de pagamento aprovado
+/pagamento/pendente — aguardando confirmação (ex: Pix aguardando pagamento)
+/pagamento/erro — pagamento recusado, com opção de tentar novamente
+Painel do lojista (autenticado, com sidebar de navegação)
+/dashboard
+Cards de KPI: Saldo disponível, A receber, Vendas hoje, Vendas no mês, Taxa de aprovação
+Gráfico de faturamento (últimos 7/30 dias)
+Lista das últimas transações (mini-tabela, 5 itens, link "ver todas")
+/vendas
+Tabela completa de transações com colunas: Data, Cliente, Valor, Método, Status (badge colorido: aprovado/pendente/estornado/recusado), Taxa, Líquido
+Filtros: por período, status, método de pagamento
+Busca por nome/email/ID da transação
+Clique na linha abre modal/drawer com detalhe completo da transação
+/links-pagamento
+Lista de links de cobrança criados (nome, valor, status ativo/inativo, nº de vendas geradas)
+Botão "Criar novo link" abre modal: nome do produto, valor, descrição, tipo (cobrança única/recorrente)
+Botão de copiar link, botão de desativar
+/saques
+Saldo disponível para saque em destaque
+Botão "Solicitar saque" com input de valor e confirmação
+Histórico de saques (data, valor, status: processando/concluído/falhou)
+/api-keys
+Chave pública e chave secreta (secreta mascarada com botão "revelar" e "copiar")
+Botão "Regenerar chave"
+Seção de configuração de Webhook URL (input + botão salvar + status de última entrega)
+/configuracoes
+Dados da conta (nome, email, documento) — edição
+Dados bancários para saque (banco, agência, conta, tipo)
+Status de verificação KYC (badge: verificado/pendente/rejeitado) com upload de documentos se pendente
+Taxas aplicadas à conta (tabela informativa: método x taxa %)
+Componentes reutilizáveis a criar
+Sidebar — navegação lateral do painel com ícones (Dashboard, Vendas, Links, Saques, API Keys, Configurações) + avatar/nome do lojista + logout
+KpiCard — card de métrica com título, valor grande, variação percentual (seta verde/vermelha)
+StatusBadge — badge colorido reutilizável (aprovado=verde, pendente=amarelo, estornado=cinza, recusado=vermelho)
+TransactionTable — tabela com paginação, ordenação por coluna, estado vazio ("nenhuma transação encontrada")
+PaymentMethodSelector — seletor visual de método de pagamento (Pix/Cartão/Boleto) com ícones
+PixQrCode — exibição de QR code + código copia-e-cola + botão copiar
+CreditCardForm — formulário de cartão com máscara de input e preview visual do cartão
+Modal / Drawer — genérico para criar link, detalhe de transação, confirmação de saque
+EmptyState — ilustração + texto para listas vazias
+LoadingSkeleton — skeletons para tabelas e cards durante carregamento
+Estados obrigatórios em cada tela
+Loading (skeleton)
+Vazio (empty state com call-to-action)
+Erro (mensagem + botão de tentar novamente)
+Sucesso/preenchido (dados mockados realistas em reais R$)
+Observações finais
+Não implementar lógica de backend, autenticação real ou chamadas de API — apenas deixar os componentes preparados para receber dados via props/hooks, com dados mockados no lugar
+Priorizar consistência visual entre a área pública (checkout) e o painel (mais "dashboard fintech")
+Todo texto em português (pt-BR), valores monetários em formato R$ 0.000,00</div>
       <PageHeader 
+
         title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
         subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
       />
