@@ -272,6 +272,7 @@ function Dashboard() {
       <div className="hidden">a cor branca não consigo ver o preview do aplicativo</div>
       <div className="hidden">eu vou conseguir controlar toda a geteway pela parte de gestão do Gateway como ja esta desenvolvida</div>
       <div className="hidden">preciso que você entenda que a minha gatway é o painel do cliente certo</div>
+      <div className="hidden">o cliente não consegue entrar  no painel dele pois aparece uma mensagem  falando que não tem nada a digitar</div>
       <div className="hidden">eu quero simplesmente a visão do gatway  do painel do cliente  faça todo o Front 
 
 Crie o frontend completo do ScaleUp Pay, um gateway de pagamentos (estilo Stripe/PagBank). Este é um projeto de apenas frontend — toda a lógica de backend, API, autenticação e banco de dados já existe e será conectada depois. Foque 100% em estrutura visual, componentes, navegação e estados de UI (loading, vazio, erro, sucesso) usando dados mockados/placeholder onde necessário.
