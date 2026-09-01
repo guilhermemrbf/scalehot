@@ -4,10 +4,10 @@ import { ClientPanelApp } from "@/components/ClientPanelApp";
 export const Route = createFileRoute("/painel/$slug")({
   head: () => ({
     meta: [
-      { title: "Painel do Cliente — ScaleUp" },
-      { name: "description", content: "Painel privado com vendas aprovadas, saldo e saques." },
-      { property: "og:title", content: "Painel do Cliente — ScaleUp" },
-      { property: "og:description", content: "Painel privado com vendas aprovadas, saldo e saques." },
+      { title: "ScaleUp Pay — Sua conta de pagamentos" },
+      { name: "description", content: "Acompanhe vendas aprovadas, taxas, saldo disponível e saques na sua conta ScaleUp Pay." },
+      { property: "og:title", content: "ScaleUp Pay — Sua conta de pagamentos" },
+      { property: "og:description", content: "Acompanhe vendas aprovadas, taxas, saldo disponível e saques na sua conta ScaleUp Pay." },
       { name: "robots", content: "noindex, nofollow" },
     ],
   }),
