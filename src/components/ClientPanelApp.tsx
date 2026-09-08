@@ -201,9 +201,17 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-success/10 text-success border border-success/25">
               <BadgeCheck className="size-3.5" /> Conta verificada
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-muted/50 text-muted-foreground border border-border/60">
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard?.writeText(accountId);
+                toast.success("ID da conta copiado");
+              }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-muted/50 text-muted-foreground border border-border/60 active:scale-95 transition"
+            >
               <ShieldCheck className="size-3.5 text-primary" /> ID {accountId}
-            </span>
+              <Copy className="size-3" />
+            </button>
           </div>
         </section>
 
