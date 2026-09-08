@@ -155,16 +155,28 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
             })}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                qc.invalidateQueries({ queryKey: ["employee-panel"] });
+                qc.invalidateQueries({ queryKey: ["my-withdrawals"] });
+                toast.success("Conta atualizada");
+              }}
+              aria-label="Atualizar dados"
+              className="size-10 rounded-xl border border-border/70 grid place-items-center text-muted-foreground active:scale-95 hover:text-foreground transition"
+            >
+              <RefreshCw className="size-4" />
+            </button>
             <button
               type="button"
               onClick={() => setHideValues((v) => !v)}
               aria-label={hideValues ? "Mostrar valores" : "Ocultar valores"}
-              className="size-9 rounded-lg border border-border/70 grid place-items-center text-muted-foreground hover:text-foreground transition-colors"
+              className="size-10 rounded-xl border border-border/70 grid place-items-center text-muted-foreground active:scale-95 hover:text-foreground transition"
             >
               {hideValues ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
-            <Button variant="outline" size="sm" onClick={() => doLock.mutate()}>
+            <Button variant="outline" size="sm" className="h-10 px-3" onClick={() => doLock.mutate()}>
               <LogOut className="size-4 lg:mr-1.5" />
               <span className="hidden lg:inline">Sair</span>
             </Button>
