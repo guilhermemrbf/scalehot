@@ -31,6 +31,8 @@ import {
   Receipt,
   Zap,
   BadgeCheck,
+  RefreshCw,
+  Copy,
 } from "lucide-react";
 import {
   getEmployeePanelData,
