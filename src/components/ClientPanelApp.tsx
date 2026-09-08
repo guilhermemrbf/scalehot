@@ -31,6 +31,8 @@ import {
   Receipt,
   Zap,
   BadgeCheck,
+  RefreshCw,
+  Copy,
 } from "lucide-react";
 import {
   getEmployeePanelData,
@@ -130,7 +132,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
   const accountId = (slug ?? "principal").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) || "SCALEUP";
 
   return (
-    <div className="min-h-screen bg-background bg-gradient-hero pb-24 lg:pb-10">
+    <div className="min-h-screen bg-background bg-gradient-hero pb-28 lg:pb-10">
       {/* Top bar */}
       <header className="border-b border-border/70 bg-background/80 backdrop-blur-xl sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -155,16 +157,28 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
             })}
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                qc.invalidateQueries({ queryKey: ["employee-panel"] });
+                qc.invalidateQueries({ queryKey: ["my-withdrawals"] });
+                toast.success("Conta atualizada");
+              }}
+              aria-label="Atualizar dados"
+              className="size-10 rounded-xl border border-border/70 grid place-items-center text-muted-foreground active:scale-95 hover:text-foreground transition"
+            >
+              <RefreshCw className="size-4" />
+            </button>
             <button
               type="button"
               onClick={() => setHideValues((v) => !v)}
               aria-label={hideValues ? "Mostrar valores" : "Ocultar valores"}
-              className="size-9 rounded-lg border border-border/70 grid place-items-center text-muted-foreground hover:text-foreground transition-colors"
+              className="size-10 rounded-xl border border-border/70 grid place-items-center text-muted-foreground active:scale-95 hover:text-foreground transition"
             >
               {hideValues ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
             </button>
-            <Button variant="outline" size="sm" onClick={() => doLock.mutate()}>
+            <Button variant="outline" size="sm" className="h-10 px-3" onClick={() => doLock.mutate()}>
               <LogOut className="size-4 lg:mr-1.5" />
               <span className="hidden lg:inline">Sair</span>
             </Button>
@@ -187,9 +201,17 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
             <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-success/10 text-success border border-success/25">
               <BadgeCheck className="size-3.5" /> Conta verificada
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-muted/50 text-muted-foreground border border-border/60">
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard?.writeText(accountId);
+                toast.success("ID da conta copiado");
+              }}
+              className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg bg-muted/50 text-muted-foreground border border-border/60 active:scale-95 transition"
+            >
               <ShieldCheck className="size-3.5 text-primary" /> ID {accountId}
-            </span>
+              <Copy className="size-3" />
+            </button>
           </div>
         </section>
 
@@ -247,7 +269,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
                   </p>
                 </div>
                 <Button
-                  className="bg-gradient-primary text-primary-foreground shadow-glow disabled:opacity-50 disabled:grayscale lg:w-64"
+                  className="h-12 w-full bg-gradient-primary text-primary-foreground shadow-glow disabled:opacity-50 disabled:grayscale lg:w-64"
                   disabled={k.saldoDisponivel < 50}
                   onClick={() => {
                     toast.promise(
@@ -291,7 +313,10 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
       </main>
 
       {/* Mobile nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-border/70 bg-background/95 backdrop-blur-xl">
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-border/70 bg-background/95 backdrop-blur-xl"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         <div className="max-w-6xl mx-auto grid grid-cols-3">
           {TABS.map((t) => {
             const active = tab === t.id;
@@ -300,7 +325,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`relative flex flex-col items-center gap-1 py-3 text-[11px] font-medium transition-colors ${
+                className={`relative flex flex-col items-center gap-1 py-3.5 text-[11px] font-medium transition-colors active:bg-muted/40 ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
@@ -382,12 +407,14 @@ function LoginScreen({
               placeholder="Senha de acesso"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="h-12 text-base"
+              autoComplete="current-password"
               autoFocus
             />
             <Button
               type="submit"
               disabled={pending || !password}
-              className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
+              className="w-full h-12 text-base bg-gradient-primary text-primary-foreground shadow-glow"
             >
               {pending ? "Verificando…" : "Entrar na ScaleUp Pay"}
             </Button>
@@ -430,7 +457,7 @@ function BalanceHero({
         </div>
         <Button
           onClick={onWithdraw}
-          className="bg-gradient-primary text-primary-foreground shadow-glow lg:w-56"
+          className="h-12 w-full bg-gradient-primary text-primary-foreground shadow-glow lg:w-56"
         >
           <ArrowDownToLine className="size-4 mr-2" />
           {canWithdraw ? "Solicitar saque" : "Ver saques"}
@@ -521,7 +548,7 @@ function TransactionsPanel({ txs, hide }: { txs: Tx[]; hide: boolean }) {
             key={f.id}
             type="button"
             onClick={() => setFilter(f.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors active:scale-95 ${
               filter === f.id
                 ? "bg-primary/15 text-primary border-primary/30"
                 : "bg-muted/30 text-muted-foreground border-border/60 hover:text-foreground"
