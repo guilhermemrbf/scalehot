@@ -132,7 +132,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
   const accountId = (slug ?? "principal").toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 10) || "SCALEUP";
 
   return (
-    <div className="min-h-screen bg-background bg-gradient-hero pb-24 lg:pb-10">
+    <div className="min-h-screen bg-background bg-gradient-hero pb-28 lg:pb-10">
       {/* Top bar */}
       <header className="border-b border-border/70 bg-background/80 backdrop-blur-xl sticky top-0 z-30">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
@@ -269,7 +269,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
                   </p>
                 </div>
                 <Button
-                  className="bg-gradient-primary text-primary-foreground shadow-glow disabled:opacity-50 disabled:grayscale lg:w-64"
+                  className="h-12 w-full bg-gradient-primary text-primary-foreground shadow-glow disabled:opacity-50 disabled:grayscale lg:w-64"
                   disabled={k.saldoDisponivel < 50}
                   onClick={() => {
                     toast.promise(
@@ -407,12 +407,14 @@ function LoginScreen({
               placeholder="Senha de acesso"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              className="h-12 text-base"
+              autoComplete="current-password"
               autoFocus
             />
             <Button
               type="submit"
               disabled={pending || !password}
-              className="w-full bg-gradient-primary text-primary-foreground shadow-glow"
+              className="w-full h-12 text-base bg-gradient-primary text-primary-foreground shadow-glow"
             >
               {pending ? "Verificando…" : "Entrar na ScaleUp Pay"}
             </Button>
@@ -455,7 +457,7 @@ function BalanceHero({
         </div>
         <Button
           onClick={onWithdraw}
-          className="bg-gradient-primary text-primary-foreground shadow-glow lg:w-56"
+          className="h-12 w-full bg-gradient-primary text-primary-foreground shadow-glow lg:w-56"
         >
           <ArrowDownToLine className="size-4 mr-2" />
           {canWithdraw ? "Solicitar saque" : "Ver saques"}
@@ -546,7 +548,7 @@ function TransactionsPanel({ txs, hide }: { txs: Tx[]; hide: boolean }) {
             key={f.id}
             type="button"
             onClick={() => setFilter(f.id)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+            className={`px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors active:scale-95 ${
               filter === f.id
                 ? "bg-primary/15 text-primary border-primary/30"
                 : "bg-muted/30 text-muted-foreground border-border/60 hover:text-foreground"
