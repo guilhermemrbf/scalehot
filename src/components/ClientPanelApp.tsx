@@ -313,7 +313,10 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
       </main>
 
       {/* Mobile nav */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-border/70 bg-background/95 backdrop-blur-xl">
+      <nav
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 border-t border-border/70 bg-background/95 backdrop-blur-xl"
+        style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
+      >
         <div className="max-w-6xl mx-auto grid grid-cols-3">
           {TABS.map((t) => {
             const active = tab === t.id;
@@ -322,7 +325,7 @@ export function ClientPanelApp({ slug }: { slug?: string }) {
                 key={t.id}
                 type="button"
                 onClick={() => setTab(t.id)}
-                className={`relative flex flex-col items-center gap-1 py-3 text-[11px] font-medium transition-colors ${
+                className={`relative flex flex-col items-center gap-1 py-3.5 text-[11px] font-medium transition-colors active:bg-muted/40 ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
