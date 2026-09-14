@@ -32,9 +32,35 @@ type Gateway = {
   desc: string;
   color: string;
   instructions: string[];
+  events?: string[];
+  docs?: string;
+  recommended?: boolean;
 };
 
 const GATEWAYS: Gateway[] = [
+  {
+    id: "omegapay",
+    name: "OmegaPay",
+    desc: "Pix, cartão, boleto e assinaturas",
+    color: "from-violet-500/25 to-violet-500/0",
+    recommended: true,
+    docs: "https://app.omegapayments.com.br/docs/webhooks",
+    instructions: [
+      "Entre no painel da OmegaPay e vá em Configurações → Webhooks.",
+      "Clique em Criar e dê um título (ex.: \"ScaleUp Pay\").",
+      "Cole a URL acima no campo \"URL alvo do disparo\".",
+      "Em Produtos, selecione todos os seus produtos.",
+      "Marque os eventos Transação paga, Transação estornada e Chargeback.",
+      "Salve. Cada venda paga aparece no seu painel na hora, com notificação.",
+    ],
+    events: [
+      "TRANSACTION_PAID",
+      "TRANSACTION_REFUNDED",
+      "TRANSACTION_CHARGED_BACK",
+      "CHARGEBACK_CREATED",
+      "MED_CREATED",
+    ],
+  },
   {
     id: "syncpay",
     name: "Syncpay",
