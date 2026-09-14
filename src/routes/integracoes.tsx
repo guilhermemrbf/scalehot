@@ -426,6 +426,35 @@ function IntegracoesPage() {
               </ol>
             </div>
 
+            {openGateway?.events && openGateway.events.length > 0 && (
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Eventos reconhecidos
+                </Label>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {openGateway.events.map((ev) => (
+                    <span
+                      key={ev}
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-muted border border-border text-muted-foreground"
+                    >
+                      {ev}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {openGateway?.docs && (
+              <a
+                href={openGateway.docs}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+              >
+                <Link2 className="size-3.5" /> Documentação oficial do {openGateway.name}
+              </a>
+            )}
+
             <div>
               <Label htmlFor="conn-name">Nome da conexão</Label>
               <Input
