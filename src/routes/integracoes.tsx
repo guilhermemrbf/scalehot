@@ -32,9 +32,35 @@ type Gateway = {
   desc: string;
   color: string;
   instructions: string[];
+  events?: string[];
+  docs?: string;
+  recommended?: boolean;
 };
 
 const GATEWAYS: Gateway[] = [
+  {
+    id: "omegapay",
+    name: "OmegaPay",
+    desc: "Pix, cartão, boleto e assinaturas",
+    color: "from-violet-500/25 to-violet-500/0",
+    recommended: true,
+    docs: "https://app.omegapayments.com.br/docs/webhooks",
+    instructions: [
+      "Entre no painel da OmegaPay e vá em Configurações → Webhooks.",
+      "Clique em Criar e dê um título (ex.: \"ScaleUp Pay\").",
+      "Cole a URL acima no campo \"URL alvo do disparo\".",
+      "Em Produtos, selecione todos os seus produtos.",
+      "Marque os eventos Transação paga, Transação estornada e Chargeback.",
+      "Salve. Cada venda paga aparece no seu painel na hora, com notificação.",
+    ],
+    events: [
+      "TRANSACTION_PAID",
+      "TRANSACTION_REFUNDED",
+      "TRANSACTION_CHARGED_BACK",
+      "CHARGEBACK_CREATED",
+      "MED_CREATED",
+    ],
+  },
   {
     id: "syncpay",
     name: "Syncpay",
@@ -46,6 +72,7 @@ const GATEWAYS: Gateway[] = [
       "Cole a URL acima no campo \"Uri alvo do disparo\".",
       "Salve. As vendas começarão a entrar automaticamente.",
     ],
+    events: ["PAID_OUT", "PAID", "COMPLETED", "MED"],
   },
   {
     id: "wiinpay",
@@ -267,15 +294,22 @@ function IntegracoesPage() {
                   <div className="size-10 rounded-xl bg-background grid place-items-center border border-border">
                     <Zap className="size-5 text-primary" />
                   </div>
-                  <span
-                    className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${
-                      active
-                        ? "bg-success/15 text-success border border-success/30"
-                        : "bg-muted text-muted-foreground border border-border"
-                    }`}
-                  >
-                    {active ? "Ativo" : "Inativo"}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {g.recommended && !active && (
+                      <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
+                        Recomendado
+                      </span>
+                    )}
+                    <span
+                      className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${
+                        active
+                          ? "bg-success/15 text-success border border-success/30"
+                          : "bg-muted text-muted-foreground border border-border"
+                      }`}
+                    >
+                      {active ? "Ativo" : "Inativo"}
+                    </span>
+                  </div>
                 </div>
                 <h3 className="font-display font-bold text-lg">{g.name}</h3>
                 <p className="text-xs text-muted-foreground mb-4 min-h-[2.5em]">{g.desc}</p>
@@ -391,6 +425,35 @@ function IntegracoesPage() {
                 ))}
               </ol>
             </div>
+
+            {openGateway?.events && openGateway.events.length > 0 && (
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">
+                  Eventos reconhecidos
+                </Label>
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {openGateway.events.map((ev) => (
+                    <span
+                      key={ev}
+                      className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-muted border border-border text-muted-foreground"
+                    >
+                      {ev}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {openGateway?.docs && (
+              <a
+                href={openGateway.docs}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+              >
+                <Link2 className="size-3.5" /> Documentação oficial do {openGateway.name}
+              </a>
+            )}
 
             <div>
               <Label htmlFor="conn-name">Nome da conexão</Label>
