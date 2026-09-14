@@ -26,7 +26,63 @@ type Parsed = {
   accepted: boolean;
 };
 
+// ===== OmegaPay =====
+// Webhook de Transação: { event, token, client:{...}, transaction:{...} }
+// Eventos: TRANSACTION_CREATED | TRANSACTION_PAID | TRANSACTION_REFUNDED
+//          TRANSACTION_CANCELED | TRANSACTION_CHARGED_BACK
+// Chargebacks/MED: CHARGEBACK_CREATED | CHARGEBACK_UPDATED | MED_CREATED | MED_UPDATED
+function detectOmega(p: AnyObj): Parsed | null {
+  const event = String(p.event ?? "").toUpperCase();
+  const tx = (p.transaction && typeof p.transaction === "object" ? p.transaction : null) as AnyObj | null;
+
+  const isOmegaTransaction = event.startsWith("TRANSACTION_") && !!tx;
+  const isOmegaChargeback = event.startsWith("CHARGEBACK_") || event.startsWith("MED_");
+  if (!isOmegaTransaction && !isOmegaChargeback) return null;
+
+  if (isOmegaChargeback) {
+    const cb = (p.chargeback ?? p.med ?? p.data ?? p) as AnyObj;
+    const cbStatus = String(cb.status ?? "").toUpperCase();
+    return {
+      gateway: "omegapay",
+      type: "refund",
+      status: event,
+      amount: num(cb.amount) ?? num(cb.transaction?.amount) ?? 0,
+      liquid_amount: null,
+      transaction_id: cb.transactionId ?? cb.transaction?.id ?? cb.id ?? null,
+      client_name: p.client?.name ?? cb.client?.name ?? null,
+      client_email: p.client?.email ?? cb.client?.email ?? null,
+      // Só debita quando o alerta é aberto/mantido — alertas resolvidos não geram estorno.
+      accepted: event.endsWith("_CREATED") || cbStatus === "DENIED",
+    };
+  }
+
+  const txStatus = String(tx!.status ?? "").toUpperCase();
+  const isRefund =
+    event === "TRANSACTION_REFUNDED" ||
+    event === "TRANSACTION_CHARGED_BACK" ||
+    txStatus === "REFUNDED" ||
+    txStatus === "CHARGED_BACK";
+
+  const txId = tx!.id ?? tx!.identifier ?? p.token ?? null;
+
+  return {
+    gateway: "omegapay",
+    type: isRefund ? "refund" : "cashin",
+    status: event || txStatus,
+    amount: num(tx!.amount) ?? num(tx!.originalAmount) ?? 0,
+    liquid_amount: num(tx!.commissionAmount) ?? num(tx!.amount),
+    transaction_id: txId != null ? String(txId) : null,
+    client_name: p.client?.name ?? null,
+    client_email: p.client?.email ?? null,
+    // Vendas só entram quando efetivamente pagas.
+    accepted: isRefund || event === "TRANSACTION_PAID" || txStatus === "COMPLETED",
+  };
+}
+
 function detect(p: AnyObj): Parsed | null {
+  const omega = detectOmega(p);
+  if (omega) return omega;
+
   const nested = p.data && typeof p.data === "object" && !Array.isArray(p.data) ? (p.data as AnyObj) : null;
   const source = nested ?? p;
   const status = String(source.status ?? p.status ?? p.order_status ?? p.event ?? "").trim();
