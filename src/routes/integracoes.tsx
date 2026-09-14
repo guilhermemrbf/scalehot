@@ -294,15 +294,22 @@ function IntegracoesPage() {
                   <div className="size-10 rounded-xl bg-background grid place-items-center border border-border">
                     <Zap className="size-5 text-primary" />
                   </div>
-                  <span
-                    className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${
-                      active
-                        ? "bg-success/15 text-success border border-success/30"
-                        : "bg-muted text-muted-foreground border border-border"
-                    }`}
-                  >
-                    {active ? "Ativo" : "Inativo"}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    {g.recommended && !active && (
+                      <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/30">
+                        Recomendado
+                      </span>
+                    )}
+                    <span
+                      className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${
+                        active
+                          ? "bg-success/15 text-success border border-success/30"
+                          : "bg-muted text-muted-foreground border border-border"
+                      }`}
+                    >
+                      {active ? "Ativo" : "Inativo"}
+                    </span>
+                  </div>
                 </div>
                 <h3 className="font-display font-bold text-lg">{g.name}</h3>
                 <p className="text-xs text-muted-foreground mb-4 min-h-[2.5em]">{g.desc}</p>
