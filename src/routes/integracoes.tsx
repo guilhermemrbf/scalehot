@@ -72,6 +72,7 @@ const GATEWAYS: Gateway[] = [
       "Cole a URL acima no campo \"Uri alvo do disparo\".",
       "Salve. As vendas começarão a entrar automaticamente.",
     ],
+    events: ["PAID_OUT", "PAID", "COMPLETED", "MED"],
   },
   {
     id: "wiinpay",
