@@ -100,11 +100,7 @@ function Dashboard() {
     queryKey: ["gastos_anuncios", periodo],
     queryFn: async () => {
       let query = supabase.from("gastos_anuncios" as any).select("*").order("data");
-      if (periodo === "mes") {
-        query = query.gte("data", inicioMes).lte("data", hoje);
-      } else if (periodo === "hoje") {
-        query = query.gte("data", hoje).lte("data", hoje);
-      }
+      if (range) query = query.gte("data", range.ini).lt("data", range.fim);
       const { data, error } = await query;
       if (error) throw error;
       return (data as any[]) ?? [];
@@ -118,13 +114,9 @@ function Dashboard() {
         .from("transactions" as any)
         .select("*")
         .order("created_at", { ascending: false });
-      if (periodo === "mes") q = q.gte("created_at", inicioMes);
-      else if (periodo === "hoje") {
-        // BRT (UTC-3): "hoje" começa às 03:00 UTC do dia e termina às 03:00 UTC do dia seguinte
-        const inicioUtc = `${hoje}T03:00:00.000Z`;
-        const amanha = new Date(new Date(`${hoje}T12:00:00Z`).getTime() + 86400000).toISOString().slice(0, 10);
-        const fimUtc = `${amanha}T03:00:00.000Z`;
-        q = q.gte("created_at", inicioUtc).lt("created_at", fimUtc);
+      if (range) {
+        // BRT (UTC-3): o dia começa às 03:00 UTC
+        q = q.gte("created_at", `${range.ini}T03:00:00.000Z`).lt("created_at", `${range.fim}T03:00:00.000Z`);
       }
       const { data, error } = await q;
       if (error) throw error;
@@ -138,8 +130,7 @@ function Dashboard() {
     queryKey: ["faturamentos_legacy", periodo],
     queryFn: async () => {
       let q = supabase.from("faturamentos").select("*").order("data", { ascending: false });
-      if (periodo === "mes") q = q.gte("data", inicioMes).lte("data", hoje);
-      else if (periodo === "hoje") q = q.eq("data", hoje);
+      if (range) q = q.gte("data", range.ini).lt("data", range.fim);
       const { data, error } = await q;
       if (error) throw error;
       return (data as any[]) ?? [];
@@ -238,7 +229,7 @@ function Dashboard() {
   });
   const dailyData = Array.from(dailyMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-30)
+    .slice(-62)
     .map(([data, bruto]) => ({ data: data.slice(5).replace("-", "/"), bruto }));
 
   // Monthly aggregation (webhooks + legado)
