@@ -299,24 +299,6 @@ function Dashboard() {
         subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
       />
 
-      <div className="mb-6">
-        <div className="flex flex-wrap bg-muted p-1.5 rounded-xl gap-1">
-          {PERIODOS.map((opt) => (
-            <button
-              key={opt.key}
-              onClick={() => setPeriodo(opt.key)}
-              className={`flex-1 min-w-[84px] px-3 py-2.5 rounded-lg text-xs sm:text-sm uppercase tracking-wider font-bold transition-all ${
-                periodo === opt.key
-                  ? "bg-background text-foreground shadow-md"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
           <motion.div key={c.label} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}>
@@ -403,6 +385,24 @@ function Dashboard() {
           })
           .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
       })()} />
+
+      <div className="mt-8">
+        <div className="flex flex-wrap bg-muted p-1.5 rounded-xl gap-1">
+          {PERIODOS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setPeriodo(opt.key)}
+              className={`flex-1 min-w-[84px] px-3 py-2.5 rounded-lg text-xs sm:text-sm uppercase tracking-wider font-bold transition-all ${
+                periodo === opt.key
+                  ? "bg-background text-foreground shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
     </AppLayout>
   );
