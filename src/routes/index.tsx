@@ -23,13 +23,46 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
+type Periodo = "hoje" | "ontem" | "7d" | "30d" | "mes" | "2m" | "total";
+
+const PERIODOS: { key: Periodo; label: string }[] = [
+  { key: "hoje", label: "Hoje" },
+  { key: "ontem", label: "Ontem" },
+  { key: "7d", label: "7 dias" },
+  { key: "30d", label: "30 dias" },
+  { key: "mes", label: "Este mês" },
+  { key: "2m", label: "2 meses" },
+  { key: "total", label: "Total" },
+];
+
+const shiftDias = (isoDate: string, dias: number) =>
+  new Date(new Date(isoDate + "T12:00:00Z").getTime() + dias * 86400000).toISOString().slice(0, 10);
+
+// Intervalo [ini, fim) em datas BRT (UTC-3). null = sem filtro (total)
+function periodoRange(p: Periodo, hoje: string, inicioMes: string): { ini: string; fim: string } | null {
+  switch (p) {
+    case "hoje": return { ini: hoje, fim: shiftDias(hoje, 1) };
+    case "ontem": return { ini: shiftDias(hoje, -1), fim: hoje };
+    case "7d": return { ini: shiftDias(hoje, -6), fim: shiftDias(hoje, 1) };
+    case "30d": return { ini: shiftDias(hoje, -29), fim: shiftDias(hoje, 1) };
+    case "mes": return { ini: inicioMes, fim: shiftDias(hoje, 1) };
+    case "2m": {
+      const d = new Date(inicioMes + "T12:00:00Z");
+      d.setUTCMonth(d.getUTCMonth() - 1);
+      return { ini: d.toISOString().slice(0, 10), fim: shiftDias(hoje, 1) };
+    }
+    default: return null;
+  }
+}
+
 function Dashboard() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const [periodo, setPeriodo] = useState<"hoje" | "mes" | "total">("mes");
+  const [periodo, setPeriodo] = useState<Periodo>("mes");
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
   const loadMetrics = useServerFn(getDashboardMetrics);
+  const range = periodoRange(periodo, hoje, inicioMes);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
