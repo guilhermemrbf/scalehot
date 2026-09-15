@@ -386,6 +386,24 @@ function Dashboard() {
           .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
       })()} />
 
+      <div className="mt-8">
+        <div className="flex flex-wrap bg-muted p-1.5 rounded-xl gap-1">
+          {PERIODOS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setPeriodo(opt.key)}
+              className={`flex-1 min-w-[84px] px-3 py-2.5 rounded-lg text-xs sm:text-sm uppercase tracking-wider font-bold transition-all ${
+                periodo === opt.key
+                  ? "bg-background text-foreground shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
     </AppLayout>
   );
 }
