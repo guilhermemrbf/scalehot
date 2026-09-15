@@ -23,13 +23,46 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
+type Periodo = "hoje" | "ontem" | "7d" | "30d" | "mes" | "2m" | "total";
+
+const PERIODOS: { key: Periodo; label: string }[] = [
+  { key: "hoje", label: "Hoje" },
+  { key: "ontem", label: "Ontem" },
+  { key: "7d", label: "7 dias" },
+  { key: "30d", label: "30 dias" },
+  { key: "mes", label: "Este mês" },
+  { key: "2m", label: "2 meses" },
+  { key: "total", label: "Total" },
+];
+
+const shiftDias = (isoDate: string, dias: number) =>
+  new Date(new Date(isoDate + "T12:00:00Z").getTime() + dias * 86400000).toISOString().slice(0, 10);
+
+// Intervalo [ini, fim) em datas BRT (UTC-3). null = sem filtro (total)
+function periodoRange(p: Periodo, hoje: string, inicioMes: string): { ini: string; fim: string } | null {
+  switch (p) {
+    case "hoje": return { ini: hoje, fim: shiftDias(hoje, 1) };
+    case "ontem": return { ini: shiftDias(hoje, -1), fim: hoje };
+    case "7d": return { ini: shiftDias(hoje, -6), fim: shiftDias(hoje, 1) };
+    case "30d": return { ini: shiftDias(hoje, -29), fim: shiftDias(hoje, 1) };
+    case "mes": return { ini: inicioMes, fim: shiftDias(hoje, 1) };
+    case "2m": {
+      const d = new Date(inicioMes + "T12:00:00Z");
+      d.setUTCMonth(d.getUTCMonth() - 1);
+      return { ini: d.toISOString().slice(0, 10), fim: shiftDias(hoje, 1) };
+    }
+    default: return null;
+  }
+}
+
 function Dashboard() {
   const qc = useQueryClient();
   const { user } = useAuth();
-  const [periodo, setPeriodo] = useState<"hoje" | "mes" | "total">("mes");
+  const [periodo, setPeriodo] = useState<Periodo>("mes");
   const inicioMes = startOfMonthISO();
   const hoje = todayISO();
   const loadMetrics = useServerFn(getDashboardMetrics);
+  const range = periodoRange(periodo, hoje, inicioMes);
 
   const { data: profile } = useQuery({
     queryKey: ["profile", user?.id],
@@ -67,11 +100,7 @@ function Dashboard() {
     queryKey: ["gastos_anuncios", periodo],
     queryFn: async () => {
       let query = supabase.from("gastos_anuncios" as any).select("*").order("data");
-      if (periodo === "mes") {
-        query = query.gte("data", inicioMes).lte("data", hoje);
-      } else if (periodo === "hoje") {
-        query = query.gte("data", hoje).lte("data", hoje);
-      }
+      if (range) query = query.gte("data", range.ini).lt("data", range.fim);
       const { data, error } = await query;
       if (error) throw error;
       return (data as any[]) ?? [];
@@ -85,13 +114,9 @@ function Dashboard() {
         .from("transactions" as any)
         .select("*")
         .order("created_at", { ascending: false });
-      if (periodo === "mes") q = q.gte("created_at", inicioMes);
-      else if (periodo === "hoje") {
-        // BRT (UTC-3): "hoje" começa às 03:00 UTC do dia e termina às 03:00 UTC do dia seguinte
-        const inicioUtc = `${hoje}T03:00:00.000Z`;
-        const amanha = new Date(new Date(`${hoje}T12:00:00Z`).getTime() + 86400000).toISOString().slice(0, 10);
-        const fimUtc = `${amanha}T03:00:00.000Z`;
-        q = q.gte("created_at", inicioUtc).lt("created_at", fimUtc);
+      if (range) {
+        // BRT (UTC-3): o dia começa às 03:00 UTC
+        q = q.gte("created_at", `${range.ini}T03:00:00.000Z`).lt("created_at", `${range.fim}T03:00:00.000Z`);
       }
       const { data, error } = await q;
       if (error) throw error;
@@ -105,8 +130,7 @@ function Dashboard() {
     queryKey: ["faturamentos_legacy", periodo],
     queryFn: async () => {
       let q = supabase.from("faturamentos").select("*").order("data", { ascending: false });
-      if (periodo === "mes") q = q.gte("data", inicioMes).lte("data", hoje);
-      else if (periodo === "hoje") q = q.eq("data", hoje);
+      if (range) q = q.gte("data", range.ini).lt("data", range.fim);
       const { data, error } = await q;
       if (error) throw error;
       return (data as any[]) ?? [];
@@ -205,7 +229,7 @@ function Dashboard() {
   });
   const dailyData = Array.from(dailyMap.entries())
     .sort(([a], [b]) => a.localeCompare(b))
-    .slice(-30)
+    .slice(-62)
     .map(([data, bruto]) => ({ data: data.slice(5).replace("-", "/"), bruto }));
 
   // Monthly aggregation (webhooks + legado)
@@ -269,11 +293,29 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <PageHeader 
+      <PageHeader
 
-        title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
+        title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`}
         subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
       />
+
+      <div className="mb-6">
+        <div className="flex flex-wrap bg-muted p-1.5 rounded-xl gap-1">
+          {PERIODOS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setPeriodo(opt.key)}
+              className={`flex-1 min-w-[84px] px-3 py-2.5 rounded-lg text-xs sm:text-sm uppercase tracking-wider font-bold transition-all ${
+                periodo === opt.key
+                  ? "bg-background text-foreground shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
@@ -300,7 +342,7 @@ function Dashboard() {
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display font-semibold">Evolução Diária do Faturamento</h3>
-            <span className="text-xs text-muted-foreground">Últimos 30 lançamentos</span>
+            <span className="text-xs text-muted-foreground">{PERIODOS.find((p) => p.key === periodo)?.label}</span>
           </div>
           <div className="h-52 sm:h-72">
 
@@ -362,33 +404,6 @@ function Dashboard() {
           .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
       })()} />
 
-      <Card className="p-6 mt-6 bg-gradient-card">
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-center">
-            <h3 className="font-display text-lg font-bold tracking-tight">Período de Visualização</h3>
-            <p className="text-xs text-muted-foreground mt-1">Escolha o intervalo aplicado aos indicadores acima</p>
-          </div>
-          <div className="flex bg-muted p-1.5 rounded-xl w-full max-w-md gap-1">
-            {([
-              { key: "hoje", label: "Hoje" },
-              { key: "mes", label: "Mês" },
-              { key: "total", label: "Total" },
-            ] as const).map((opt) => (
-              <button
-                key={opt.key}
-                onClick={() => setPeriodo(opt.key)}
-                className={`flex-1 px-4 py-3 rounded-lg text-sm sm:text-base uppercase tracking-wider font-bold transition-all ${
-                  periodo === opt.key
-                    ? "bg-background text-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
     </AppLayout>
   );
 }
