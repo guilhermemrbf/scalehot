@@ -5,7 +5,7 @@ import { z } from "zod";
 export const getDashboardMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: { periodo?: string }) =>
-    z.object({ periodo: z.enum(["hoje", "mes", "total"]).default("mes") }).parse(d)
+    z.object({ periodo: z.enum(["hoje", "ontem", "7d", "30d", "mes", "2m", "total"]).default("mes") }).parse(d)
   )
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase.rpc("get_dashboard_metrics", {
