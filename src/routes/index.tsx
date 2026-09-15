@@ -342,7 +342,7 @@ function Dashboard() {
         <Card className="p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display font-semibold">Evolução Diária do Faturamento</h3>
-            <span className="text-xs text-muted-foreground">Últimos 30 lançamentos</span>
+            <span className="text-xs text-muted-foreground">{PERIODOS.find((p) => p.key === periodo)?.label}</span>
           </div>
           <div className="h-52 sm:h-72">
 
@@ -404,33 +404,6 @@ function Dashboard() {
           .reduce((s: number, t: any) => s + Number(t.amount || 0), 0);
       })()} />
 
-      <Card className="p-6 mt-6 bg-gradient-card">
-        <div className="flex flex-col items-center gap-4">
-          <div className="text-center">
-            <h3 className="font-display text-lg font-bold tracking-tight">Período de Visualização</h3>
-            <p className="text-xs text-muted-foreground mt-1">Escolha o intervalo aplicado aos indicadores acima</p>
-          </div>
-          <div className="flex bg-muted p-1.5 rounded-xl w-full max-w-md gap-1">
-            {([
-              { key: "hoje", label: "Hoje" },
-              { key: "mes", label: "Mês" },
-              { key: "total", label: "Total" },
-            ] as const).map((opt) => (
-              <button
-                key={opt.key}
-                onClick={() => setPeriodo(opt.key)}
-                className={`flex-1 px-4 py-3 rounded-lg text-sm sm:text-base uppercase tracking-wider font-bold transition-all ${
-                  periodo === opt.key
-                    ? "bg-background text-foreground shadow-md"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {opt.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </Card>
     </AppLayout>
   );
 }
