@@ -293,11 +293,29 @@ function Dashboard() {
 
   return (
     <AppLayout>
-      <PageHeader 
+      <PageHeader
 
-        title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`} 
+        title={`${saudacao()}, ${profile?.full_name || "Guilherme"}`}
         subtitle="Gerencie suas vendas e acompanhe seu lucro em tempo real"
       />
+
+      <div className="mb-6">
+        <div className="flex flex-wrap bg-muted p-1.5 rounded-xl gap-1">
+          {PERIODOS.map((opt) => (
+            <button
+              key={opt.key}
+              onClick={() => setPeriodo(opt.key)}
+              className={`flex-1 min-w-[84px] px-3 py-2.5 rounded-lg text-xs sm:text-sm uppercase tracking-wider font-bold transition-all ${
+                periodo === opt.key
+                  ? "bg-background text-foreground shadow-md"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {cards.map((c, i) => (
