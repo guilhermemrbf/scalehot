@@ -387,15 +387,21 @@ export const Route = createFileRoute("/api/public/webhook-receiver")({
 
 
         if (row.transaction_id) {
-          console.log("[webhook-receiver] db=upsert row:", JSON.stringify(row));
-          const { error } = await supabaseAdmin
+          // Insere só se for nova. Gateways (ex.: OmegaPay) reenviam o mesmo evento;
+          // nesse caso não notificamos nem contamos a venda de novo.
+          const { data: inserted, error } = await supabaseAdmin
             .from("transactions")
-            .upsert(row, { onConflict: "user_id,gateway,transaction_id" });
+            .upsert(row, { onConflict: "user_id,gateway,transaction_id", ignoreDuplicates: true })
+            .select("id");
           if (error) {
             console.error("[webhook-receiver] upsert error:", error);
             return json({ status: "success", warn: error.message }, 200);
           }
-          console.log("[webhook-receiver] db=upsert ok transaction_id:", row.transaction_id);
+          if (!inserted || inserted.length === 0) {
+            console.log("[webhook-receiver] stop=duplicate transaction_id:", row.transaction_id);
+            return json({ status: "success", note: "duplicate" }, 200);
+          }
+          console.log("[webhook-receiver] db=insert ok transaction_id:", row.transaction_id);
         } else {
           console.log("[webhook-receiver] db=insert row:", JSON.stringify(row));
           const { error } = await supabaseAdmin.from("transactions").insert(row);
