@@ -9,112 +9,37 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VendasRouteImport } from './routes/vendas'
-import { Route as SaquesRouteImport } from './routes/saques'
-import { Route as RelatoriosRouteImport } from './routes/relatorios'
-import { Route as RegistroRouteImport } from './routes/registro'
-import { Route as PainelEquipeRouteImport } from './routes/painel-equipe'
-import { Route as NotificacoesRouteImport } from './routes/notificacoes'
-import { Route as MetasRouteImport } from './routes/metas'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as LinksPagamentoRouteImport } from './routes/links-pagamento'
-import { Route as IntegracoesRouteImport } from './routes/integracoes'
-import { Route as HistoricoRouteImport } from './routes/historico'
-import { Route as FechamentoRouteImport } from './routes/fechamento'
-import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
-import { Route as CadastroRouteImport } from './routes/cadastro'
-import { Route as ApiKeysRouteImport } from './routes/api-keys'
-import { Route as AnunciosRouteImport } from './routes/anuncios'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AnunciosRouteImport } from './routes/anuncios'
+import { Route as ApiKeysRouteImport } from './routes/api-keys'
+import { Route as CadastroRouteImport } from './routes/cadastro'
+import { Route as ConfiguracoesRouteImport } from './routes/configuracoes'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as FechamentoRouteImport } from './routes/fechamento'
+import { Route as HistoricoRouteImport } from './routes/historico'
+import { Route as IntegracoesRouteImport } from './routes/integracoes'
+import { Route as LinksPagamentoRouteImport } from './routes/links-pagamento'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MetasRouteImport } from './routes/metas'
+import { Route as NotificacoesRouteImport } from './routes/notificacoes'
+import { Route as PainelEquipeRouteImport } from './routes/painel-equipe'
+import { Route as RegistroRouteImport } from './routes/registro'
+import { Route as RelatoriosRouteImport } from './routes/relatorios'
+import { Route as SaquesRouteImport } from './routes/saques'
+import { Route as VendasRouteImport } from './routes/vendas'
+import { Route as CheckoutLinkIdRouteImport } from './routes/checkout.$linkId'
+import { Route as PagamentoErroRouteImport } from './routes/pagamento.erro'
+import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
+import { Route as PagamentoSucessoRouteImport } from './routes/pagamento.sucesso'
 import { Route as PainelIndexRouteImport } from './routes/painel.index'
 import { Route as PainelSlugRouteImport } from './routes/painel.$slug'
-import { Route as PagamentoSucessoRouteImport } from './routes/pagamento.sucesso'
-import { Route as PagamentoPendenteRouteImport } from './routes/pagamento.pendente'
-import { Route as PagamentoErroRouteImport } from './routes/pagamento.erro'
-import { Route as CheckoutLinkIdRouteImport } from './routes/checkout.$linkId'
-import { Route as ApiPublicWebhookReceiverRouteImport } from './routes/api/public/webhook-receiver'
-import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
 import { Route as ApiPublicSendDailySummaryRouteImport } from './routes/api/public/send-daily-summary'
+import { Route as ApiPublicSyncpayWebhookRouteImport } from './routes/api/public/syncpay-webhook'
+import { Route as ApiPublicWebhookReceiverRouteImport } from './routes/api/public/webhook-receiver'
 
-const VendasRoute = VendasRouteImport.update({
-  id: '/vendas',
-  path: '/vendas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SaquesRoute = SaquesRouteImport.update({
-  id: '/saques',
-  path: '/saques',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RelatoriosRoute = RelatoriosRouteImport.update({
-  id: '/relatorios',
-  path: '/relatorios',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RegistroRoute = RegistroRouteImport.update({
-  id: '/registro',
-  path: '/registro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PainelEquipeRoute = PainelEquipeRouteImport.update({
-  id: '/painel-equipe',
-  path: '/painel-equipe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificacoesRoute = NotificacoesRouteImport.update({
-  id: '/notificacoes',
-  path: '/notificacoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MetasRoute = MetasRouteImport.update({
-  id: '/metas',
-  path: '/metas',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LinksPagamentoRoute = LinksPagamentoRouteImport.update({
-  id: '/links-pagamento',
-  path: '/links-pagamento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const IntegracoesRoute = IntegracoesRouteImport.update({
-  id: '/integracoes',
-  path: '/integracoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HistoricoRoute = HistoricoRouteImport.update({
-  id: '/historico',
-  path: '/historico',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FechamentoRoute = FechamentoRouteImport.update({
-  id: '/fechamento',
-  path: '/fechamento',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
-  id: '/configuracoes',
-  path: '/configuracoes',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CadastroRoute = CadastroRouteImport.update({
-  id: '/cadastro',
-  path: '/cadastro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiKeysRoute = ApiKeysRouteImport.update({
-  id: '/api-keys',
-  path: '/api-keys',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AnunciosRoute = AnunciosRouteImport.update({
@@ -122,9 +47,104 @@ const AnunciosRoute = AnunciosRouteImport.update({
   path: '/anuncios',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ApiKeysRoute = ApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CadastroRoute = CadastroRouteImport.update({
+  id: '/cadastro',
+  path: '/cadastro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfiguracoesRoute = ConfiguracoesRouteImport.update({
+  id: '/configuracoes',
+  path: '/configuracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FechamentoRoute = FechamentoRouteImport.update({
+  id: '/fechamento',
+  path: '/fechamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoricoRoute = HistoricoRouteImport.update({
+  id: '/historico',
+  path: '/historico',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntegracoesRoute = IntegracoesRouteImport.update({
+  id: '/integracoes',
+  path: '/integracoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LinksPagamentoRoute = LinksPagamentoRouteImport.update({
+  id: '/links-pagamento',
+  path: '/links-pagamento',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MetasRoute = MetasRouteImport.update({
+  id: '/metas',
+  path: '/metas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificacoesRoute = NotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PainelEquipeRoute = PainelEquipeRouteImport.update({
+  id: '/painel-equipe',
+  path: '/painel-equipe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegistroRoute = RegistroRouteImport.update({
+  id: '/registro',
+  path: '/registro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RelatoriosRoute = RelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SaquesRoute = SaquesRouteImport.update({
+  id: '/saques',
+  path: '/saques',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VendasRoute = VendasRouteImport.update({
+  id: '/vendas',
+  path: '/vendas',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutLinkIdRoute = CheckoutLinkIdRouteImport.update({
+  id: '/checkout/$linkId',
+  path: '/checkout/$linkId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoErroRoute = PagamentoErroRouteImport.update({
+  id: '/pagamento/erro',
+  path: '/pagamento/erro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoPendenteRoute = PagamentoPendenteRouteImport.update({
+  id: '/pagamento/pendente',
+  path: '/pagamento/pendente',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PagamentoSucessoRoute = PagamentoSucessoRouteImport.update({
+  id: '/pagamento/sucesso',
+  path: '/pagamento/sucesso',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PainelIndexRoute = PainelIndexRouteImport.update({
@@ -137,30 +157,10 @@ const PainelSlugRoute = PainelSlugRouteImport.update({
   path: '/painel/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PagamentoSucessoRoute = PagamentoSucessoRouteImport.update({
-  id: '/pagamento/sucesso',
-  path: '/pagamento/sucesso',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PagamentoPendenteRoute = PagamentoPendenteRouteImport.update({
-  id: '/pagamento/pendente',
-  path: '/pagamento/pendente',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PagamentoErroRoute = PagamentoErroRouteImport.update({
-  id: '/pagamento/erro',
-  path: '/pagamento/erro',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutLinkIdRoute = CheckoutLinkIdRouteImport.update({
-  id: '/checkout/$linkId',
-  path: '/checkout/$linkId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicWebhookReceiverRoute =
-  ApiPublicWebhookReceiverRouteImport.update({
-    id: '/api/public/webhook-receiver',
-    path: '/api/public/webhook-receiver',
+const ApiPublicSendDailySummaryRoute =
+  ApiPublicSendDailySummaryRouteImport.update({
+    id: '/api/public/send-daily-summary',
+    path: '/api/public/send-daily-summary',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicSyncpayWebhookRoute = ApiPublicSyncpayWebhookRouteImport.update({
@@ -168,10 +168,10 @@ const ApiPublicSyncpayWebhookRoute = ApiPublicSyncpayWebhookRouteImport.update({
   path: '/api/public/syncpay-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicSendDailySummaryRoute =
-  ApiPublicSendDailySummaryRouteImport.update({
-    id: '/api/public/send-daily-summary',
-    path: '/api/public/send-daily-summary',
+const ApiPublicWebhookReceiverRoute =
+  ApiPublicWebhookReceiverRouteImport.update({
+    id: '/api/public/webhook-receiver',
+    path: '/api/public/webhook-receiver',
     getParentRoute: () => rootRouteImport,
   } as any)
 
@@ -385,116 +385,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vendas': {
-      id: '/vendas'
-      path: '/vendas'
-      fullPath: '/vendas'
-      preLoaderRoute: typeof VendasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/saques': {
-      id: '/saques'
-      path: '/saques'
-      fullPath: '/saques'
-      preLoaderRoute: typeof SaquesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/relatorios': {
-      id: '/relatorios'
-      path: '/relatorios'
-      fullPath: '/relatorios'
-      preLoaderRoute: typeof RelatoriosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/registro': {
-      id: '/registro'
-      path: '/registro'
-      fullPath: '/registro'
-      preLoaderRoute: typeof RegistroRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/painel-equipe': {
-      id: '/painel-equipe'
-      path: '/painel-equipe'
-      fullPath: '/painel-equipe'
-      preLoaderRoute: typeof PainelEquipeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notificacoes': {
-      id: '/notificacoes'
-      path: '/notificacoes'
-      fullPath: '/notificacoes'
-      preLoaderRoute: typeof NotificacoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/metas': {
-      id: '/metas'
-      path: '/metas'
-      fullPath: '/metas'
-      preLoaderRoute: typeof MetasRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/links-pagamento': {
-      id: '/links-pagamento'
-      path: '/links-pagamento'
-      fullPath: '/links-pagamento'
-      preLoaderRoute: typeof LinksPagamentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/integracoes': {
-      id: '/integracoes'
-      path: '/integracoes'
-      fullPath: '/integracoes'
-      preLoaderRoute: typeof IntegracoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/historico': {
-      id: '/historico'
-      path: '/historico'
-      fullPath: '/historico'
-      preLoaderRoute: typeof HistoricoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fechamento': {
-      id: '/fechamento'
-      path: '/fechamento'
-      fullPath: '/fechamento'
-      preLoaderRoute: typeof FechamentoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/configuracoes': {
-      id: '/configuracoes'
-      path: '/configuracoes'
-      fullPath: '/configuracoes'
-      preLoaderRoute: typeof ConfiguracoesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cadastro': {
-      id: '/cadastro'
-      path: '/cadastro'
-      fullPath: '/cadastro'
-      preLoaderRoute: typeof CadastroRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api-keys': {
-      id: '/api-keys'
-      path: '/api-keys'
-      fullPath: '/api-keys'
-      preLoaderRoute: typeof ApiKeysRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/anuncios': {
@@ -504,11 +399,144 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AnunciosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/api-keys': {
+      id: '/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof ApiKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cadastro': {
+      id: '/cadastro'
+      path: '/cadastro'
+      fullPath: '/cadastro'
+      preLoaderRoute: typeof CadastroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/configuracoes': {
+      id: '/configuracoes'
+      path: '/configuracoes'
+      fullPath: '/configuracoes'
+      preLoaderRoute: typeof ConfiguracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fechamento': {
+      id: '/fechamento'
+      path: '/fechamento'
+      fullPath: '/fechamento'
+      preLoaderRoute: typeof FechamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/historico': {
+      id: '/historico'
+      path: '/historico'
+      fullPath: '/historico'
+      preLoaderRoute: typeof HistoricoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/integracoes': {
+      id: '/integracoes'
+      path: '/integracoes'
+      fullPath: '/integracoes'
+      preLoaderRoute: typeof IntegracoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/links-pagamento': {
+      id: '/links-pagamento'
+      path: '/links-pagamento'
+      fullPath: '/links-pagamento'
+      preLoaderRoute: typeof LinksPagamentoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/metas': {
+      id: '/metas'
+      path: '/metas'
+      fullPath: '/metas'
+      preLoaderRoute: typeof MetasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notificacoes': {
+      id: '/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof NotificacoesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/painel-equipe': {
+      id: '/painel-equipe'
+      path: '/painel-equipe'
+      fullPath: '/painel-equipe'
+      preLoaderRoute: typeof PainelEquipeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/registro': {
+      id: '/registro'
+      path: '/registro'
+      fullPath: '/registro'
+      preLoaderRoute: typeof RegistroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/relatorios': {
+      id: '/relatorios'
+      path: '/relatorios'
+      fullPath: '/relatorios'
+      preLoaderRoute: typeof RelatoriosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/saques': {
+      id: '/saques'
+      path: '/saques'
+      fullPath: '/saques'
+      preLoaderRoute: typeof SaquesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vendas': {
+      id: '/vendas'
+      path: '/vendas'
+      fullPath: '/vendas'
+      preLoaderRoute: typeof VendasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/$linkId': {
+      id: '/checkout/$linkId'
+      path: '/checkout/$linkId'
+      fullPath: '/checkout/$linkId'
+      preLoaderRoute: typeof CheckoutLinkIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento/erro': {
+      id: '/pagamento/erro'
+      path: '/pagamento/erro'
+      fullPath: '/pagamento/erro'
+      preLoaderRoute: typeof PagamentoErroRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento/pendente': {
+      id: '/pagamento/pendente'
+      path: '/pagamento/pendente'
+      fullPath: '/pagamento/pendente'
+      preLoaderRoute: typeof PagamentoPendenteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pagamento/sucesso': {
+      id: '/pagamento/sucesso'
+      path: '/pagamento/sucesso'
+      fullPath: '/pagamento/sucesso'
+      preLoaderRoute: typeof PagamentoSucessoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/painel/': {
@@ -525,39 +553,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PainelSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/pagamento/sucesso': {
-      id: '/pagamento/sucesso'
-      path: '/pagamento/sucesso'
-      fullPath: '/pagamento/sucesso'
-      preLoaderRoute: typeof PagamentoSucessoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pagamento/pendente': {
-      id: '/pagamento/pendente'
-      path: '/pagamento/pendente'
-      fullPath: '/pagamento/pendente'
-      preLoaderRoute: typeof PagamentoPendenteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pagamento/erro': {
-      id: '/pagamento/erro'
-      path: '/pagamento/erro'
-      fullPath: '/pagamento/erro'
-      preLoaderRoute: typeof PagamentoErroRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout/$linkId': {
-      id: '/checkout/$linkId'
-      path: '/checkout/$linkId'
-      fullPath: '/checkout/$linkId'
-      preLoaderRoute: typeof CheckoutLinkIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/webhook-receiver': {
-      id: '/api/public/webhook-receiver'
-      path: '/api/public/webhook-receiver'
-      fullPath: '/api/public/webhook-receiver'
-      preLoaderRoute: typeof ApiPublicWebhookReceiverRouteImport
+    '/api/public/send-daily-summary': {
+      id: '/api/public/send-daily-summary'
+      path: '/api/public/send-daily-summary'
+      fullPath: '/api/public/send-daily-summary'
+      preLoaderRoute: typeof ApiPublicSendDailySummaryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/syncpay-webhook': {
@@ -567,11 +567,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicSyncpayWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/send-daily-summary': {
-      id: '/api/public/send-daily-summary'
-      path: '/api/public/send-daily-summary'
-      fullPath: '/api/public/send-daily-summary'
-      preLoaderRoute: typeof ApiPublicSendDailySummaryRouteImport
+    '/api/public/webhook-receiver': {
+      id: '/api/public/webhook-receiver'
+      path: '/api/public/webhook-receiver'
+      fullPath: '/api/public/webhook-receiver'
+      preLoaderRoute: typeof ApiPublicWebhookReceiverRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
